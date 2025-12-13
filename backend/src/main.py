@@ -15,6 +15,7 @@ from .api.v1 import (
     handles_router,
     interests_router,
     friends_router,
+    video_router,
 )
 from .services.supertokens_service import init_supertokens
 from .api.config import get_settings
@@ -76,6 +77,7 @@ app.include_router(onboarding_router, prefix='/api/v1')
 app.include_router(handles_router, prefix='/api/v1')
 app.include_router(interests_router, prefix='/api/v1')
 app.include_router(friends_router, prefix='/api/v1')
+app.include_router(video_router, prefix='/api/v1')
 
 @app.get('/', tags=['Root'])
 async def root():

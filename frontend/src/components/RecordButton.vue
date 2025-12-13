@@ -67,7 +67,7 @@ const generateTopic = async () => {
   });
 
   try {
-    const response = await fetch(`${API_BASE_URL}/userdata/topic`);
+    const response = await fetch(`${API_BASE_URL}/video/start`);
 
     console.log("[RecordButton] response status:", response);
 
