@@ -1,6 +1,6 @@
-from fastapi import APIRouter, FastAPI, HTTPException, Depends, status
+from fastapi import APIRouter, HTTPException, Depends, status
 from ..deps import get_session, get_gemini_service
-from ...models import User, Interest, UserInterest, AppLang
+from ...models import User, Interest, UserInterest
 from ...schemas import UsernameData, EmailData, InterestData
 from sqlalchemy.orm import Session
 from ...db import get_db

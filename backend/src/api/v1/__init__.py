@@ -5,6 +5,7 @@ from .userdata import router as userdata_router
 from .onboarding import router as onboarding_router
 from .handles import router as handles_router
 from .interests import router as interests_router
+from .video import router as video_router
 
 __all__ = [
     'health_router',
@@ -14,4 +15,5 @@ __all__ = [
     'onboarding_router',
     'handles_router',
     'interests_router',
+    'video_router'
 ]

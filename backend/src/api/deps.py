@@ -2,7 +2,7 @@ from ..services import (
     AuthService,
     EmailService,
     GeminiService,
-    S3Service,
+    CloudflareR2Service,
 )
 from ..services.auth_service import get_session
 from ..services.email_impl.sender import ResendEmailSender
@@ -11,7 +11,7 @@ from .config import get_settings
 _auth_service: AuthService | None = None
 _email_service: EmailService | None = None
 _gemini_service: GeminiService | None = None
-_s3_service: S3Service | None = None
+_s3_service: CloudflareR2Service | None = None
 _resend_email_sender: ResendEmailSender | None = None
 
 def get_auth_service() -> AuthService:
@@ -39,11 +39,17 @@ def get_gemini_service() -> GeminiService:
         )
     return _gemini_service
 
-def get_s3_service() -> S3Service:
+def get_s3_service() -> CloudflareR2Service:
     """Returns a preconfigured S3Service object"""
     global _s3_service
     if _s3_service is None:
-        _s3_service = S3Service()
+        settings = get_settings()
+        _s3_service = CloudflareR2Service(
+            bucket_name=settings.bucket_name,
+            account_id=settings.r2_account_id,
+            admin_api_token=settings.r2_admin_api_token,
+            r2_access_key_id=settings.r2_access_key_id
+        )
     return _s3_service
 
 def get_resend_email_sender() -> ResendEmailSender:
