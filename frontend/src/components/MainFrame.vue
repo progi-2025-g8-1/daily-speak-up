@@ -3,10 +3,13 @@ import { ref } from "vue";
 import NavBar from "./NavBar.vue";
 import RecordButton from "./RecordButton.vue";
 import Fieldset from "primevue/fieldset";
+import VideoFrame from "./VideoFrame.vue";
+import type { VideoFrameInstance } from "../types/video-frame";
  
 const topic = ref<string | null>(null);
 const interest = ref<string>("");
 const lang = ref<string>("hr");
+const videoFrame = ref<VideoFrameInstance | null>(null)
 
 
 const handleTopicGenerated = (interes: string, tema: string, generatedLang: string) => {
@@ -15,6 +18,13 @@ const handleTopicGenerated = (interes: string, tema: string, generatedLang: stri
   interest.value = interes
   // lang.value = generatedLang; // ako želiš
 };
+
+const handleStartRecording = (start: boolean) => {
+  if (start && videoFrame.value) {
+    videoFrame.value.startRecording();
+  }
+};
+
 </script>
 
 <template>
@@ -38,8 +48,11 @@ const handleTopicGenerated = (interes: string, tema: string, generatedLang: stri
           :interes="interest"
           :lang="lang"
           @topic-generated="handleTopicGenerated"
+          @start-recording="handleStartRecording"
         />
       </div>
+
+      <VideoFrame ref="videoFrame"/>
 
       <div>
         <Fieldset legend="Tema za govor" :toggleable="true">

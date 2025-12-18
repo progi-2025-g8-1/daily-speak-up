@@ -12,7 +12,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["topic-generated"]);
+const emit = defineEmits(["topic-generated", "start-recording"]);
 
 const progress = ref(0);
 const isCounting = ref(false);
@@ -67,7 +67,7 @@ const generateTopic = async () => {
   });
 
   try {
-    const response = await fetch(`${API_BASE_URL}/video/start`);
+    const response = await fetch(`${API_BASE_URL}/userdata/topic`);
 
     console.log("[RecordButton] response status:", response);
 
@@ -83,6 +83,7 @@ const generateTopic = async () => {
     console.log("[RecordButton] data from backend:", data);
 
     emit("topic-generated", data.interest ?? "Nije odabran interes", data.topic ?? "Nema teme u odgovoru", data.lang ?? props.lang);
+    emit("start-recording", true);
   } catch (error) {
     console.error("[RecordButton] fetch error:", error);
     // čak i ako fetch pukne, prikaži poruku u Fieldsetu
