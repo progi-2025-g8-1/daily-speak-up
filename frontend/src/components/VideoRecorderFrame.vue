@@ -1,5 +1,6 @@
 <script setup>
-import { ref } from "vue";
+import { ref, nextTick } from "vue";
+import Dialog from 'primevue/dialog';
 import { VideoConstraints } from "../AV_settings/video_constraints";
 import { AudioContraints } from "../AV_settings/audio_constraints";
 
@@ -7,17 +8,16 @@ let stream = null;
 let audioTrack = null;
 let videoTrack = null;
 let recordingTimeout = null;
-const RECORDING_DURATION = 60000; // 60 seconds
+let videoFrame = null;
+let visibleDialog = ref(false);
+const RECORDING_DURATION = 10000; 
 
 function startRecording() {
-  let videoFrame = document.getElementById("video-frame");
-
   navigator.mediaDevices.getUserMedia({
         video: VideoConstraints,
         audio: AudioContraints
     })
-    .then((mediaStream) => {
-        stream = mediaStream;
+    .then(async (stream) => {
         const audioTracks = stream.getAudioTracks();
         const videoTracks = stream.getVideoTracks();
 
@@ -27,6 +27,12 @@ function startRecording() {
         if (videoTracks.length > 0) {
         videoTrack = videoTracks[0];
         }
+
+        visibleDialog.value = true;
+
+        await nextTick();
+
+        videoFrame = document.getElementById("video-frame");
 
         videoFrame.srcObject = stream;
 
@@ -64,6 +70,8 @@ function stopRecording() {
   if (videoFrame) {
     videoFrame.srcObject = null;
   }
+
+  visibleDialog.value = false;
 }
 
 defineExpose({
@@ -73,7 +81,9 @@ defineExpose({
 </script>
 
 <template>
+  <Dialog v-model:visible="visibleDialog" modal header="🎥 Speak Up!" :style="{ width: '25rem' }" :closable="false" :closeOnEscape="false">
     <video id="video-frame" autoplay muted playsinline></video>
+  </Dialog>
 </template>
 
 <style scoped>

@@ -1,4 +1,4 @@
-export interface VideoFrameInstance {
+export interface VideoRecorderFrameInstance {
   startRecording(): void;
   stopRecording(): void;
 }

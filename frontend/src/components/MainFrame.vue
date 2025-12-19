@@ -3,14 +3,12 @@ import { ref } from "vue";
 import NavBar from "./NavBar.vue";
 import RecordButton from "./RecordButton.vue";
 import Fieldset from "primevue/fieldset";
-import VideoFrame from "./VideoFrame.vue";
-import type { VideoFrameInstance } from "../types/video-frame";
+
+const emit = defineEmits(["start-recording"]);
  
 const topic = ref<string | null>(null);
 const interest = ref<string>("");
 const lang = ref<string>("hr");
-const videoFrame = ref<VideoFrameInstance | null>(null)
-
 
 const handleTopicGenerated = (interes: string, tema: string, generatedLang: string) => {
   console.log("[Page] topic-generated event:", tema, generatedLang);
@@ -20,8 +18,8 @@ const handleTopicGenerated = (interes: string, tema: string, generatedLang: stri
 };
 
 const handleStartRecording = (start: boolean) => {
-  if (start && videoFrame.value) {
-    videoFrame.value.startRecording();
+  if(start){
+    emit("start-recording", start);
   }
 };
 
@@ -51,8 +49,6 @@ const handleStartRecording = (start: boolean) => {
           @start-recording="handleStartRecording"
         />
       </div>
-
-      <VideoFrame ref="videoFrame"/>
 
       <div>
         <Fieldset legend="Tema za govor" :toggleable="true">

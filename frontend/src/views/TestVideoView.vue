@@ -1,12 +1,25 @@
 <script setup lang="ts">
+  import { ref } from "vue";
   import MainFrame from '../components/MainFrame.vue';
   import FriendsFrame from '../components/FriendsFrame.vue';
   import Divider from 'primevue/divider';
+  import VideoRecorderFrame from '../components/VideoRecorderFrame.vue';
+  import type { VideoRecorderFrameInstance } from "../types/video-recorder-frame";
+
+  const videoFrame = ref<VideoRecorderFrameInstance | null>(null);
+
+  const handleStartRecording = (start: boolean) => {
+    console.log("[TestVideoView] start-recording event:", start);
+    if (start && videoFrame.value) {
+      videoFrame.value.startRecording();
+    }
+  };
 </script>
 
 <template>
   <div class="flex flex-col lg:flex-row w-full h-full">
-    <MainFrame />
+    <VideoRecorderFrame ref="videoFrame" />
+    <MainFrame @start-recording="handleStartRecording" />
     <div class="hidden lg:block">
       <Divider layout="vertical" :pt="{root:{class:'divider'}}"/>
     </div>

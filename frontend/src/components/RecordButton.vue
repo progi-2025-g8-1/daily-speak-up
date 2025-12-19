@@ -76,6 +76,7 @@ const generateTopic = async () => {
       const msg = "🫣 Oops! Trenutni AI servis je preopterećen. Pokušaj ponovno za 1 minutu.";
       console.error("[RecordButton]", msg);
       emit("topic-generated", msg, props.lang);
+      emit("start-recording", true);
       return;
     }
 
