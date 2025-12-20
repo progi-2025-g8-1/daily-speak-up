@@ -6,6 +6,7 @@ import NotFoundView from '../views/NotFoundView.vue'
 import AuthCallbackView from '../views/AuthCallbackView.vue'
 import PasswordlessCallbackView from '../views/PasswordlessCallbackView.vue'
 import OnboardingView from '../views/OnboardingView.vue'
+import Profile from '../views/Profile.vue'
 import { isAuthenticated } from '../auth'
 
 const router = createRouter({
@@ -42,6 +43,12 @@ const router = createRouter({
       path: '/onboarding',
       name: 'onboarding',
       component: OnboardingView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/profile',
+      name: 'Profile',
+      component: Profile,
       meta: { requiresAuth: true }
     }
   ]
