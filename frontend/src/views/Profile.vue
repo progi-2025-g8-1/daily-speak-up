@@ -14,7 +14,7 @@
           
           <template #content>
             
-            <User />
+            <ProfileHeader />
           </template>
         </Card>
         
@@ -26,7 +26,7 @@
   
   <script setup>
   import NavBar from '../components/NavBar.vue';
-  import User from '../components/User.vue';
+  import ProfileHeader from '../components/ProfileHeader.vue';
   import Card from 'primevue/card';
   import Calendar from '../components/Calendar.vue'
   </script>
