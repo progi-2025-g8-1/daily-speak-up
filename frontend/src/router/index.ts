@@ -46,10 +46,19 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
-      path: '/profile',
+      path: '/:username',
       name: 'Profile',
       component: Profile,
-      meta: { requiresAuth: true }
+      beforeEnter: (to, from, next) => {
+        const reservedPaths = ['login', 'profile', 'settings', 'auth'];
+        const username = to.params.username as string;
+        
+        if (reservedPaths.indexOf(username) !== -1) {
+          next('/404');
+        } else {
+          next();
+        }
+      }
     }
   ]
 });
