@@ -2,8 +2,11 @@
   <div class="flex items-center gap-3">
     <ProgressSpinner v-if="loading" style="width: 30px; height: 30px" strokeWidth="4" />
     
-    <div v-else-if="user" class="flex items-center gap-3"  @click.stop="goToProfile"
-    style="user-select: none;">
+    <div 
+      v-else-if="user" 
+      class="flex items-center gap-3 cursor-pointer hover:bg-gray-100 p-2 rounded-lg transition-colors"
+      @click="goToProfile"
+    >
       <Avatar :label="user.handle?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase()" 
               shape="circle" 
               size="large" 
@@ -20,6 +23,7 @@
 
 <script>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { getUserId, isAuthenticated } from '../auth';
 import Avatar from 'primevue/avatar';
 import ProgressSpinner from 'primevue/progressspinner';
@@ -32,10 +36,18 @@ export default {
     Message
   },
   setup() {
+    const router = useRouter();
     const user = ref(null);
     const userId = ref('');
     const loading = ref(true);
     const error = ref('');
+
+    const goToProfile = () => {
+      if (user.value) {
+        const handle = user.value.handle || user.value.email;
+        router.push(`/${handle}`);
+      }
+    };
 
     onMounted(async () => {
       try {
@@ -74,15 +86,9 @@ export default {
       user,
       userId,
       loading,
-      error
+      error,
+      goToProfile
     };
   },
 };
-
-const goToProfile = () => {
-      if (user.value) {
-        const username = user.value.handle;
-        router.push(`/${username}`);
-      }
-    };
 </script>
