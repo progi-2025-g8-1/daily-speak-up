@@ -46,14 +46,14 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
-      path: '/:username',
+      path: '/:handle',
       name: 'Profile',
       component: Profile,
       beforeEnter: (to, from, next) => {
         const reservedPaths = ['login', 'profile', 'settings', 'auth'];
-        const username = to.params.username as string;
+        const handle = to.params.handle as string;
         
-        if (reservedPaths.indexOf(username) !== -1) {
+        if (reservedPaths.indexOf(handle) !== -1) {
           next('/404');
         } else {
           next();

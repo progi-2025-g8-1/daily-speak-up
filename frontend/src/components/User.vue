@@ -2,13 +2,14 @@
   <div class="flex items-center gap-3">
     <ProgressSpinner v-if="loading" style="width: 30px; height: 30px" strokeWidth="4" />
     
-    <div v-else-if="user" class="flex items-center gap-3">
-      <Avatar :label="user.username?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase()" 
+    <div v-else-if="user" class="flex items-center gap-3"  @click.stop="goToProfile"
+    style="user-select: none;">
+      <Avatar :label="user.handle?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase()" 
               shape="circle" 
               size="large" 
               class="bg-sky-500 text-white" />
       <div class="flex flex-col">
-        <span class="font-semibold">{{ user.username || user.email }}</span>
+        <span class="font-semibold">{{ user.handle || user.email }}</span>
         <span class="text-sm text-gray-500">{{ user.email }}</span>
       </div>
     </div>
@@ -77,4 +78,11 @@ export default {
     };
   },
 };
+
+const goToProfile = () => {
+      if (user.value) {
+        const username = user.value.handle;
+        router.push(`/${username}`);
+      }
+    };
 </script>
