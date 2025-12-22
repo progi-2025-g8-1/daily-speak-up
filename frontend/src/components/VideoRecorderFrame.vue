@@ -97,12 +97,13 @@ async function uploadToS3() {
   }
 
   try {
+    // Create a new blob with the correct MIME type set directly
+    // This avoids needing to set Content-Type header which can cause CORS preflight issues
+    const videoBlob = new Blob([recordedBlob], { type: "video/mp4" });
+    
     const response = await window.fetch(uploadUrl, {
       method: "PUT",
-      body: recordedBlob,
-      headers: {
-        "Content-Type": "video/mp4"
-      }
+      body: videoBlob,
     });
 
     if (!response.ok) {   

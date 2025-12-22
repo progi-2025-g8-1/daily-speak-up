@@ -34,12 +34,13 @@ class CloudflareR2Service(S3SecureService):
         key = f"video/{user_id}/{video_id}.mp4"
         
         # R2 supports presigned URLs via boto3
+        # Note: Don't include ContentType in Params to avoid CORS preflight issues
+        # The Content-Type header will still be sent by the client but won't be part of signature
         presigned_url = self.s3_client.generate_presigned_url(
             ClientMethod='put_object',
             Params={
                 'Bucket': self.bucket,
                 'Key': key,
-                'ContentType': 'video/mp4',
             },
             ExpiresIn=3600  # 1 hour
         )
