@@ -48,7 +48,8 @@ def get_s3_service() -> CloudflareR2Service:
             bucket_name=settings.bucket_name,
             account_id=settings.r2_account_id,
             admin_api_token=settings.r2_admin_api_token,
-            r2_access_key_id=settings.r2_access_key_id
+            r2_access_key_id=settings.r2_access_key_id,
+            jurisdiction=settings.r2_jurisdiction
         )
     return _s3_service
 

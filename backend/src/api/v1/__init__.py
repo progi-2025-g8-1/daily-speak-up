@@ -7,6 +7,7 @@ from .handles import router as handles_router
 from .interests import router as interests_router
 from .friends import router as friends_router
 from .video import router as video_router
+from .photo import router as photo_router
 
 __all__ = [
     'health_router',
@@ -18,4 +19,5 @@ __all__ = [
     'interests_router',
     'friends_router',
     'video_router',
+    'photo_router',
 ]
