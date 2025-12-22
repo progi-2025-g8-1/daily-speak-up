@@ -39,7 +39,7 @@ class CloudflareR2Service(S3SecureService):
             Params={
                 'Bucket': self.bucket,
                 'Key': key,
-                'ContentType': 'video/mp4'
+                'ContentType': 'video/mp4',
             },
             ExpiresIn=3600  # 1 hour
         )

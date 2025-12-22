@@ -14,12 +14,21 @@
       videoFrame.value.startRecording();
     }
   };
+
+  const handleUploadData = (uploadMethod: string, uploadUrl: string, userId: string, videoPath: string) => {
+    console.log("[TestVideoView] upload-data event:", uploadMethod, uploadUrl, userId, videoPath);
+    if (videoFrame.value) {
+      videoFrame.value.uploadData(uploadMethod, uploadUrl, userId, videoPath);
+    }
+  };
 </script>
 
 <template>
   <div class="flex flex-col lg:flex-row w-full h-full">
     <VideoRecorderFrame ref="videoFrame" />
-    <MainFrame @start-recording="handleStartRecording" />
+    <MainFrame 
+      @start-recording="handleStartRecording" 
+      @upload-data="handleUploadData"/>
     <div class="hidden lg:block">
       <Divider layout="vertical" :pt="{root:{class:'divider'}}"/>
     </div>

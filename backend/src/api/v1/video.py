@@ -40,7 +40,8 @@ async def get_upload_token(
     chosen_interest = random.choice([ui.interest for ui in user.user_interests])
 
     # Generate a topic based on the chosen interest
-    topic = await gemini_service.generate_topic(chosen_interest.name, user.preferred_lang)
+    # topic = await gemini_service.generate_topic(chosen_interest.name, user.preferred_lang)
+    topic = "Pričaj neš!"
 
     # Create a speech object - commit first to get the ID
     speech = Speech(

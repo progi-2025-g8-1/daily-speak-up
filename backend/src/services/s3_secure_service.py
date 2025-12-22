@@ -1,4 +1,5 @@
 import boto3
+from botocore.client import Config
 from typing import Dict, Any
 
 class S3SecureService:
@@ -13,24 +14,23 @@ class S3SecureService:
 
     def get_upload_url(self, user_id: str, video_id: str) -> Dict[str, Any]:
         """
-        Generates a presigned POST URL for uploading a video.
+        Generates a presigned PUT URL for uploading a video.
         Client can upload directly to this URL without any credentials.
         """
         key = f"video/{user_id}/{video_id}.mp4"
         
-        # Generate presigned POST for multipart upload support
-        presigned_post = self.s3_client.generate_presigned_post(
-            Bucket=self.bucket,
-            Key=key,
-            ExpiresIn=3600,  # 1 hour
-            Conditions=[
-                ["content-length-range", 0, 524288000],  # Max 500MB
-            ]
+        # Generate presigned URL that works with direct PUT from browser
+        presigned_url = self.s3_client.generate_presigned_url(
+            ClientMethod='put_object',
+            Params={
+                'Bucket': self.bucket,
+                'Key': key
+            },
+            ExpiresIn=3600  # 1 hour
         )
         
         return {
-            "upload_url": presigned_post["url"],
-            "fields": presigned_post["fields"],
+            "upload_url": presigned_url,
             "key": key
         }
 
@@ -54,3 +54,15 @@ class S3SecureService:
             "download_url": presigned_url,
             "key": key
         }
+
+    def upload_file(self, file_path: str, s3_key: str) -> str:
+        """
+        Uploads a file directly from disk to S3.
+        Returns the S3 key of the uploaded file.
+        """
+        try:
+            with open(file_path, 'rb') as f:
+                self.s3_client.upload_fileobj(f, self.bucket, s3_key)
+            return s3_key
+        except Exception as e:
+            raise Exception(f"Failed to upload file to S3: {str(e)}")
