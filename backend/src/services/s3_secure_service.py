@@ -56,6 +56,79 @@ class S3SecureService:
             "key": key
         }
 
+    def get_photo_upload_url(self, user_id: str, content_type: str = 'image/png') -> Dict[str, Any]:
+        """
+        Generates a presigned PUT URL for uploading a profile photo.
+        Client can upload directly to this URL without credentials.
+        
+        :param user_id: The ID of the user
+        :param content_type: The MIME type of the image (e.g., 'image/png', 'image/jpeg')
+        :return: Dictionary with upload URL and key
+        """
+        # Determine file extension based on content type
+        extension_map = {
+            'image/png': 'png',
+            'image/jpeg': 'jpg',
+            'image/jpg': 'jpg'
+        }
+        extension = extension_map.get(content_type, 'png')
+        key = f"photo/{user_id}.{extension}"
+        
+        presigned_url = self.s3_client.generate_presigned_url(
+            ClientMethod='put_object',
+            Params={
+                'Bucket': self.bucket,
+                'Key': key,
+                'ContentType': content_type
+            },
+            ExpiresIn=3600  # 1 hour
+        )
+        
+        return {
+            'upload_url': presigned_url,
+            'key': key,
+            'content_type': content_type
+        }
+    
+    def get_photo_read_url(self, user_id: str) -> Dict[str, Any]:
+        """
+        Generates a presigned GET URL for reading/downloading a profile photo.
+        Tries both PNG and JPG extensions.
+        
+        :param user_id: The ID of the user
+        :return: Dictionary with download URL and key
+        """
+        # Try to find the photo with either extension
+        for extension in ['png', 'jpg']:
+            key = f"photo/{user_id}.{extension}"
+            try:
+                # Check if object exists
+                self.s3_client.head_object(Bucket=self.bucket, Key=key)
+                
+                # Generate presigned URL
+                presigned_url = self.s3_client.generate_presigned_url(
+                    ClientMethod='get_object',
+                    Params={
+                        'Bucket': self.bucket,
+                        'Key': key
+                    },
+                    ExpiresIn=3600  # 1 hour
+                )
+                
+                return {
+                    'download_url': presigned_url,
+                    'key': key
+                }
+            except:
+                continue
+        
+        # No photo found
+        return {
+            'download_url': None,
+            'key': None,
+            'message': 'No profile photo found'
+        }
+    
     def upload_profile_photo(self, user_id: str, photo_data: bytes, content_type: str = 'image/png') -> Dict[str, Any]:
         """
         Uploads a profile photo for a user to S3.
