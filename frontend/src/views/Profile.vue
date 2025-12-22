@@ -37,4 +37,11 @@
         align-items:baseline;
         justify-content: center;
     }
+    @media (max-width: 600px) {
+        #i1{
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+    }
+
   </style>
