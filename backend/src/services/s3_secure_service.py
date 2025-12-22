@@ -1,6 +1,7 @@
 import boto3
 from botocore.client import Config
 from typing import Dict, Any
+from io import BytesIO
 
 class S3SecureService:
     def __init__(self, bucket_name: str, role_arn: str, region: str = "eu-central-1"):
@@ -54,6 +55,44 @@ class S3SecureService:
             "download_url": presigned_url,
             "key": key
         }
+
+    def upload_profile_photo(self, user_id: str, photo_data: bytes, content_type: str = 'image/png') -> Dict[str, Any]:
+        """
+        Uploads a profile photo for a user to S3.
+        
+        :param user_id: The ID of the user
+        :param photo_data: The photo file data as bytes
+        :param content_type: The MIME type of the image (e.g., 'image/png', 'image/jpeg')
+        :return: Dictionary with the S3 key and upload status
+        """
+        # Determine file extension based on content type
+        extension_map = {
+            'image/png': 'png',
+            'image/jpeg': 'jpg',
+            'image/jpg': 'jpg'
+        }
+        extension = extension_map.get(content_type, 'png')
+        key = f"photo/{user_id}.{extension}"
+        
+        try:
+            self.s3_client.put_object(
+                Bucket=self.bucket,
+                Key=key,
+                Body=photo_data,
+                ContentType=content_type
+            )
+            
+            return {
+                'key': key,
+                'status': 'success',
+                'message': f'Profile photo uploaded successfully for user {user_id}'
+            }
+        except Exception as e:
+            return {
+                'key': key,
+                'status': 'error',
+                'message': f'Failed to upload profile photo: {str(e)}'
+            }
 
     def upload_file(self, file_path: str, s3_key: str) -> str:
         """
