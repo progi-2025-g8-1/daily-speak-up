@@ -137,6 +137,10 @@ class Settings(BaseSettings):
     def r2_access_key_id(self) -> str:
         return getenv('R2_ACCESS_KEY_ID', '')
     
+    @property
+    def r2_jurisdiction(self) -> str:
+        return getenv('R2_JURISDICTION', '')
+    
     # endregion
     
     class Config:
