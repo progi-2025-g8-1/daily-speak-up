@@ -1,16 +1,17 @@
-import logging
 import uuid
 import datetime
+import asyncio
 from typing import List
 from supertokens_python.recipe.session import SessionContainer
 from fastapi import APIRouter, Depends, HTTPException, status, Body
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_
-from ..deps import get_session
+from ..deps import get_session, get_s3_service
 from ...schemas import FriendshipResponse, FriendRequestResponse, FriendshipStatusResponse
 from ...db import get_db
 from ...models import User, Friendship, RequestStatus
+from ...services import S3SecureService
 
 router = APIRouter(prefix='/friend', tags=['friend'])
 
@@ -247,7 +248,8 @@ async def remove_friend(
 @router.get('/list', response_model=List[FriendshipResponse])
 async def get_friends_list(
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session)
+    session: SessionContainer = Depends(get_session),
+    s3_service: S3SecureService = Depends(get_s3_service)
 ):
     supertokens_user_id = session.get_user_id()
     
@@ -275,6 +277,7 @@ async def get_friends_list(
     
     # Build response with friend details
     friends_list = []
+    friend_ids = []
     for friendship in friendships:
         # Determine which user is the friend
         friend_id = friendship.user_id2 if friendship.user_id1 == user.id else friendship.user_id1
@@ -282,20 +285,37 @@ async def get_friends_list(
         
         if friend:
             friends_list.append({
-                'friendship_id': str(friendship.id),
-                'user_id': str(friend.id),
-                'handle': friend.handle,
-                'profile_picture_url': friend.profile_picture_url,
-                'created_at': friendship.created_at.isoformat(),
-                'requested_by_current_user': friendship.requested_by_id == user.id
+                'friendship': friendship,
+                'friend': friend
             })
+            friend_ids.append(str(friend.id))
     
-    return friends_list
+    # Fetch all profile picture URLs concurrently
+    async def get_photo_url(user_id: str):
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, s3_service.get_photo_read_url, user_id)
+    
+    photo_results = await asyncio.gather(*[get_photo_url(fid) for fid in friend_ids])
+    
+    # Build final response
+    response = []
+    for i, item in enumerate(friends_list):
+        response.append({
+            'friendship_id': str(item['friendship'].id),
+            'user_id': str(item['friend'].id),
+            'handle': item['friend'].handle,
+            'profile_picture_url': photo_results[i].get('download_url'),
+            'created_at': item['friendship'].created_at.isoformat(),
+            'requested_by_current_user': item['friendship'].requested_by_id == user.id
+        })
+    
+    return response
 
 @router.get('/requests/incoming', response_model=List[FriendRequestResponse])
 async def get_incoming_friend_requests(
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session)
+    session: SessionContainer = Depends(get_session),
+    s3_service: S3SecureService = Depends(get_s3_service)
 ):
     supertokens_user_id = session.get_user_id()
     
@@ -324,24 +344,42 @@ async def get_incoming_friend_requests(
     
     # Build response with requester details
     requests_list = []
+    requester_ids = []
     for friendship in friendships:
         requester = db.query(User).filter(User.id == friendship.requested_by_id).first()
         
         if requester:
             requests_list.append({
-                'friendship_id': str(friendship.id),
-                'user_id': str(requester.id),
-                'handle': requester.handle,
-                'profile_picture_url': requester.profile_picture_url,
-                'created_at': friendship.created_at.isoformat()
+                'friendship': friendship,
+                'requester': requester
             })
+            requester_ids.append(str(requester.id))
     
-    return requests_list
+    # Fetch all profile picture URLs concurrently
+    async def get_photo_url(user_id: str):
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, s3_service.get_photo_read_url, user_id)
+    
+    photo_results = await asyncio.gather(*[get_photo_url(rid) for rid in requester_ids])
+    
+    # Build final response
+    response = []
+    for i, item in enumerate(requests_list):
+        response.append({
+            'friendship_id': str(item['friendship'].id),
+            'user_id': str(item['requester'].id),
+            'handle': item['requester'].handle,
+            'profile_picture_url': photo_results[i].get('download_url'),
+            'created_at': item['friendship'].created_at.isoformat()
+        })
+    
+    return response
 
 @router.get('/requests/outgoing', response_model=List[FriendRequestResponse])
 async def get_outgoing_friend_requests(
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session)
+    session: SessionContainer = Depends(get_session),
+    s3_service: S3SecureService = Depends(get_s3_service)
 ):
     supertokens_user_id = session.get_user_id()
     
@@ -366,6 +404,7 @@ async def get_outgoing_friend_requests(
     
     # Build response with target user details
     requests_list = []
+    target_ids = []
     for friendship in friendships:
         # Determine which user is the target (not the requester)
         target_id = friendship.user_id2 if friendship.user_id1 == user.id else friendship.user_id1
@@ -373,14 +412,30 @@ async def get_outgoing_friend_requests(
         
         if target_user:
             requests_list.append({
-                'friendship_id': str(friendship.id),
-                'user_id': str(target_user.id),
-                'handle': target_user.handle,
-                'profile_picture_url': target_user.profile_picture_url,
-                'created_at': friendship.created_at.isoformat()
+                'friendship': friendship,
+                'target_user': target_user
             })
+            target_ids.append(str(target_user.id))
     
-    return requests_list
+    # Fetch all profile picture URLs concurrently
+    async def get_photo_url(user_id: str):
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, s3_service.get_photo_read_url, user_id)
+    
+    photo_results = await asyncio.gather(*[get_photo_url(tid) for tid in target_ids])
+    
+    # Build final response
+    response = []
+    for i, item in enumerate(requests_list):
+        response.append({
+            'friendship_id': str(item['friendship'].id),
+            'user_id': str(item['target_user'].id),
+            'handle': item['target_user'].handle,
+            'profile_picture_url': photo_results[i].get('download_url'),
+            'created_at': item['friendship'].created_at.isoformat()
+        })
+    
+    return response
 
 @router.get('/check/{user_id}', response_model=FriendshipStatusResponse)
 async def check_friendship_status(
