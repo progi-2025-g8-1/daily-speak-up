@@ -161,8 +161,6 @@ async def respond_to_friend_request(
     db.commit()
     db.refresh(friendship)
     
-    # TODO: Send notification to requester about the response
-    
     action = 'accepted' if accept else 'rejected'
     return JSONResponse(
         status_code=status.HTTP_200_OK,
