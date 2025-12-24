@@ -49,7 +49,7 @@ const router = createRouter({
       path: '/:handle',
       name: 'Profile',
       component: Profile,
-      beforeEnter: (to, from, next) => {
+      beforeEnter: (to, _from, next) => {
         const reservedPaths = ['login', 'profile', 'settings', 'auth'];
         const handle = to.params.handle as string;
         
