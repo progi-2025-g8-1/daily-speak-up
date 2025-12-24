@@ -4,7 +4,7 @@
 </script>
 
 <template>
-  <div class="flex flex-col items-center lg:w-[35vw] lg:h-full">
+  <div class="flex flex-col items-center lg:w-[40vw] lg:h-full">
     <CurrentUsersProfile />
   </div>
 </template>

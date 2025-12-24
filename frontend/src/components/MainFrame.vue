@@ -32,7 +32,7 @@ const handleUploadData = (uploadMethod: string, uploadUrl: string, userId: strin
 
 <template>
   <div
-    class="flex flex-col justify-start items-center bg-sky-100 w-[100vw] h-[60vh] lg:w-[65vw] lg:h-full"
+    class="flex flex-col justify-start items-center bg-sky-100 w-[100vw] h-[60vh] lg:w-[60vw] lg:h-full"
   >
     <NavBar />
 

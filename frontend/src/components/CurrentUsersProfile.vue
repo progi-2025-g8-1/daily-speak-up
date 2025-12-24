@@ -2,6 +2,7 @@
     import ProfileHeader from './ProfileHeader.vue';  
     import Card from 'primevue/card';
     import Calendar from './Calendar.vue';
+    import DatePicker from 'primevue/datepicker';
 </script>
 
 
@@ -13,7 +14,7 @@
             </template>
         </Card>
 
-        <Calendar class="w-full mt-[2vh]"/>
+        <DatePicker inline class="w-full mt-[2vh]" />
     </div>
 </template>
 
