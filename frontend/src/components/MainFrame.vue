@@ -4,7 +4,7 @@ import NavBar from "./NavBar.vue";
 import RecordButton from "./RecordButton.vue";
 import Fieldset from "primevue/fieldset";
 
-const emit = defineEmits(["start-recording", "upload-data"]);
+const emit = defineEmits(["start-recording", "upload-data", "topic-generated"]);
  
 const topic = ref<string | null>(null);
 const interest = ref<string>("");
@@ -14,6 +14,7 @@ const handleTopicGenerated = (interes: string, tema: string, generatedLang: stri
   console.log("[Page] topic-generated event:", tema, generatedLang);
   topic.value = tema;
   interest.value = interes;
+  emit("topic-generated", interes, tema);
   // lang.value = generatedLang; // ako želiš
 };
 
@@ -54,8 +55,6 @@ const handleUploadData = (uploadMethod: string, uploadUrl: string, userId: strin
           @upload-data="handleUploadData"
         />
       </div>
-
-      <Button>Stisni me</Button>
 
       <div>
         <Fieldset legend="Tema za govor" :toggleable="true">

@@ -6,7 +6,6 @@ import NotFoundView from '../views/NotFoundView.vue'
 import AuthCallbackView from '../views/AuthCallbackView.vue'
 import PasswordlessCallbackView from '../views/PasswordlessCallbackView.vue'
 import OnboardingView from '../views/OnboardingView.vue'
-import TestVideoView from '../views/TestVideoView.vue'
 import { isAuthenticated } from '../auth'
 
 const router = createRouter({
@@ -33,11 +32,6 @@ const router = createRouter({
       path: '/auth/verify',
       name: 'passwordless-callback',
       component: PasswordlessCallbackView
-    },
-    {
-      path: '/test-video',
-      name: 'test-video',
-      component: TestVideoView
     },
     {
       path: '/:pathMatch(.*)*',

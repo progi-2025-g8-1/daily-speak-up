@@ -40,8 +40,7 @@ async def get_upload_token(
     chosen_interest = random.choice([ui.interest for ui in user.user_interests])
 
     # Generate a topic based on the chosen interest
-    # topic = await gemini_service.generate_topic(chosen_interest.name, user.preferred_lang)
-    topic = "Pričaj neš!"
+    topic = await gemini_service.generate_topic(chosen_interest.name, user.preferred_lang)
 
     # Create a speech object - commit first to get the ID
     speech = Speech(
@@ -90,7 +89,7 @@ async def get_video_play_token(
             detail='User not found'
         )
     
-    if user.id != target_user_id:
+    if str(user.id) != target_user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail='Access denied'

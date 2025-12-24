@@ -1,18 +1,25 @@
 <script setup>
 import { ref, nextTick } from "vue";
 import Dialog from 'primevue/dialog';
+import { useToast } from 'primevue/usetoast';
+import ProgressSpinner from 'primevue/progressspinner';
 import { VideoConstraints } from "../AV_settings/video_constraints";
 import { AudioConstraints } from "../AV_settings/audio_constraints";
 
+const toast = useToast();
+const RECORDING_DURATION = 60000;
+const TOAST_DISPLAY_DURATION = 4000;
 
 const videoRef = ref(null);
-const recordingContainerRef = ref(null);
-
-
 const visibleDialog = ref(false);
 const countdown = ref(0);
+const preCountdown = ref(0);
 const showRecording = ref(false);
-const showDoneMessage = ref(false);
+const isFadingOut = ref(false);
+const isLoadingCamera = ref(false);
+const isPreCountdown = ref(false);
+const speechTopic = ref("");
+const speechInterest = ref("");
 
 let stream = null;
 let audioTrack = null;
@@ -29,11 +36,8 @@ let videoPath = "";
 let recordingTimeout = null;
 let countdownInterval = null;
 
-const RECORDING_DURATION = 5000;
-const AFTER_RECORDING_CLOSE_DELAY = 4000;
 
 function initializeMedia(mediaStream) {
-  stream = mediaStream;
   const audioTracks = mediaStream.getAudioTracks();
   const videoTracks = mediaStream.getVideoTracks();
 
@@ -97,8 +101,6 @@ async function uploadToS3() {
   }
 
   try {
-    // Create a new blob with the correct MIME type set directly
-    // This avoids needing to set Content-Type header which can cause CORS preflight issues
     const videoBlob = new Blob([recordedBlob], { type: "video/mp4" });
     
     const response = await window.fetch(uploadUrl, {
@@ -110,7 +112,6 @@ async function uploadToS3() {
       throw new Error(`S3 upload failed with status ${response.status}`);
     }
 
-    console.log("Video successfully uploaded to S3");
   } catch (error) {
     console.error("Error uploading video to S3:", error);
   }
@@ -118,15 +119,34 @@ async function uploadToS3() {
 
 async function startRecording() {
   try {
+    visibleDialog.value = true;
+    isLoadingCamera.value = true;
+    showRecording.value = false;
+
     const mediaStream = await navigator.mediaDevices.getUserMedia({
       video: VideoConstraints,
       audio: AudioConstraints
     });
 
     initializeMedia(mediaStream);
-    visibleDialog.value = true;
+
+    isLoadingCamera.value = false;
+    
+    isPreCountdown.value = true;
+    
+    await nextTick();
+    
+    if (videoRef.value) {
+      videoRef.value.srcObject = mediaStream;
+    }
+
+    for (let i = 3; i >= 1; i--) {
+      preCountdown.value = i;
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+    
+    isPreCountdown.value = false;
     showRecording.value = true;
-    showDoneMessage.value = false;
 
     await nextTick();
 
@@ -166,40 +186,47 @@ async function startRecording() {
 function stopRecording() {
   clearTimers();
 
-  if (recordingContainerRef.value) {
-    recordingContainerRef.value.classList.add("fade-out");
-    if (mediaRecorder) {
-      mediaRecorder.stop();
-      mediaRecorder = null;
+  if (mediaRecorder) {
+    mediaRecorder.stop();
+    mediaRecorder = null;
+  }
+
+  isFadingOut.value = true;
+
+  setTimeout(() => {
+    if (videoRef.value) {
+      videoRef.value.srcObject = null;
+    }
+    showRecording.value = false;
+    isFadingOut.value = false;
+
+    stopMediaTracks();
+
+    if (uploadUrl) {
+      uploadToS3();
     }
 
-    setTimeout(() => {
-      if (videoRef.value) {
-        videoRef.value.srcObject = null;
-      }
-      showRecording.value = false;
-      recordingContainerRef.value.classList.remove("fade-out");
+    visibleDialog.value = false;
+    
+    toast.add({
+      severity: 'success',
+      summary: 'Uspješno snimljeno!',
+      detail: 'Vaš DailySpeakUp je pohranjen! 🎉',
+      life: TOAST_DISPLAY_DURATION
+    });
+  }, 500);
+}
 
-      stopMediaTracks();
-
-      if (uploadUrl) {
-        uploadToS3();
-      }
-
-      showDoneMessage.value = true;
-
-      setTimeout(() => {
-        visibleDialog.value = false;
-        showDoneMessage.value = false;
-      }, AFTER_RECORDING_CLOSE_DELAY);
-    }, 450);
-  }
+function setSpeechTopic(interest, topic) {
+  speechInterest.value = interest;
+  speechTopic.value = topic;
 }
 
 defineExpose({
   startRecording,
   stopRecording,
-  uploadData
+  uploadData,
+  setSpeechTopic
 });
 </script>
 
@@ -209,23 +236,43 @@ defineExpose({
     modal
     :closable="false"
     :closeOnEscape="false"
-    class="!flex mx-2"
+    :class="['!flex mx-2', { 'fade-out': isFadingOut }]"
+    :pt="{ mask: { class: isFadingOut ? 'fade-out' : '' } }"
   >
-    <div v-if="showRecording" 
-         ref="recordingContainerRef" 
-         class="recording-container w-full"
-         >
-      <h1 class="pb-2 mb-1">🎥 Snimanje...</h1>
-      <p class="mb-4 text-lg font-bold">Vaša je tema: ...</p>
+    <div v-if="isLoadingCamera" class="w-full text-center py-8 px-8">
+      <h2 class="pb-2 mb-8 text-2xl font-bold">📖 Vaša tema:</h2>
+      <h2 class="mb-4 text-lg font-bold">{{ speechTopic }} ({{ speechInterest }})</h2>
+      <br />
+      <ProgressSpinner />
+      <br />
+      <p class="text-lg font-bold">Dohvaćanje kamere... </p>
+    </div>
+
+    <div v-if="isPreCountdown || showRecording" class="w-full">
+      <h1 class="pb-2 mb-1">🎥 {{ isPreCountdown ? 'Snimanje za...' : 'SpeakUp!' }}</h1>
+      <p class="mb-4 text-lg font-bold">📖 Vaša tema: {{ speechTopic }} ({{ speechInterest }})</p>
       <div class="!flex flex-col justify-center items-center relative inline-block w-full">
-        <video
-          ref="videoRef"
-          class="rounded-2xl w-[70vw] lg:w-[70vh] block"
-          autoplay
-          muted
-          playsinline
-        ></video>
+        <div class="rounded-2xl overflow-hidden w-[70vw] lg:w-[65vh]">
+          <video
+            ref="videoRef"
+            :class="['w-full block transition-all duration-300', isPreCountdown ? 'blur-sm scale-105' : 'scale-100']"
+            autoplay
+            muted
+            playsinline
+          ></video>
+        </div>
+        <!-- Pre-countdown overlay -->
         <div
+          v-if="isPreCountdown"
+          class="absolute inset-0 flex items-center justify-center pointer-events-none"
+        >
+          <span class="text-9xl font-bold text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]">
+            {{ preCountdown }}
+          </span>
+        </div>
+        <!-- Recording timer -->
+        <div
+          v-else
           class="absolute bottom-2 left-1/2 -translate-x-1/2 
                 font-bold text-white bg-black/60 rounded-full 
                 w-20 h-10 flex items-center justify-center pointer-events-none"
@@ -234,16 +281,11 @@ defineExpose({
         </div>
       </div>
     </div>
-
-    <div v-if="showDoneMessage" class="text-center">
-      <h2 class="text-xl font-bold mb-2">Vaš <i>DailySpeakUp</i> je pohranjen! 🎉</h2>
-      <p class="text-gray-600">Prozor će se uskoro automatski zatvoriti.</p>
-    </div>
   </Dialog>
 </template>
 
-<style scoped>
-.recording-container.fade-out {
+<style>
+.fade-out {
   animation: fadeOut 0.5s ease-out forwards;
 }
 
