@@ -12,7 +12,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["topic-generated"]);
+const emit = defineEmits(["topic-generated", "start-recording", "upload-data"]);
 
 const progress = ref(0);
 const isCounting = ref(false);
@@ -67,7 +67,7 @@ const generateTopic = async () => {
   });
 
   try {
-    const response = await fetch(`${API_BASE_URL}/userdata/topic`);
+    const response = await fetch(`${API_BASE_URL}/video/start`);
 
     console.log("[RecordButton] response status:", response);
 
@@ -76,6 +76,7 @@ const generateTopic = async () => {
       const msg = "🫣 Oops! Trenutni AI servis je preopterećen. Pokušaj ponovno za 1 minutu.";
       console.error("[RecordButton]", msg);
       emit("topic-generated", msg, props.lang);
+      emit("start-recording", true);
       return;
     }
 
@@ -83,6 +84,8 @@ const generateTopic = async () => {
     console.log("[RecordButton] data from backend:", data);
 
     emit("topic-generated", data.interest ?? "Nije odabran interes", data.topic ?? "Nema teme u odgovoru", data.lang ?? props.lang);
+    emit("start-recording", true);
+    emit("upload-data", data.upload_method, data.upload_url, data.user_id, data.video_path);
   } catch (error) {
     console.error("[RecordButton] fetch error:", error);
     // čak i ako fetch pukne, prikaži poruku u Fieldsetu

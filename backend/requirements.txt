@@ -10,3 +10,5 @@ resend
 supertokens-python
 pydantic[email]
 email-validator
+boto3
+python-multipart

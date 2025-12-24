@@ -121,6 +121,26 @@ class Settings(BaseSettings):
         """Google OAuth client secret"""
         return getenv('GOOGLE_CLIENT_SECRET', '')
     
+    @property
+    def bucket_name(self) -> str:
+        return getenv('BUCKET_NAME', '')
+    
+    @property
+    def r2_account_id(self) -> str:
+        return getenv('R2_ACCOUNT_ID', '')
+    
+    @property
+    def r2_admin_api_token(self) -> str:
+        return getenv('R2_ADMIN_API_KEY', '')
+    
+    @property
+    def r2_access_key_id(self) -> str:
+        return getenv('R2_ACCESS_KEY_ID', '')
+    
+    @property
+    def r2_jurisdiction(self) -> str:
+        return getenv('R2_JURISDICTION', '')
+    
     # endregion
     
     class Config:
