@@ -1,8 +1,7 @@
 <script setup lang="ts">
   import { ref } from "vue";
   import MainFrame from '../components/MainFrame.vue';
-  import FriendsFrame from '../components/FriendsFrame.vue';
-  import Divider from 'primevue/divider';
+  import SecondaryFrame from '../components/SecondaryFrame.vue';
   import VideoRecorderFrame from '../components/VideoRecorderFrame.vue';
   import type { VideoRecorderFrameInstance } from "../types/video-recorder-frame";
   import Toast from 'primevue/toast';
@@ -32,17 +31,11 @@
   <div class="flex flex-col lg:flex-row w-full h-full">
     <Toast />
     <VideoRecorderFrame ref="videoFrame" />
+    <SecondaryFrame />
     <MainFrame 
       @start-recording="handleStartRecording" 
       @upload-data="handleUploadData"
       @topic-generated="handleTopicGenerated"></MainFrame>
-    <div class="hidden lg:block">
-      <Divider layout="vertical" :pt="{root:{class:'divider'}}"/>
-    </div>
-    <div class="block lg:hidden">
-      <Divider layout="horizontal"  :pt="{root:{class:'divider'}}" />
-    </div>
-    <FriendsFrame />
   </div>
 </template>
 
