@@ -40,7 +40,8 @@
     <VideoRecorderFrame ref="videoFrame" />
     <PlaySpeechFrame ref="playSpeechFrame" />
     <SecondaryFrame 
-      @date-selected="handleDateSelected" />
+      @date-selected="handleDateSelected" 
+      class="hidden lg:flex"/>
     <MainFrame 
       @start-recording="handleStartRecording" 
       @upload-data="handleUploadData"

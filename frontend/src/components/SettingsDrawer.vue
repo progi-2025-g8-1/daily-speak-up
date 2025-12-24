@@ -57,7 +57,7 @@
                 :dismissable="false" class="!w-full lg:!w-[40vw]">
             <div class="flex flex-row justify-between items-center mt-2">
                 <User />
-                <Button icon="pi pi-upload" v-tooltip="{ value: 'Prenesite novu profilnu sliku', showDelay: 300, hideDelay: 300 }" rounded aria-label="Profilna" />
+                <Button icon="pi pi-upload" v-tooltip="{ value: 'Prenesite novu profilnu fotografiju', showDelay: 300, hideDelay: 300 }" rounded aria-label="Profilna" />
             </div>
 
             <div class="flex flex-col justify-start items-stretch w-full">
