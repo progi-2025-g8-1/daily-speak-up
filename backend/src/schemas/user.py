@@ -1,4 +1,5 @@
-from typing import Optional
+from typing import Optional, Dict
+from uuid import UUID
 from pydantic import BaseModel, EmailStr
 
 from ..models import (
@@ -26,3 +27,10 @@ class UserResponse(BaseModel):
     streak_reminders_enabled: bool
     friends_count: int
     streak: int
+
+class VideoInfo(BaseModel):
+    id: UUID
+    url: str
+
+class MonthlyUserVideosResponse(BaseModel):
+    videos: Dict[int, VideoInfo]  

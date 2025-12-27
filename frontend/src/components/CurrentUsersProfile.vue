@@ -1,20 +1,21 @@
 <script setup>
-    import { ref } from 'vue';
+    import { ref, onMounted } from 'vue';
     import ProfileHeader from './ProfileHeader.vue';  
     import Card from 'primevue/card';
     import Calendar from './Calendar.vue';
     import DatePicker from 'primevue/datepicker';
     import Message from 'primevue/message';
+    import {getUserId} from'../auth';
 
     const showErrorMessage = ref(false)
 
     const emits = defineEmits(['date-selected']);
 
     // mock data for days of given month that have recorded speeches
-    const eventDates = [12, 15, 16, 17, 18, 20]; 
+    const eventDates = ref([]); 
 
     const hasEvent = (date) => {
-      return eventDates.includes(date.day);
+      return eventDates.value.includes(date.day);
     };
 
     const handleSelectedDate = (date) => {
@@ -26,6 +27,19 @@
         showErrorMessage.value = true;
       }
     };
+
+    onMounted(async () => {
+      const userId = await getUserId();
+      const response = await fetch(`${import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123'}/api/v1/user/${userId}/2025/12/videos`);
+      if (response.ok) {
+        const data = await response.json();
+        let j = Object.keys(data.videos);
+        eventDates.value = j.map(key => parseInt(key));
+        console.log(eventDates.value);
+      } else {
+        console.error('Failed to fetch user videos');
+      }
+    });
 </script>
 
 
