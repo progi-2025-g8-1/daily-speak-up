@@ -32,7 +32,7 @@
                 <span class="text-2xl font-bold text-dark">{{ user.friends_count || 0 }}</span>
                 <span class="pi pi-users font-xl"></span>
               </div>
-              <span class="text-xs text-gray-600">followers</span>
+              <span class="text-xs text-gray-600">friends</span>
             </div>
           </div>
         </div>
