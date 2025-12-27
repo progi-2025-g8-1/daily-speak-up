@@ -1,5 +1,7 @@
 import logging
+import os
 from contextlib import asynccontextmanager
+from dotenv import load_dotenv
 from fastapi import FastAPI, status, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -20,9 +22,12 @@ from .api.v1 import (
 from .services.supertokens_service import init_supertokens
 from .api.config import get_settings
 from .db_manager import create_all_tables
+from .db_mock_seeder import seed_mock_data
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+load_dotenv()
 
 # Get settings
 settings = get_settings()
@@ -37,6 +42,8 @@ async def lifespan(app: FastAPI):
     try:
         logger.info("Running startup tasks...")
         create_all_tables()
+        if os.getenv('ENVIRONMENT', 'production') == 'dev':
+            seed_mock_data()
         logger.info("Startup tasks completed successfully")
     except Exception as e:
         logger.error(f"Error during startup: {e}")
