@@ -10,6 +10,7 @@ NUM_MOCK_USERS = 100
 MAX_MOCK_DEVICES_PER_USER = 3
 MAX_USER_INTERESTS = 10
 MAX_USER_STREAK = 30
+FRIENDS_WITH_NON_MOCK_USER = 25
 MIN_MOCK_FRIENDSHIPS = 1000
 MAX_MOCK_FRIENDSHIPS = (NUM_MOCK_USERS * (NUM_MOCK_USERS - 1)) // 2  # Max possible unique pairs
 MAX_MOCK_SPEECHES_PER_USER = 10
@@ -199,6 +200,46 @@ def seed_friendships():
                     status=RequestStatus.ACCEPTED
                 )
                 session.add(friendship)
+        
+        session.commit()
+
+
+def seed_friendships_for_non_mock_user():
+    from .models import User, Friendship
+    from .models.enums import RequestStatus
+
+    fake = Faker()
+    with Session(engine) as session:
+        users = session.query(User).all()
+        non_mock_user = session.query(User).filter(~User.supertokens_user_id.like('mock-%')).first()
+        existing_count = session.query(Friendship).filter(
+            (Friendship.user_id1 == non_mock_user.id) | (Friendship.user_id2 == non_mock_user.id)
+        ).count() if non_mock_user else 0
+
+        if existing_count > FRIENDS_WITH_NON_MOCK_USER:
+            logger.info(f'Friendships for non-mock user already exist. Skipping seeding.')
+            return
+
+        if non_mock_user:
+            mock_users = [u for u in users if u.id != non_mock_user.id]
+            friends_to_add = min(FRIENDS_WITH_NON_MOCK_USER, len(mock_users))
+            selected_friends = fake.random_sample(mock_users, friends_to_add)
+            friendships_set = set()
+            for mock_user in selected_friends:
+                friendship_pair = (min(mock_user.id, non_mock_user.id), max(mock_user.id, non_mock_user.id))
+                if friendship_pair not in friendships_set:
+                    friendships_set.add(friendship_pair)
+                    friendship = Friendship(
+                        user_id1=friendship_pair[0],
+                        user_id2=friendship_pair[1],
+                        created_at=fake.date_time_this_year(),
+                        requested_by_id=fake.random_element(friendship_pair),
+                        status=RequestStatus.ACCEPTED
+                    )
+                    session.add(friendship)
+            logger.info(f'Added {len(selected_friends)} friendships for non-mock user')
+        else:
+            logger.info('No non-mock user found, skipping non-mock friendships')
         session.commit()
 
 
@@ -340,6 +381,7 @@ def seed_mock_data():
     seed_user_interests()
     seed_user_streaks()
     seed_friendships()
+    seed_friendships_for_non_mock_user()
     seed_speeches()
     seed_reports()
     seed_ratings()
