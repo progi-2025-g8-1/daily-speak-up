@@ -24,3 +24,5 @@ class UserResponse(BaseModel):
     email_notifications_enabled: bool
     push_notifications_enabled: bool
     streak_reminders_enabled: bool
+    friends_count: int
+    streak: int

@@ -1,4 +1,5 @@
 import logging
+import datetime
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
@@ -6,7 +7,7 @@ from sqlalchemy.orm import Session
 from ..deps import get_session
 from ...db import get_db
 from ...schemas import UserResponse, UserCreate
-from ...models import User
+from ...models import User, Friendship, UserStreak
 from supertokens_python.recipe.session import SessionContainer
 
 from ...services import EmailService
@@ -71,6 +72,19 @@ async def me(
             detail='User not found'
         )
 
+    friends_count = db.query(Friendship).filter(
+        (Friendship.user_id1 == user.id) | (Friendship.user_id2 == user.id)
+    ).count()
+
+    streak = db.query(UserStreak).filter(
+        UserStreak.user_id == user.id 
+    ).order_by(UserStreak.created_at.desc()).first()
+
+    if streak is None or streak.ends_at < datetime.datetime.now(datetime.timezone.utc):
+        streak_days = 0
+    else:
+        streak_days = (streak.ends_at.date() - streak.starts_at.date()).days + 1 
+
     return UserResponse(
         role=user.role,
         email=user.email,
@@ -83,4 +97,6 @@ async def me(
         email_notifications_enabled=user.email_notifications_enabled,
         push_notifications_enabled=user.push_notifications_enabled,
         streak_reminders_enabled=user.streak_reminders_enabled,
+        friends_count=friends_count,
+        streak=streak_days
     )
