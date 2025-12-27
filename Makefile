@@ -33,7 +33,7 @@ dev-rabbitmq:
 	docker run -d --name rabbitmq-dev -p 5672:5672 -p 15672:15672 rabbitmq:3-management || docker start rabbitmq-dev
 
 dev-supertokens:
-	@export $$(grep -v '^#' backend/.env | xargs) && \
+	@set -a; source backend/.env; set +a; \
 	docker run -d --name supertokens-dev -p 3567:3567 -e POSTGRESQL_CONNECTION_URI="$$SUPERTOKENS_DATABASE_URL" registry.supertokens.io/supertokens/supertokens-postgresql:latest || docker start supertokens-dev
 
 celery-worker:
