@@ -30,6 +30,7 @@ class UserResponse(BaseModel):
 
 class VideoInfo(BaseModel):
     video_id: UUID
+    owner_id: UUID
     year: int
     month: int
     day: int
