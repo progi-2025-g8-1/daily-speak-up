@@ -29,8 +29,10 @@
     }
   };
 
-  const handleDateSelected = (date: Date, hasSpeeches: boolean) => {
-    playSpeechFrame.value.displaySpeechDialog(date, hasSpeeches);
+  const handleDateSelected = (date: Date, hasSpeeches: boolean, videoInfo: any) => {
+    if(playSpeechFrame.value && hasSpeeches) {
+      playSpeechFrame.value.displaySpeechDialog(date, hasSpeeches, videoInfo);
+    }
   };
 </script>
 

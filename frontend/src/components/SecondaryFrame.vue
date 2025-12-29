@@ -3,8 +3,10 @@
   
   const emits = defineEmits(['date-selected']);
 
-  const handleDateSelected = (date: Date, hasSpeeches: boolean) => {
-    emits('date-selected', date, hasSpeeches);
+  const handleDateSelected = (date: Date, hasSpeeches: boolean, videoInfo: any) => {
+    if (hasSpeeches) {
+      emits('date-selected', date, hasSpeeches, videoInfo);
+    }
   };
 </script>
 

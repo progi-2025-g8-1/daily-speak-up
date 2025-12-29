@@ -145,13 +145,17 @@ async def get_monthly_user_videos(
         extract('month', Speech.created_at) == month
     ).all()
 
-    videos = { 
-        int(speech.created_at.date().day): VideoInfo(
-            id=speech.id, 
+    videos = [
+        VideoInfo(
+            video_id=speech.id, 
+            year=speech.created_at.year,
+            month=speech.created_at.month,
+            day=speech.created_at.day,
+            caption=speech.caption,
             url=speech.s3_url
         ) 
         for speech in speeches 
         if speech.s3_url is not None and not speech.is_cancelled 
-    }
+    ]
     
     return MonthlyUserVideosResponse(videos=videos)

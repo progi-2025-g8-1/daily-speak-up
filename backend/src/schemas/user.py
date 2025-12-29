@@ -1,4 +1,4 @@
-from typing import Optional, Dict
+from typing import Optional, List
 from uuid import UUID
 from pydantic import BaseModel, EmailStr
 
@@ -29,8 +29,12 @@ class UserResponse(BaseModel):
     streak: int
 
 class VideoInfo(BaseModel):
-    id: UUID
+    video_id: UUID
+    year: int
+    month: int
+    day: int
+    caption: Optional[str]
     url: str
 
 class MonthlyUserVideosResponse(BaseModel):
-    videos: Dict[int, VideoInfo]  
+    videos: List[VideoInfo]  
