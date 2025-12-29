@@ -1,6 +1,7 @@
+import datetime
 from fastapi import APIRouter, FastAPI, HTTPException, Depends, status
 from ..deps import get_session, get_s3_service, get_gemini_service
-from ...models import User, Speech, UserInterest, SpeechVisibility, Rating
+from ...models import User, Speech, UserInterest, SpeechVisibility, Rating, UserStreak
 from ...schemas import UploadRequestResponse, VideoReadResponse
 from sqlalchemy.orm import Session
 from ...db import get_db
@@ -173,17 +174,58 @@ async def delete_video(
         Rating.speech_id == video_id
     ).all()
 
+    streak = db.query(UserStreak).filter(
+        UserStreak.user_id == user.id 
+    ).order_by(UserStreak.created_at.desc()).first()
+
     if speech is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail='Speech not found'
         )
     
+    if streak:
+        if streak.start_date == streak.end_date:
+            db.delete(streak)
+            db.commit()
+        elif speech.created_at.date() == streak.end_date:
+            streak.end_date = streak.end_date - datetime.timedelta(days=1)
+            streak.ends_at = datetime.datetime.combine(
+                streak.end_date,
+                datetime.time.max,
+                tzinfo=datetime.timezone.utc
+            )
+            db.commit()
+        elif speech.created_at.date() == streak.start_date:
+            streak.start_date = streak.start_date + datetime.timedelta(days=1)
+            db.commit()
+        elif streak.start_date < speech.created_at.date() < streak.end_date:
+            original_end_date = streak.end_date
+            streak.end_date = speech.created_at.date() - datetime.timedelta(days=1)
+            streak.ends_at = datetime.datetime.combine(
+                streak.end_date,
+                datetime.time.max,
+                tzinfo=datetime.timezone.utc
+            )
+
+            new_streak = UserStreak(
+                user_id=user.id,
+                start_date=speech.created_at.date() + datetime.timedelta(days=1),
+                end_date=original_end_date,
+                ends_at=datetime.datetime.combine(
+                    original_end_date,
+                    datetime.time.max,
+                    tzinfo=datetime.timezone.utc
+                )
+            )
+            db.add(new_streak)
+            db.commit()
+    
     if ratings:
         for rating in ratings:
             db.delete(rating)
         db.commit()
-        
+
     # Tu negdje dodati brisanje iz S3
 
     db.delete(speech)
