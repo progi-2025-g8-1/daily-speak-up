@@ -22,6 +22,19 @@
         }
     }; 
 
+    const handleVisibilitySwitch = async () => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123'}/api/v1/video/${videoInfo.video_id}/visibility`, {
+                method: 'PUT'
+            });
+            if (!response.ok) {
+                console.error('Failed to toggle visibility');
+            } 
+        } catch (error) {
+            console.error('Error toggling visibility:', error);
+        }
+    };
+
     const displaySpeechDialog = (date, hasSpeeches, video) => {
       if (hasSpeeches) {
         visible.value = true;
@@ -59,7 +72,8 @@
               <div class="pi pi-share-alt" style="color:black; font-size: 1.2rem;"></div>
               <div v-if="isOwner()" class="flex flex-row items-center gap-4">
                 <ToggleButton v-model="checked" onLabel="Privatno" offLabel="Za prijatelje" onIcon="pi pi-lock" 
-                            offIcon="pi pi-lock-open" class="w-36" aria-label="Do you confirm" />
+                            offIcon="pi pi-lock-open" class="w-36" aria-label="Do you confirm" 
+                            @change="handleVisibilitySwitch"/>
                 <Button icon="pi pi-eraser" label="Obriši" severity="danger" />
               </div>
             </div>
