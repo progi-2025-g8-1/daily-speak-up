@@ -85,7 +85,7 @@ async def me(
     if streak is None or streak.ends_at < datetime.datetime.now(datetime.timezone.utc):
         streak_days = 0
     else:
-        streak_days = (streak.ends_at.date() - streak.starts_at.date()).days + 1 
+        streak_days = int((streak.end_date - streak.start_date).days)
 
     return UserResponse(
         role=user.role,
