@@ -41,6 +41,25 @@
       }
     };
 
+    const handleMonthChange = async (event) => {
+      const userId = await getUserId();
+      const current_year = event.year;
+      const current_month = event.month; 
+
+      const response = await fetch(`${import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123'}/api/v1/user/${userId}/${current_year}/${current_month}/videos`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        eventDates.value = [];
+        data.videos.forEach(video_info => {
+          eventDates.value.push(video_info.day);
+        });
+        videoInfoList.value = data.videos;
+      } else {
+        console.error('Failed to fetch user videos for month change');
+      }
+    };
+
     onMounted(async () => {
       const userId = await getUserId();
       const current_year = new Date().getFullYear();
@@ -68,7 +87,7 @@
             </template>
         </Card>
 
-        <DatePicker inline class="mt-[2vh] w-full" @date-select="handleSelectedDate">
+        <DatePicker inline class="mt-[2vh] w-full" @date-select="handleSelectedDate" @month-change="handleMonthChange">
           <template #date="{ date }">
             <div class="relative flex items-center justify-center w-10 h-10">
               {{ date.day }}
