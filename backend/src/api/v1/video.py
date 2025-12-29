@@ -1,6 +1,6 @@
 from fastapi import APIRouter, FastAPI, HTTPException, Depends, status
 from ..deps import get_session, get_s3_service, get_gemini_service
-from ...models import User, Speech, UserInterest, SpeechVisibility
+from ...models import User, Speech, UserInterest, SpeechVisibility, Rating
 from ...schemas import UploadRequestResponse, VideoReadResponse
 from sqlalchemy.orm import Session
 from ...db import get_db
@@ -169,12 +169,21 @@ async def delete_video(
         Speech.user_id == user.id
     ).first()
 
+    ratings: list[Rating] | None = db.query(Rating).filter(
+        Rating.speech_id == video_id
+    ).all()
+
     if speech is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail='Speech not found'
         )
     
+    if ratings:
+        for rating in ratings:
+            db.delete(rating)
+        db.commit()
+        
     # Tu negdje dodati brisanje iz S3
 
     db.delete(speech)
