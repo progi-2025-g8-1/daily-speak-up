@@ -43,7 +43,6 @@
     <PlaySpeechFrame ref="playSpeechFrame" />
     <SecondaryFrame 
       @date-selected="handleDateSelected"
-      @show-friends="handleShowFriends"
       class="hidden lg:flex"/>
     <MainFrame 
       @start-recording="handleStartRecording" 
