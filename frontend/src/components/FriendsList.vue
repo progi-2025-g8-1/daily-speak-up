@@ -14,7 +14,6 @@
     };
 
     const showFriends = (userId) => {
-        console.log('Showing friends for user ID:', userId);
         const response = fetch(`${import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123'}/api/v1/user/${userId}/friends`)
         .then(res => res.json())
         .then(data => {

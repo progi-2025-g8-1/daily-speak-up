@@ -11,6 +11,7 @@
     const visible = ref(false);
     let dateString = ref('');
     const videoCaption = ref(''); 
+    const videoVisibility = ref(false);
 
     let videoInfo = null;
 
@@ -29,11 +30,19 @@
             const response = await fetch(`${import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123'}/api/v1/video/${videoInfo.video_id}/visibility`, {
                 method: 'PUT'
             });
-            if (!response.ok) {
+            if (response.ok) {
+                if (videoInfo.visibility === 'private') {
+                    videoInfo.visibility = 'friends';
+                } else {
+                    videoInfo.visibility = 'private';
+                }
+            } else {
                 console.error('Failed to toggle visibility');
-            } 
+                videoVisibility.value = !videoVisibility.value;
+            }
         } catch (error) {
             console.error('Error toggling visibility:', error);
+            videoVisibility.value = !videoVisibility.value;
         }
     };
 
@@ -59,6 +68,7 @@
         dateString.value = `${date.getDate()}. ${date.getMonth() + 1}. ${date.getFullYear()}`;
         videoInfo = video;
         videoCaption.value = video.caption;
+        videoVisibility.value = video.visibility === 'private';
       }
     };
 
@@ -92,7 +102,7 @@
             <div v-if="isOwner()" class="flex flex-row items-center gap-4">
               <ToggleButton onLabel="Privatno" offLabel="Za prijatelje" onIcon="pi pi-lock" 
                           offIcon="pi pi-lock-open" class="w-36" aria-label="Do you confirm" 
-                          @change="handleVisibilitySwitch"/>
+                          @change="handleVisibilitySwitch" v-model="videoVisibility"/>
               <Button icon="pi pi-eraser" label="Obriši" severity="danger" v-on:click="deleteVideo" />
             </div>
           </div>
