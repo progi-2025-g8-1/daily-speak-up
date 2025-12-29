@@ -1,20 +1,25 @@
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { ref, nextTick } from 'vue';
   import CurrentUsersProfile from './CurrentUsersProfile.vue';
   import FriendsList from './FriendsList.vue';
+  import type { FriendsListInstance } from '../types/friends-list';
   
   const emits = defineEmits(['date-selected', 'show-friends']);
 
   const showCurrentUsersProfile = ref(true);
   const showFriendsList = ref(false);
+  const friendsListRef = ref<FriendsListInstance | null>(null);
   const userId = ref('');
 
-  const handleShowFriends = (id: string) => {
-    userId.value = id;
+  const handleShowFriends = async (id: string) => {
     showCurrentUsersProfile.value = false;
     showFriendsList.value = true;
-
-  };
+    await nextTick();
+    if (friendsListRef.value) {
+      friendsListRef.value.showFriends(id);
+      userId.value = id;
+    }
+};
 
   const hideFriends = () => {
     showFriendsList.value = false;
@@ -34,7 +39,8 @@
                          @date-selected="handleDateSelected"
                          @show-friends="handleShowFriends" />
 
-    <FriendsList v-else-if="showFriendsList" @hide-friends="hideFriends"/>
+    <FriendsList v-else-if="showFriendsList" ref="friendsListRef"
+                                             @hide-friends="hideFriends"/>
   </div>
 </template>
 
