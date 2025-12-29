@@ -11,11 +11,17 @@
 
     const showErrorMessage = ref(false)
     const eventDates = ref([]); 
-
+    const calendarKey = ref(0);
     let videoInfoList = ref([]);
 
     const hasEvent = (day) => {
       return eventDates.value.includes(day);
+    };
+
+    const deleteVideo = (videoId) => {
+      videoInfoList.value = videoInfoList.value.filter(vi => vi.video_id !== videoId);
+      eventDates.value = videoInfoList.value.map(vi => vi.day);
+      calendarKey.value += 1;
     };
 
     const handleShowFriends = (userId) => {
@@ -76,6 +82,10 @@
         console.error('Failed to fetch user videos');
       }
     });
+
+    defineExpose({
+      deleteVideo
+    });
 </script>
 
 
@@ -87,7 +97,7 @@
             </template>
         </Card>
 
-        <DatePicker inline class="mt-[2vh] w-full" @date-select="handleSelectedDate" @month-change="handleMonthChange">
+        <DatePicker inline class="mt-[2vh] w-full" @date-select="handleSelectedDate" @month-change="handleMonthChange" :key="calendarKey">
           <template #date="{ date }">
             <div class="relative flex items-center justify-center w-10 h-10">
               {{ date.day }}

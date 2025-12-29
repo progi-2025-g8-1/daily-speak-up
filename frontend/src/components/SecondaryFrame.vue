@@ -3,13 +3,21 @@
   import CurrentUsersProfile from './CurrentUsersProfile.vue';
   import FriendsList from './FriendsList.vue';
   import type { FriendsListInstance } from '../types/friends-list';
+  import type { DeleteVideoInstance } from '../types/delete-video';
   
   const emits = defineEmits(['date-selected', 'show-friends']);
 
   const showCurrentUsersProfile = ref(true);
   const showFriendsList = ref(false);
   const friendsListRef = ref<FriendsListInstance | null>(null);
+  const currentUsersProfileRef = ref<DeleteVideoInstance | null>(null);
   const userId = ref('');
+
+  const deleteVideo = (videoId: string) => {
+    if (currentUsersProfileRef.value) {
+      currentUsersProfileRef.value.deleteVideo(videoId);
+    }
+  };
 
   const handleShowFriends = async (id: string) => {
     showCurrentUsersProfile.value = false;
@@ -31,11 +39,16 @@
       emits('date-selected', date, hasSpeeches, videoInfo);
     }
   };
+
+  defineExpose({
+    deleteVideo
+  });
 </script>
 
 <template>
   <div class="flex flex-col items-center lg:w-[40vw] lg:h-full">
     <CurrentUsersProfile v-if="showCurrentUsersProfile"
+                         ref="currentUsersProfileRef"
                          @date-selected="handleDateSelected"
                          @show-friends="handleShowFriends" />
 
