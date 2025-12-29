@@ -36,7 +36,7 @@
             width="100%" 
             height="100%" 
             :src="videoInfo.url"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" 
+            allow="autoplay" 
         ></iframe>
         <div>{{ videoCaption }}</div>
         <div class="flex flex-row items-center justify-between w-full mt-6">

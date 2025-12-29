@@ -28,11 +28,11 @@
               <span class="text-xs text-gray-600">streak</span>
             </div>
             <div class="flex flex-col items-start">
-              <div class="flex flex-row items-center gap-2">
+              <div class="flex flex-row items-center gap-2" v-on:click="handleShowFriends">
                 <span class="text-2xl font-bold text-dark">{{ user.friends_count || 0 }}</span>
                 <span class="pi pi-users font-xl"></span>
               </div>
-              <span class="text-xs text-gray-600">friends</span>
+              <span class="text-xs text-gray-600">prijatelji</span>
             </div>
           </div>
         </div>
@@ -57,11 +57,15 @@
       ProgressSpinner,
       Message
     },
-    setup() {
+    setup(props, { emit }) {
       const user = ref(null);
       const userId = ref('');
       const loading = ref(true);
       const error = ref('');
+
+      const handleShowFriends = () => {
+        emit('show-friends', userId.value);
+      };
   
       onMounted(async () => {
         try {
@@ -99,7 +103,8 @@
         user,
         userId,
         loading,
-        error
+        error,
+        handleShowFriends
       };
     },
   };

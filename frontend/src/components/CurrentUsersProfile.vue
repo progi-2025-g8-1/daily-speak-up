@@ -7,7 +7,7 @@
     import Message from 'primevue/message';
     import { getUserId } from'../auth';
 
-    const emits = defineEmits(['date-selected']);
+    const emits = defineEmits(['date-selected', 'show-friends']);
 
     const showErrorMessage = ref(false)
     const eventDates = ref([]); 
@@ -16,6 +16,10 @@
 
     const hasEvent = (day) => {
       return eventDates.value.includes(day);
+    };
+
+    const handleShowFriends = (userId) => {
+      emits('show-friends', userId);
     };
 
     const handleSelectedDate = (date) => {
@@ -60,7 +64,7 @@
     <div class="flex flex-col items-center w-[93%]">
         <Card class="w-full mt-[2vh]">
             <template #content>
-                <ProfileHeader />
+                <ProfileHeader @show-friends="handleShowFriends" />
             </template>
         </Card>
 
