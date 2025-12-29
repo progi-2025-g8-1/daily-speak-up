@@ -38,3 +38,10 @@ class VideoInfo(BaseModel):
 
 class MonthlyUserVideosResponse(BaseModel):
     videos: List[VideoInfo]  
+
+class FriendInfo(BaseModel):
+    user_id: UUID
+    handle: str
+    profile_picture_url: Optional[str]
+class FriendsListResponse(BaseModel):
+    friends: List[FriendInfo]

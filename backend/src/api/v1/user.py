@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from ..deps import get_session
 from ...db import get_db
-from ...schemas import UserResponse, UserCreate, MonthlyUserVideosResponse, VideoInfo
+from ...schemas import UserResponse, UserCreate, MonthlyUserVideosResponse, VideoInfo, FriendsListResponse, FriendInfo
 from ...models import User, Friendship, UserStreak, Speech
 from supertokens_python.recipe.session import SessionContainer
 
@@ -159,3 +159,50 @@ async def get_monthly_user_videos(
     ]
     
     return MonthlyUserVideosResponse(videos=videos)
+
+@router.get('/{user_id}/friends', response_model=FriendsListResponse)
+async def get_friends_list(
+    user_id: UUID,
+    db: Session = Depends(get_db),
+    session: SessionContainer = Depends(get_session)
+):
+    supertokens_user_id = session.get_user_id()
+
+    requesting_user: User | None = db.query(User).filter(
+        User.supertokens_user_id == supertokens_user_id
+    ).first()
+
+    if requesting_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail='You must be logged in to view friends list'
+        )
+
+    target_user: User | None = db.query(User).filter(
+        User.supertokens_user_id == str(user_id)
+    ).first()
+
+    if target_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Target user not found'
+        )
+    
+    friendships = db.query(Friendship).filter(
+        (Friendship.user_id1 == target_user.id) | (Friendship.user_id2 == target_user.id)
+    ).all()
+
+    friend_infos = []
+    for friendship in friendships:
+        friend_id = friendship.user_id2 if friendship.user_id1 == target_user.id else friendship.user_id1
+        friend: User | None = db.query(User).filter(User.id == friend_id).first()
+        if friend:
+            friend_infos.append(
+                FriendInfo(
+                    user_id=friend.id,
+                    handle=friend.handle,
+                    profile_picture_url=friend.profile_picture_url
+                )
+            )
+
+    return FriendsListResponse(friends=friend_infos)
