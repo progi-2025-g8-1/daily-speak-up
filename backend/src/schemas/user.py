@@ -6,7 +6,8 @@ from ..models import (
     AppLang,
     AppTheme,
     OnboardingStatus,
-    UserRole
+    UserRole,
+    SpeechVisibility
 )
 
 class UserCreate(BaseModel):
@@ -36,6 +37,7 @@ class VideoInfo(BaseModel):
     day: int
     caption: Optional[str]
     url: str
+    visibility: SpeechVisibility
 
 class MonthlyUserVideosResponse(BaseModel):
     videos: List[VideoInfo]  

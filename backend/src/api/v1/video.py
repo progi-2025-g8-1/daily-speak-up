@@ -1,6 +1,6 @@
 from fastapi import APIRouter, FastAPI, HTTPException, Depends, status
 from ..deps import get_session, get_s3_service, get_gemini_service
-from ...models import User, Speech, UserInterest
+from ...models import User, Speech, UserInterest, SpeechVisibility
 from ...schemas import UploadRequestResponse, VideoReadResponse
 from sqlalchemy.orm import Session
 from ...db import get_db
@@ -107,4 +107,41 @@ async def get_video_play_token(
             status_code=status.HTTP_404_NOT_FOUND,
             detail='Video not found or access error'
         )
+
+@router.put('/{video_id}/visibility', status_code=status.HTTP_200_OK, response_model=None)
+async def set_video_visibility(
+    video_id: str,
+    db: Session = Depends(get_db),
+    session: SessionContainer = Depends(get_session)
+):
+    supertokens_user_id = session.get_user_id()
+
+    user: User | None = db.query(User).filter(
+        User.supertokens_user_id == supertokens_user_id
+    ).first()
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='User not found'
+        )
     
+    speech: Speech | None = db.query(Speech).filter(
+        Speech.id == video_id,
+        Speech.user_id == user.id
+    ).first()
+
+    if speech is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Speech not found'
+        )
+    
+    if speech.visibility_level == SpeechVisibility.PRIVATE:
+        speech.visibility_level = SpeechVisibility.FRIENDS
+    else:
+        speech.visibility_level = SpeechVisibility.PRIVATE
+    db.commit()
+    db.refresh(speech)
+
+    return

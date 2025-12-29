@@ -153,7 +153,8 @@ async def get_monthly_user_videos(
             day=speech.created_at.day,
             caption=speech.caption,
             url=speech.s3_url,
-            owner_id=speech.user_id
+            owner_id=speech.user_id,
+            visibility=speech.visibility_level
         ) 
         for speech in speeches 
         if speech.s3_url is not None and not speech.is_cancelled 
