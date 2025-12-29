@@ -145,3 +145,39 @@ async def set_video_visibility(
     db.refresh(speech)
 
     return
+
+@router.delete('/{video_id}', status_code=status.HTTP_200_OK, response_model=None)
+async def delete_video(
+    video_id: str,
+    db: Session = Depends(get_db),
+    session: SessionContainer = Depends(get_session)
+):
+    supertokens_user_id = session.get_user_id()
+
+    user: User | None = db.query(User).filter(
+        User.supertokens_user_id == supertokens_user_id
+    ).first()
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='User not found'
+        )
+    
+    speech: Speech | None = db.query(Speech).filter(
+        Speech.id == video_id,
+        Speech.user_id == user.id
+    ).first()
+
+    if speech is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Speech not found'
+        )
+    
+    # Tu negdje dodati brisanje iz S3
+
+    db.delete(speech)
+    db.commit()
+
+    return
