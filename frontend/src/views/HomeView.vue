@@ -1,13 +1,29 @@
 <script setup lang="ts">
-  import { ref } from "vue";
+  import { ref, provide } from "vue";
   import MainFrame from '../components/MainFrame.vue';
-  import FriendsFrame from '../components/FriendsFrame.vue';
-  import Divider from 'primevue/divider';
+  import SecondaryFrame from '../components/SecondaryFrame.vue';
   import VideoRecorderFrame from '../components/VideoRecorderFrame.vue';
+  import PlaySpeechFrame from "../components/PlaySpeechFrame.vue";
   import type { VideoRecorderFrameInstance } from "../types/video-recorder-frame";
+  import type { PlaySpeechFrameInstance } from "../types/play-speech-frame";
+  import type { DeleteVideoInstance } from "../types/delete-video";
   import Toast from 'primevue/toast';
 
+  const emits = defineEmits(['video-deleted']);
+
+  provide('deleteVideo', (videoId: string) => {
+
+  });
+
   const videoFrame = ref<VideoRecorderFrameInstance | null>(null);
+  const playSpeechFrame = ref<PlaySpeechFrameInstance | null>(null);
+  const secondaryFrame = ref<DeleteVideoInstance | null>(null);
+
+  const handleDeletedVideo = (videoId: string) => {
+    if(secondaryFrame.value) {
+      secondaryFrame.value.deleteVideo(videoId);
+    }
+  };
 
   const handleStartRecording = (start: boolean) => {
     if (start && videoFrame.value) {
@@ -26,23 +42,27 @@
       videoFrame.value.setSpeechTopic(interes, tema);
     }
   };
+
+  const handleDateSelected = (date: Date, hasSpeeches: boolean, videoInfo: any) => {
+    if(playSpeechFrame.value && hasSpeeches) {
+      playSpeechFrame.value.displaySpeechDialog(date, hasSpeeches, videoInfo);
+    }
+  };
 </script>
 
 <template>
   <div class="flex flex-col lg:flex-row w-full h-full">
     <Toast />
     <VideoRecorderFrame ref="videoFrame" />
+    <PlaySpeechFrame ref="playSpeechFrame" @video-deleted="handleDeletedVideo" />
+    <SecondaryFrame 
+      @date-selected="handleDateSelected"
+      class="hidden lg:flex"
+      ref="secondaryFrame"/>
     <MainFrame 
       @start-recording="handleStartRecording" 
       @upload-data="handleUploadData"
       @topic-generated="handleTopicGenerated"></MainFrame>
-    <div class="hidden lg:block">
-      <Divider layout="vertical" :pt="{root:{class:'divider'}}"/>
-    </div>
-    <div class="block lg:hidden">
-      <Divider layout="horizontal"  :pt="{root:{class:'divider'}}" />
-    </div>
-    <FriendsFrame />
   </div>
 </template>
 

@@ -32,7 +32,7 @@ const handleUploadData = (uploadMethod: string, uploadUrl: string, userId: strin
 
 <template>
   <div
-    class="flex flex-col justify-start items-center bg-sky-100 w-[100vw] h-[60vh] lg:w-[65%] lg:h-full"
+    class="flex flex-col justify-start items-center bg-sky-100 w-[100vw] lg:w-[60vw] h-full"
   >
     <NavBar />
 
@@ -43,7 +43,7 @@ const handleUploadData = (uploadMethod: string, uploadUrl: string, userId: strin
         class="border-black justify-center
                 font-sans text-[1.5vw] font-semibold text-center"
       >
-        <h1>Start practicing!</h1>
+        <h1>Započnite vježbu!</h1>
       </div>
 
       <div class="my-[5vh]">

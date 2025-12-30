@@ -2,7 +2,7 @@
     <div class="flex items-center gap-6">
       <ProgressSpinner v-if="loading" style="width: 50px; height: 50px" strokeWidth="4" />
       
-      <div v-else-if="user" class="flex items-start gap-6 w-full">
+      <div v-else-if="user" class="flex flex-row justify-around w-full">
         <Avatar 
           :label="user.handle?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase()" 
           shape="circle" 
@@ -10,7 +10,7 @@
           style="width: 100px; height: 100px; font-size: 3rem;"
         />
   
-        <div class="flex flex-col">
+        <div class="flex flex-col items-start">
           <h2 class="text-2xl font-semibold text-dark m-0 mb-1">
             {{ user.handle || user.email }}
           </h2>
@@ -19,14 +19,20 @@
             {{ user.email }}
           </h3>
   
-          <div class="flex gap-6">
-            <div class="flex flex-col items-center">
-              <span class="text-2xl font-bold text-dark">{{ user.streak || 0 }}</span>
+          <div class="flex gap-10">
+            <div class="flex flex-col items-start">
+              <div class="flex flex-row items-center gap-2">
+                <span class="text-2xl font-bold text-dark">{{ user.streak || 0 }}</span>
+                <span class="pi pi-sparkles font-xl"></span>
+              </div>
               <span class="text-xs text-gray-600">streak</span>
             </div>
-            <div class="flex flex-col items-center">
-              <span class="text-2xl font-bold text-dark">{{ user.friends_count || 0 }}</span>
-              <span class="text-xs text-gray-600">followers</span>
+            <div class="flex flex-col items-start">
+              <div class="flex flex-row items-center gap-2" v-on:click="handleShowFriends">
+                <span class="text-2xl font-bold text-dark">{{ user.friends_count || 0 }}</span>
+                <span class="pi pi-users font-xl"></span>
+              </div>
+              <span class="text-xs text-gray-600">prijatelji</span>
             </div>
           </div>
         </div>
@@ -51,11 +57,15 @@
       ProgressSpinner,
       Message
     },
-    setup() {
+    setup(props, { emit }) {
       const user = ref(null);
       const userId = ref('');
       const loading = ref(true);
       const error = ref('');
+
+      const handleShowFriends = () => {
+        emit('show-friends', userId.value);
+      };
   
       onMounted(async () => {
         try {
@@ -93,7 +103,8 @@
         user,
         userId,
         loading,
-        error
+        error,
+        handleShowFriends
       };
     },
   };
