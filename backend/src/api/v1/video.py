@@ -53,6 +53,44 @@ async def get_upload_token(
     db.commit()
     db.refresh(speech)
     
+    # Check if user has an active streak for today, if not create one
+    today = datetime.date.today()
+    existing_streak = db.query(UserStreak).filter(
+        UserStreak.user_id == user.id,
+        UserStreak.start_date == today,
+        UserStreak.end_date == None
+    ).first()
+    
+    if not existing_streak:
+        # Check if there's a streak that expired
+        latest_streak = db.query(UserStreak).filter(
+            UserStreak.user_id == user.id
+        ).order_by(UserStreak.created_at.desc()).first()
+        
+        if latest_streak and latest_streak.ends_at >= datetime.datetime.now(datetime.timezone.utc):
+            # Extend the existing streak
+            latest_streak.end_date = today
+            latest_streak.ends_at = datetime.datetime.combine(
+                today,
+                datetime.time.max,
+                tzinfo=datetime.timezone.utc
+            )
+        else:
+            # Create a new streak starting today
+            new_streak = UserStreak(
+                user_id=user.id,
+                start_date=today,
+                end_date=None,
+                ends_at=datetime.datetime.combine(
+                    today + datetime.timedelta(days=1),
+                    datetime.time.min,
+                    tzinfo=datetime.timezone.utc
+                )
+            )
+            db.add(new_streak)
+    
+    db.commit()
+    
     # Now generate presigned upload URL using the committed speech ID
     upload_data = s3_service.get_upload_url(str(user.id), str(speech.id))
     speech.s3_url = upload_data['key']
