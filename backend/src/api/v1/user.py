@@ -6,13 +6,13 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import extract
 from sqlalchemy.orm import Session
 
-from ..deps import get_session
+from ..deps import get_session, get_s3_service
 from ...db import get_db
 from ...schemas import UserResponse, UserCreate, MonthlyUserVideosResponse, VideoInfo, FriendsListResponse, FriendInfo
 from ...models import User, Friendship, UserStreak, Speech
 from supertokens_python.recipe.session import SessionContainer
 
-from ...services import EmailService
+from ...services import EmailService, S3SecureService
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=['user'], prefix='/user')
@@ -85,7 +85,17 @@ async def me(
     if streak is None or streak.ends_at < datetime.datetime.now(datetime.timezone.utc):
         streak_days = 0
     else:
-        streak_days = int((streak.end_date - streak.start_date).days)
+        # `end_date` is nullable in the model. If it's missing, treat the
+        # current date (UTC) as the effective end date for the ongoing streak.
+        # Ensure we operate on `date` objects when subtracting.
+        end_date: datetime.date = (
+            streak.end_date if streak.end_date is not None else datetime.datetime.now(datetime.timezone.utc).date()
+        )
+        start_date: datetime.date = streak.start_date
+
+        # Use inclusive day count: a streak that starts and ends the same day counts as 1.
+        days_delta = (end_date - start_date).days
+        streak_days = max(0, int(days_delta) + 1)
 
     return UserResponse(
         role=user.role,
@@ -109,6 +119,7 @@ async def get_monthly_user_videos(
     year: int,
     month: int,
     db: Session = Depends(get_db),
+    s3_service: S3SecureService = Depends(get_s3_service),
     session: SessionContainer = Depends(get_session)
 ):
     supertokens_user_id = session.get_user_id()
@@ -139,26 +150,47 @@ async def get_monthly_user_videos(
             detail='Invalid month'
         )
     
+    # Fetch speeches and generate presigned read URLs for each available video
     speeches = db.query(Speech).filter(
         Speech.user_id == requesting_user.id,
         extract('year', Speech.created_at) == year,
         extract('month', Speech.created_at) == month
     ).all()
 
-    videos = [
-        VideoInfo(
-            video_id=speech.id, 
-            year=speech.created_at.year,
-            month=speech.created_at.month,
-            day=speech.created_at.day,
-            caption=speech.caption,
-            url=speech.s3_url,
-            owner_id=speech.user_id,
-            visibility=speech.visibility_level
-        ) 
-        for speech in speeches 
-        if speech.s3_url is not None and not speech.is_cancelled 
-    ]
+    videos = []
+
+    for speech in speeches:
+
+        if speech.s3_url is None or speech.is_cancelled:
+            continue
+
+        download_url = None
+
+        # Pre sign the S3 URL
+        try:
+            rd = s3_service.get_read_url(str(requesting_user.id), str(speech.id))
+            if isinstance(rd, dict):
+                download_url = rd.get('download_url')
+            elif hasattr(rd, 'get'):
+                download_url = rd.get('download_url')
+            else:
+                download_url = getattr(rd, 'download_url', None)
+        except Exception as exc:
+            logger.debug("Failed to generate presigned URL for speech %s: %s", speech.id, exc)
+            download_url = None
+
+        videos.append(
+            VideoInfo(
+                video_id=speech.id,
+                year=speech.created_at.year,
+                month=speech.created_at.month,
+                day=speech.created_at.day,
+                caption=speech.caption,
+                url=download_url if download_url is not None else speech.s3_url,
+                owner_id=speech.user_id,
+                visibility=speech.visibility_level
+            )
+        )
     
     return MonthlyUserVideosResponse(videos=videos)
 
