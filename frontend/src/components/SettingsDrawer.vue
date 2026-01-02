@@ -115,7 +115,7 @@
                 
                 <div class="flex flex-row w-full justify-between mt-10">
                     <Logout class="mt-10 w-[45%]" />
-                    <Button @click="confirm_account_deletion()" label="Delete account" severity="danger" icon="pi pi-trash" class="mt-10 w-[45%]" />
+                    <Button @click="confirm_account_deletion()" label="Izbriši račun" severity="danger" icon="pi pi-trash" class="mt-10 w-[45%]" />
                 </div>
             </div>
         </Drawer>
