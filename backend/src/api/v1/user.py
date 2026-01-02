@@ -11,7 +11,7 @@ from ...db import get_db
 from ...schemas import UserResponse, UserCreate, MonthlyUserVideosResponse, VideoInfo, FriendsListResponse, FriendInfo
 from ...models import User, Friendship, UserStreak, Speech, UserDevice, UserInterest, Rating, Ban, Report
 from supertokens_python.recipe.session import SessionContainer
-from supertokens_python.syncio import delete_user
+from supertokens_python.asyncio import delete_user
 
 from ...services import EmailService, S3SecureService
 
@@ -290,7 +290,8 @@ async def delete_account(
         db.query(UserInterest).filter(UserInterest.user_id == user.id).delete(synchronize_session=False)
 
         try:
-            delete_user(supertokens_user_id)
+            await delete_user(supertokens_user_id)
+            await session.revoke_session()
         except Exception as exc:
             logger.error("Failed to delete SuperTokens user %s: %s", supertokens_user_id, exc)
             raise HTTPException(
@@ -299,6 +300,7 @@ async def delete_account(
             )
 
         user.email = f"deleted_{user.id}@deleted.local"
+        user.supertokens_user_id = f"deleted_{user.supertokens_user_id}"
         user.handle = f"deleted_{user.id}"
         user.profile_picture_url = None
         user.deleted_at = datetime.datetime.now(datetime.timezone.utc)
@@ -306,12 +308,13 @@ async def delete_account(
 
         db.commit()
 
-        return JSONResponse(
+        response = JSONResponse(
             status_code=status.HTTP_200_OK,
             content={
                 'message': 'User account deleted successfully'
             }
         )
+        return response
     
     except Exception as exc:
         logger.error("Error deleting user data for user %s: %s", user.id, exc)
