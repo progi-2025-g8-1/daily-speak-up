@@ -1,6 +1,6 @@
 import boto3
 from botocore.client import Config
-from typing import Dict, Any
+from typing import Dict, Any, List
 from io import BytesIO
 
 class S3SecureService:
@@ -178,3 +178,26 @@ class S3SecureService:
             return s3_key
         except Exception as e:
             raise Exception(f"Failed to upload file to S3: {str(e)}")
+    
+    def delete_videos(self, user_id: str, video_ids: List[str]) -> None:
+        """
+        Deletes a file from S3 given its key.
+        :param video_ids: The list of video IDs of the files to delete
+        """
+        try:
+            for video_id in video_ids:
+                s3_key = f"video/{user_id}/{video_id}.mp4"
+                self.s3_client.delete_object(Bucket=self.bucket, Key=s3_key)
+        except Exception as e:
+            raise Exception(f"Failed to delete videos from S3: {str(e)}")
+    
+    def delete_profile_photo(self, user_id: str) -> None:
+        """
+        Deletes the profile photo of a user from S3.
+        """
+        try:
+            for extension in ['png', 'jpg']:
+                s3_key = f"photo/{user_id}.{extension}"
+                self.s3_client.delete_object(Bucket=self.bucket, Key=s3_key)
+        except Exception as e:
+            raise Exception(f"Failed to delete profile photo from S3: {str(e)}")

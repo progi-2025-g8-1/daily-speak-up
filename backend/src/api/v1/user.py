@@ -245,7 +245,8 @@ async def get_friends_list(
 @router.delete('/delete', response_class=JSONResponse)
 async def delete_account(
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session)
+    session: SessionContainer = Depends(get_session),
+    s3_service: S3SecureService = Depends(get_s3_service)
 ):
     supertokens_user_id = session.get_user_id()
 
@@ -259,15 +260,22 @@ async def delete_account(
             detail='User not found'
         )
     
-    # ------------------------------------ #
-    # Delete user's videos and pfp from S3 #
-    # ------------------------------------ #
-    
+    speeches = db.query(Speech).filter(Speech.user_id == user.id)
+    speeches_ids = [speech.id for speech in speeches.all()]
+    speech_ids_str = [str(sid) for sid in speeches_ids]
+
+    # Delete from S3
+    try:
+        s3_service.delete_videos(str(user.id), speech_ids_str)
+        s3_service.delete_profile_photo(str(user.id))
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail='Failed to delete user files on S3'
+        )   
 
     # Delete user-related data here (e.g., speeches, friendships, etc.)
     try:
-        speeches = db.query(Speech).filter(Speech.user_id == user.id)
-        speeches_ids = [speech.id for speech in speeches.all()]
         speeches.delete()
 
         db.query(Speech).filter(Speech.deleted_by == user.id).update({Speech.deleted_by: None})
