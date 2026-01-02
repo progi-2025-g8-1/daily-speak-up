@@ -141,6 +141,196 @@ def passwordless_login():
 </html>
 """
 
+def delete_account_message():
+    return """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Account Deletion Confirmation</title>
+  <style>
+    /* Reset */
+    body, table, td, a {
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
+    table, td {
+      mso-table-lspace: 0pt;
+      mso-table-rspace: 0pt;
+    }
+    img {
+      -ms-interpolation-mode: bicubic;
+      border: 0;
+      outline: none;
+      text-decoration: none;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100% !important;
+      height: 100% !important;
+      background-color: #f1f6fb;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #1f2d3d;
+    }
+
+    /* Container */
+    .email-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    /* Header */
+    .header {
+      background-color: #0d6efd;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .logo-placeholder {
+      width: 11.5vh;
+      height: 11.5vh;
+      background-color: #ffffff;
+      color: #0d6efd;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 14px;
+      border-radius: 20%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Content */
+    .content {
+      padding: 32px 24px;
+    }
+
+    .content h1 {
+      font-size: 22px;
+      margin: 0 0 16px 0;
+      color: #0d6efd;
+    }
+
+    .content p {
+      font-size: 15px;
+      line-height: 1.6;
+      margin: 0 0 16px 0;
+    }
+
+    .info-box {
+      background-color: #f1f6fb;
+      border-left: 4px solid #0d6efd;
+      padding: 16px;
+      margin: 24px 0;
+      font-size: 14px;
+    }
+
+    /* Button */
+    .button-wrapper {
+      text-align: center;
+      margin: 32px 0 8px;
+    }
+
+    .button {
+      background-color: #0d6efd;
+      color: #ffffff;
+      text-decoration: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 15px;
+      display: inline-block;
+    }
+
+    /* Footer */
+    .footer {
+      background-color: #f1f6fb;
+      padding: 20px 24px;
+      font-size: 12px;
+      color: #6c757d;
+      text-align: center;
+    }
+
+    .footer a {
+      color: #0d6efd;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <table width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td align="center">
+        <table class="email-container" width="100%" cellpadding="0" cellspacing="0">
+
+          <!-- Header -->
+          <tr>
+            <td class="header">
+              <div class="logo-placeholder">
+                <img src="https://i.ibb.co/7JSrmZyf/favicon.png" style="height: 10vh;">
+              </div>
+            </td>
+          </tr>
+
+          <!-- Content -->
+          <tr>
+            <td class="content">
+              <h1>Account Deletion Requested</h1>
+
+              <p>Hello,</p>
+
+              <p>
+                We’re writing to confirm that a request has been made to delete your
+                <strong>Daily Speak Up</strong> account.
+              </p>
+
+              <div class="info-box">
+                <strong>What happens next?</strong><br />
+                Your account and all associated data will be permanently deleted
+                within <strong>24 hours</strong>.
+              </div>
+
+             
+              <p>
+                Thank you for being part of Daily Speak Up.
+              </p>
+
+              <p>
+                — The Daily Speak Up Team
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td class="footer">
+              <p>
+                This email was sent automatically. Please do not reply.
+              </p>
+              <p>
+                © 2026 Daily Speak Up
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
+
+    """
+
 def welcome_message():
     return """
 <!DOCTYPE html>

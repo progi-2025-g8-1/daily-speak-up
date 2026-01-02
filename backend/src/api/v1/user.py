@@ -299,6 +299,8 @@ async def delete_account(
                 detail='Failed to delete user account'
             )
 
+        email = user.email
+
         user.email = f"deleted_{user.id}@deleted.local"
         user.supertokens_user_id = f"deleted_{user.supertokens_user_id}"
         user.handle = f"deleted_{user.id}"
@@ -307,6 +309,13 @@ async def delete_account(
         user.anonymized_at = datetime.datetime.now(datetime.timezone.utc)
 
         db.commit()
+
+        EmailService.send_email(    
+            to_mail=email,
+            subject="Your DailySpeakUp account has been deleted",
+            template="confirm_account_deletion",
+            message=""
+        )
 
         response = JSONResponse(
             status_code=status.HTTP_200_OK,
