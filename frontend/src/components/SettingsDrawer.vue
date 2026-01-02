@@ -35,8 +35,24 @@
             label: 'Izbriši',
             severity: 'danger'
         },
-        accept: () => {
-            console.log('Account deletion confirmed');
+        accept: async () => {
+            try {
+                const response = await fetch(`${import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123'}/api/v1/user/delete`, {
+                    method: 'DELETE',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    console.error('Failed to delete account');
+                }
+            } catch (error) {
+                console.error('Error deleting account:', error);
+            }
         },
         reject: () => {
             console.log('Account deletion rejected');
