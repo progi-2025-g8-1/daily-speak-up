@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from ..deps import get_session, get_s3_service
 from ...db import get_db
-from ...schemas import UserResponse, UserCreate, MonthlyUserVideosResponse, VideoInfo, FriendsListResponse, FriendInfo, UserInterestsResponse
+from ...schemas import UserResponse, UserCreate, MonthlyUserVideosResponse, VideoInfo, FriendsListResponse, FriendInfo, UserInterestsResponse, NotificationSettingUpdate
 from ...models import User, Friendship, UserStreak, Speech, UserInterest, Interest
 from supertokens_python.recipe.session import SessionContainer
 
@@ -270,3 +270,91 @@ async def get_user_interests(
                 break
     
     return UserInterestsResponse(interests=user_interests_return)
+
+@router.put('/email-notifications', response_class=JSONResponse)
+async def update_email_notifications(
+    data: NotificationSettingUpdate,
+    db: Session = Depends(get_db),
+    session: SessionContainer = Depends(get_session)
+):
+    print(data)
+    supertokens_user_id = session.get_user_id()
+
+    user: User | None = db.query(User).filter(
+        User.supertokens_user_id == supertokens_user_id
+    ).first()
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='User not found'
+        )
+    
+    user.email_notifications_enabled = data.enabled
+    db.commit()
+    db.refresh(user)
+
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={
+            'message': 'ok'
+        }
+    )
+
+@router.put('/push-notifications', response_class=JSONResponse)
+async def update_push_notifications(
+    data: NotificationSettingUpdate,
+    db: Session = Depends(get_db),
+    session: SessionContainer = Depends(get_session)
+):
+    supertokens_user_id = session.get_user_id()
+
+    user: User | None = db.query(User).filter(
+        User.supertokens_user_id == supertokens_user_id
+    ).first()
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='User not found'
+        )
+    
+    user.push_notifications_enabled = data.enabled
+    db.commit()
+    db.refresh(user)
+
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={
+            'message': 'ok'
+        }
+    )
+
+@router.put('/streak-reminders', response_class=JSONResponse)
+async def update_streak_reminders(
+    data: NotificationSettingUpdate,
+    db: Session = Depends(get_db),
+    session: SessionContainer = Depends(get_session)
+):
+    supertokens_user_id = session.get_user_id()
+
+    user: User | None = db.query(User).filter(
+        User.supertokens_user_id == supertokens_user_id
+    ).first()
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='User not found'
+        )
+    
+    user.streak_reminders_enabled = data.enabled
+    db.commit()
+    db.refresh(user)
+
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={
+            'message': 'ok'
+        }
+    )

@@ -51,3 +51,6 @@ class FriendsListResponse(BaseModel):
 
 class UserInterestsResponse(BaseModel):
     interests: List[str]
+
+class NotificationSettingUpdate(BaseModel):
+    enabled: bool

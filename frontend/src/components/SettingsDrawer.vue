@@ -106,6 +106,39 @@
         { name: 'Tema sustava', code: 'system' },
     ]);
 
+    const updateEmailNotifs = async () => {
+        const response = await fetch(`${import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123'}/api/v1/user/email-notifications`, {
+            method: 'PUT',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ enabled: emailNotifs.value })
+        });
+    };
+
+    const updatePushNotifs = async () => {
+        const response = await fetch(`${import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123'}/api/v1/user/push-notifications`, {
+            method: 'PUT',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ enabled: pushNotifs.value })
+        });
+    };
+
+    const updateStreakNotifs = async () => {
+        const response = await fetch(`${import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123'}/api/v1/user/streak-reminders`, {
+            method: 'PUT',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ enabled: streakNotifs.value })
+        });
+    };
+
 </script>
 
 <template>
@@ -127,17 +160,17 @@
                     <div class="mt-8 flex flex-col justify-start items-start">
                         <div class="flex flex-row justify-between w-full mb-4">
                             <span class="text-md font-medium">e-mail obavijesti</span>
-                            <ToggleSwitch v-model="emailNotifs" />
+                            <ToggleSwitch v-model="emailNotifs" @update:modelValue="updateEmailNotifs" />
                         </div>
 
                         <div class="flex flex-row justify-between w-full mb-4">
                             <span class="text-md font-medium">push obavijesti</span>
-                            <ToggleSwitch v-model="pushNotifs" />
+                            <ToggleSwitch v-model="pushNotifs" @update:modelValue="updatePushNotifs" />
                         </div>
     
                         <div class="flex flex-row justify-between w-full mb-4">
                             <span class="text-md font-medium">streak podsjetnici</span>
-                            <ToggleSwitch v-model="streakNotifs" />
+                            <ToggleSwitch v-model="streakNotifs" @update:modelValue="updateStreakNotifs" />
                         </div>
                     </div>
                 </Panel>
