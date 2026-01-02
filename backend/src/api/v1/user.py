@@ -276,16 +276,13 @@ async def delete_account(
 
     # Delete user-related data here (e.g., speeches, friendships, etc.)
     try:
-        speeches.delete(synchronize_session=False)
-
-        db.query(Speech).filter(Speech.deleted_by == user.id).update({Speech.deleted_by: None})
+        db.query(Ban).filter(Ban.user_id == user.id).delete(synchronize_session=False)
 
         db.query(Rating).filter(Rating.speech_id.in_(speeches_ids)).delete(synchronize_session=False)
         db.query(Rating).filter(Rating.rated_by == user.id).delete(synchronize_session=False)
 
         db.query(Report).filter(Report.speech_id.in_(speeches_ids)).delete(synchronize_session=False)
         db.query(Report).filter(Report.reported_by == user.id).delete(synchronize_session=False)
-        db.query(Ban).filter(Ban.user_id == user.id).delete(synchronize_session=False)
 
 
         db.query(Friendship).filter(
@@ -295,7 +292,10 @@ async def delete_account(
         db.query(UserStreak).filter(UserStreak.user_id == user.id).delete(synchronize_session=False)
 
         db.query(UserDevice).filter(UserDevice.user_id == user.id).delete(synchronize_session=False)
+
         db.query(UserInterest).filter(UserInterest.user_id == user.id).delete(synchronize_session=False)
+
+        speeches.delete(synchronize_session=False)
 
         try:
             await delete_user(supertokens_user_id)
