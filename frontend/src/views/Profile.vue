@@ -28,21 +28,17 @@
           
           <template #content>
             
-            <ProfileHeader />
+            <CurrentUsersProfile />
           </template>
         </Card>
-        
-            <Calendar />
-        
       </div>
     </div>
   </template>
   
   <script setup>
   import NavBar from '../components/NavBar.vue';
-  import ProfileHeader from '../components/ProfileHeader.vue';
+  import CurrentUsersProfile from '../components/CurrentUsersProfile.vue';
   import Card from 'primevue/card';
-  import Calendar from '../components/Calendar.vue'
   </script>
 
   <style>
