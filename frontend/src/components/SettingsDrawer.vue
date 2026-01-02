@@ -12,10 +12,13 @@
     import { ref, onMounted } from 'vue';
 
     const visible = ref(false);
-    const selectedTheme = ref();
-    const selectedLanguage = ref();
+    const selectedTheme = ref('light');
+    const selectedLanguage = ref('hr');
     const selectedInterests = ref([]);
     const interests = ref([]);
+    const emailNotifs = ref(false);
+    const pushNotifs = ref(false);
+    const streakNotifs = ref(false);
 
     onMounted(async () => {
         try {
@@ -36,6 +39,67 @@
         } catch (e) {
             console.error('Failed to fetch interests:', e);
         }
+
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123'}/api/v1/user/me`, {
+                method: 'GET',
+            });
+
+            if (response.ok) {
+                const data = await response.json()
+                console.log(data);
+                
+                if(data.preferred_theme === 'system') {
+                    selectedTheme.value = 'system';
+                } else if (data.preferred_theme === 'light') {
+                    selectedTheme.value = 'light';
+                } else {
+                    selectedTheme.value = 'dark';
+                }
+                
+                if(data.preferred_lang === 'hr') {
+                    selectedLanguage.value = 'hr';
+                } else {
+                    selectedLanguage.value = 'en';
+                }
+
+                if(data.email_notifications_enabled) {
+                    emailNotifs.value = true;
+                } else {
+                    emailNotifs.value = false;
+                }
+
+                if (data.push_notifications_enabled) {
+                    pushNotifs.value = true;
+                } else {
+                    pushNotifs.value = false;
+                }
+
+                if(data.streak_reminders_enabled) {
+                    streakNotifs.value = true;
+                } else {
+                    streakNotifs.value = false;
+                }
+            }
+        } catch(e) {
+            console.error('Failed to fetch /user/me: ', e)
+        }
+
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123'}/api/v1/user/interests`, {
+                method: 'GET',
+            });
+
+            if(response.ok){
+                const interestList = await response.json();
+
+                interestList.forEach((interest) => {
+                    selectedInterests.value.push(interest);
+                });
+            }
+        } catch(e) {
+            console.error('Failed to fetch user\'s interests (/user/interests): ', e)
+        }
     });
 
     const language = ref([
@@ -44,7 +108,7 @@
     ]);
 
     const themes = ref([
-        { name: 'Svjetla', code: 'light' },
+        { name: 'Svijetla', code: 'light' },
         { name: 'Tamna', code: 'dark' },
         { name: 'Tema sustava', code: 'system' },
     ]);
@@ -62,25 +126,25 @@
 
             <div class="flex flex-col justify-start items-stretch w-full">
                 
-                <Select v-model="selectedTheme" :options="themes" optionLabel="name" placeholder="Odaberite temu" class="w-full mt-10" />
-                <Select v-model="selectedLanguage" :options="language" optionLabel="name" placeholder="Odaberite jezik" class="w-full mt-10" />
+                <Select v-model="selectedTheme" :options="themes" optionLabel="name" optionValue="code" placeholder="Odaberite temu" class="w-full mt-10" />
+                <Select v-model="selectedLanguage" :options="language" optionLabel="name" optionValue="code" placeholder="Odaberite jezik" class="w-full mt-10" />
                 <MultiSelect v-model="selectedInterests" :options="interests" optionLabel="name" filter placeholder="Promijenite svoje interese"  class="w-full mt-10" />
                 
                 <Panel header="Postavke obavijesti" class="mt-10">
                     <div class="mt-8 flex flex-col justify-start items-start">
                         <div class="flex flex-row justify-between w-full mb-4">
                             <span class="text-md font-medium">e-mail obavijesti</span>
-                            <ToggleSwitch :v-model="false" />
+                            <ToggleSwitch v-model="emailNotifs" />
                         </div>
 
                         <div class="flex flex-row justify-between w-full mb-4">
                             <span class="text-md font-medium">push obavijesti</span>
-                            <ToggleSwitch :v-model="false" />
+                            <ToggleSwitch v-model="pushNotifs" />
                         </div>
     
                         <div class="flex flex-row justify-between w-full mb-4">
                             <span class="text-md font-medium">streak podsjetnici</span>
-                            <ToggleSwitch :v-model="false" />
+                            <ToggleSwitch v-model="streakNotifs" />
                         </div>
                     </div>
                 </Panel>
