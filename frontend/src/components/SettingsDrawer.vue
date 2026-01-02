@@ -2,9 +2,11 @@
     import Drawer from 'primevue/drawer';
     import Button from 'primevue/button';
     import Select from 'primevue/select';
+    import { useConfirm } from "primevue/useconfirm";
     import MultiSelect from 'primevue/multiselect';
     import Panel from 'primevue/panel';
     import ToggleSwitch from 'primevue/toggleswitch';
+    import ConfirmDialog from 'primevue/confirmdialog';
     import Login from './LoginModal.vue';
     import Logout from './Logout.vue';
     import User from './User.vue';
@@ -16,6 +18,31 @@
     const selectedLanguage = ref();
     const selectedInterests = ref([]);
     const interests = ref([]);
+    const confirm = useConfirm();
+
+    const confirm_account_deletion = () => {
+        confirm.require({
+        message: 'Jeste li sigurni da želite izbrisati svoj račun? Ova se radnja ne može poništiti.',
+        header: 'Opasna radnja',
+        icon: 'pi pi-exclamation-triangle',
+        rejectLabel: 'Odustani',
+        rejectProps: {
+            label: 'Odustani',
+            severity: 'secondary',
+            outlined: true
+        },
+        acceptProps: {
+            label: 'Izbriši',
+            severity: 'danger'
+        },
+        accept: () => {
+            console.log('Account deletion confirmed');
+        },
+        reject: () => {
+            console.log('Account deletion rejected');
+        }
+    });
+    }
 
     onMounted(async () => {
         try {
@@ -52,6 +79,7 @@
 </script>
 
 <template>
+    <ConfirmDialog></ConfirmDialog>
     <div class="flex justify-center">
         <Drawer v-model:visible="visible" header="Postavke računa" position="left" 
                 :dismissable="false" class="!w-full lg:!w-[40vw]">
@@ -87,7 +115,7 @@
                 
                 <div class="flex flex-row w-full justify-between mt-10">
                     <Logout class="mt-10 w-[45%]" />
-                    <Button label="Delete account" severity="danger" icon="pi pi-trash" class="mt-10 w-[45%]" />
+                    <Button @click="confirm_account_deletion()" label="Delete account" severity="danger" icon="pi pi-trash" class="mt-10 w-[45%]" />
                 </div>
             </div>
         </Drawer>
