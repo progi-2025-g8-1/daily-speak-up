@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from ..deps import get_session, get_s3_service
 from ...db import get_db
 from ...schemas import UserResponse, UserCreate, MonthlyUserVideosResponse, VideoInfo, FriendsListResponse, FriendInfo
-from ...models import User, Friendship, UserStreak, Speech, UserDevice, UserInterest, Rating, Ban, Report
+from ...models import User, Friendship, UserStreak, Speech, UserDevice, UserInterest, Rating, Ban, Report, UserRole
 from supertokens_python.recipe.session import SessionContainer
 from supertokens_python.asyncio import delete_user
 
@@ -276,7 +276,7 @@ async def delete_account(
 
     # Delete user-related data here (e.g., speeches, friendships, etc.)
     try:
-        speeches.delete()
+        speeches.delete(synchronize_session=False)
 
         db.query(Speech).filter(Speech.deleted_by == user.id).update({Speech.deleted_by: None})
 
@@ -309,12 +309,18 @@ async def delete_account(
 
         email = user.email
 
-        user.email = f"deleted_{user.id}@deleted.local"
-        user.supertokens_user_id = f"deleted_{user.supertokens_user_id}"
-        user.handle = f"deleted_{user.id}"
-        user.profile_picture_url = None
-        user.deleted_at = datetime.datetime.now(datetime.timezone.utc)
-        user.anonymized_at = datetime.datetime.now(datetime.timezone.utc)
+        # Soft delete for admins/moderators, hard delete for regular users
+        # Admins and moderators should remain for moderation purposes in Bans and Reports
+        if user.role == UserRole.USER:
+            db.delete(user)
+
+        else:
+            user.email = f"deleted_{user.id}@deleted.local"
+            user.supertokens_user_id = f"deleted_{user.supertokens_user_id}"
+            user.handle = f"deleted_{user.id}"
+            user.profile_picture_url = None
+            user.deleted_at = datetime.datetime.now(datetime.timezone.utc)
+            user.anonymized_at = datetime.datetime.now(datetime.timezone.utc)
 
         db.commit()
 
