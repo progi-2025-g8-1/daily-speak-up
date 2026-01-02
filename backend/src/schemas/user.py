@@ -48,3 +48,6 @@ class FriendInfo(BaseModel):
     profile_picture_url: Optional[str]
 class FriendsListResponse(BaseModel):
     friends: List[FriendInfo]
+
+class UserInterestsResponse(BaseModel):
+    interests: List[str]

@@ -36,6 +36,16 @@
                     interests.value.push({ name: interest.label, code: interest.slug });
                 });
             }
+
+            const response2 = await fetch(`${import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123'}/api/v1/user/interests`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+
+            if(response2.ok){
+                const interestList = await response2.json();
+                selectedInterests.value = interestList.interests
+            }
         } catch (e) {
             console.error('Failed to fetch interests:', e);
         }
@@ -47,7 +57,6 @@
 
             if (response.ok) {
                 const data = await response.json()
-                console.log(data);
                 
                 if(data.preferred_theme === 'system') {
                     selectedTheme.value = 'system';
@@ -84,22 +93,6 @@
         } catch(e) {
             console.error('Failed to fetch /user/me: ', e)
         }
-
-        try {
-            const response = await fetch(`${import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123'}/api/v1/user/interests`, {
-                method: 'GET',
-            });
-
-            if(response.ok){
-                const interestList = await response.json();
-
-                interestList.forEach((interest) => {
-                    selectedInterests.value.push(interest);
-                });
-            }
-        } catch(e) {
-            console.error('Failed to fetch user\'s interests (/user/interests): ', e)
-        }
     });
 
     const language = ref([
@@ -128,7 +121,7 @@
                 
                 <Select v-model="selectedTheme" :options="themes" optionLabel="name" optionValue="code" placeholder="Odaberite temu" class="w-full mt-10" />
                 <Select v-model="selectedLanguage" :options="language" optionLabel="name" optionValue="code" placeholder="Odaberite jezik" class="w-full mt-10" />
-                <MultiSelect v-model="selectedInterests" :options="interests" optionLabel="name" filter placeholder="Promijenite svoje interese"  class="w-full mt-10" />
+                <MultiSelect v-model="selectedInterests" :options="interests" optionLabel="name" optionValue="code" filter placeholder="Promijenite svoje interese"  class="w-full mt-10" />
                 
                 <Panel header="Postavke obavijesti" class="mt-10">
                     <div class="mt-8 flex flex-col justify-start items-start">
