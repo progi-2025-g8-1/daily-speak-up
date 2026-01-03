@@ -9,8 +9,9 @@ from sqlalchemy.orm import Session
 from ..deps import get_session, get_s3_service
 from ...db import get_db
 from ...schemas import UserResponse, UserCreate, MonthlyUserVideosResponse, VideoInfo, FriendsListResponse, FriendInfo, UserInterestsResponse, NotificationSettingUpdate
-from ...models import User, Friendship, UserStreak, Speech, UserInterest, Interest
+from ...models import User, Friendship, UserStreak, Speech, UserDevice, UserInterest, Interest, Rating, Ban, Report, UserRole
 from supertokens_python.recipe.session import SessionContainer
+from supertokens_python.asyncio import delete_user
 
 from ...services import EmailService, S3SecureService
 
@@ -241,6 +242,110 @@ async def get_friends_list(
 
     return FriendsListResponse(friends=friend_infos)
 
+@router.delete('/delete', response_class=JSONResponse)
+async def delete_account(
+    db: Session = Depends(get_db),
+    session: SessionContainer = Depends(get_session),
+    s3_service: S3SecureService = Depends(get_s3_service)
+):
+    supertokens_user_id = session.get_user_id()
+
+    user: User | None = db.query(User).filter(
+        User.supertokens_user_id == supertokens_user_id
+    ).first()
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='User not found'
+        )
+    
+    speeches = db.query(Speech).filter(Speech.user_id == user.id)
+    speeches_ids = [speech.id for speech in speeches.all()]
+    speech_ids_str = [str(sid) for sid in speeches_ids]
+
+    # Delete from S3
+    try:
+        s3_service.delete_videos(str(user.id), speech_ids_str)
+        s3_service.delete_profile_photo(str(user.id))
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail='Failed to delete user files on S3'
+        )   
+
+    # Delete user-related data here (e.g., speeches, friendships, etc.)
+    try:
+        db.query(Ban).filter(Ban.user_id == user.id).delete(synchronize_session=False)
+
+        db.query(Rating).filter(Rating.speech_id.in_(speeches_ids)).delete(synchronize_session=False)
+        db.query(Rating).filter(Rating.rated_by == user.id).delete(synchronize_session=False)
+
+        db.query(Report).filter(Report.speech_id.in_(speeches_ids)).delete(synchronize_session=False)
+        db.query(Report).filter(Report.reported_by == user.id).delete(synchronize_session=False)
+
+
+        db.query(Friendship).filter(
+            (Friendship.user_id1 == user.id) | (Friendship.user_id2 == user.id)
+        ).delete(synchronize_session=False)
+
+        db.query(UserStreak).filter(UserStreak.user_id == user.id).delete(synchronize_session=False)
+
+        db.query(UserDevice).filter(UserDevice.user_id == user.id).delete(synchronize_session=False)
+
+        db.query(UserInterest).filter(UserInterest.user_id == user.id).delete(synchronize_session=False)
+
+        speeches.delete(synchronize_session=False)
+
+        try:
+            await delete_user(supertokens_user_id)
+            await session.revoke_session()
+        except Exception as exc:
+            logger.error("Failed to delete SuperTokens user %s: %s", supertokens_user_id, exc)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail='Failed to delete user account'
+            )
+
+        email = user.email
+
+        # Soft delete for admins/moderators, hard delete for regular users
+        # Admins and moderators should remain for moderation purposes in Bans and Reports
+        if user.role == UserRole.USER:
+            db.delete(user)
+
+        else:
+            user.email = f"deleted_{user.id}@deleted.local"
+            user.supertokens_user_id = f"deleted_{user.supertokens_user_id}"
+            user.handle = f"deleted_{user.id}"
+            user.profile_picture_url = None
+            user.deleted_at = datetime.datetime.now(datetime.timezone.utc)
+            user.anonymized_at = datetime.datetime.now(datetime.timezone.utc)
+
+        db.commit()
+
+        EmailService.send_email(    
+            to_mail=email,
+            subject="Your DailySpeakUp account has been deleted",
+            template="confirm_account_deletion",
+            message=""
+        )
+
+        response = JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                'message': 'User account deleted successfully'
+            }
+        )
+        return response
+    
+    except Exception as exc:
+        logger.error("Error deleting user data for user %s: %s", user.id, exc)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail='Failed to delete user data'
+        )
+        
 @router.get('/interests', response_model=UserInterestsResponse)
 async def get_user_interests(
     db: Session = Depends(get_db),
