@@ -44,9 +44,19 @@ async def lifespan(app: FastAPI):
     try:
         logger.info("Running startup tasks...")
         create_all_tables()
+
         if os.getenv('ENVIRONMENT', 'production') == 'dev':
             seed_mock_data()
         logger.info("Startup tasks completed successfully")
+
+        email = settings.ROOT_ADMIN_EMAIL
+        password = settings.ROOT_ADMIN_PASSWORD
+
+        if email and password:
+            from .seed_root_admin import create_root_admin
+            await create_root_admin(email=email, password=password)
+        else:
+            logger.warning("ROOT_ADMIN_EMAIL or ROOT_ADMIN_PASSWORD not set; skipping root admin creation")
     except Exception as e:
         logger.error(f"Error during startup: {e}")
         pass
