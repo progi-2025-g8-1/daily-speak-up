@@ -10,6 +10,7 @@ import ToggleButton from 'primevue/togglebutton';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8123/api/v1'
 const users = ref([]);
+const showUsers = ref([]);
 const rowHeight = ref(0);
 const containerHeight = ref(0);
 const handles = ref([]);
@@ -28,6 +29,7 @@ onMounted(async () => {
     if(response.ok) {
         const data = await response.json();
         users.value = data;
+        showUsers.value = data;
         handles.value = data.map((user: any) => user.handle);
         setTimeout(() => {
             measureDimensions();
@@ -36,15 +38,24 @@ onMounted(async () => {
         console.error('Failed to fetch users:', response.statusText);
     }
     
-    // Recalculate on window resize
     window.addEventListener('resize', measureDimensions);
 });
 
 const search = (event: { query: string }) => {
     const query = event.query.toLowerCase();
-    handles.value = users.value
+
+    let query_result = users.value
         .map((user: any) => user.handle)
         .filter((handle: string) => handle.toLowerCase().includes(query));
+    handles.value = query_result;
+    showUsers.value = users.value.filter((user: any) => 
+        user.handle.toLowerCase().includes(query)
+    );
+};
+
+const resetUsers = () => {
+    handles.value = users.value.map((user: any) => user.handle);
+    showUsers.value = users.value;
 };
 
 const measureDimensions = () => {
@@ -63,11 +74,11 @@ const measureDimensions = () => {
 <template>
    <div class="flex flex-col justify-center items-center gap-2">
         <div class="w-full flex justify-center items-center">
-            <AutoComplete v-model="searchValue" placeholder="Pretraži korisnike po korisničkom imenu..." :suggestions="handles" @complete="search"/> 
+            <AutoComplete v-model="searchValue" placeholder="Pretraži korisnike po korisničkom imenu..." :suggestions="handles" :dropdown="false" @complete="search" @clear="resetUsers"/> 
         </div>
 
         <div class="dataview-container w-[90%]" style="height: calc(100vh - 215px)">
-            <DataView :value="users" paginator :rows="rowsPerPage">
+            <DataView :value="showUsers" paginator :rows="rowsPerPage">
                 <template #list="slotProps">
                     <div class="flex flex-col">
                         <div v-for="(item, index) in slotProps.items" :key="index" class="user-row">
