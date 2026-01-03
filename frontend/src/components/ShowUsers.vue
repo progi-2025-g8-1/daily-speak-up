@@ -3,6 +3,10 @@ import { ref, onMounted, computed } from 'vue';
 import DataView from 'primevue/dataview';
 import Avatar from 'primevue/avatar';
 import AutoComplete from 'primevue/autocomplete';
+import Button from 'primevue/button';
+import ToggleButton from 'primevue/togglebutton';
+
+
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8123/api/v1'
 const users = ref([]);
@@ -57,23 +61,30 @@ const measureDimensions = () => {
 </script>
 
 <template>
-   <div class="flex flex-col justify-end gap-2">
+   <div class="flex flex-col justify-center items-center gap-2">
         <div class="w-full flex justify-center items-center">
             <AutoComplete v-model="searchValue" placeholder="Pretraži korisnike po korisničkom imenu..." :suggestions="handles" @complete="search"/> 
         </div>
 
-        <div class="dataview-container w-full" style="height: calc(100vh - 215px)">
+        <div class="dataview-container w-[90%]" style="height: calc(100vh - 215px)">
             <DataView :value="users" paginator :rows="rowsPerPage">
                 <template #list="slotProps">
                     <div class="flex flex-col">
                         <div v-for="(item, index) in slotProps.items" :key="index" class="user-row">
-                            <div class="flex flex-row items-center justify-start py-3 border-b border-surface-200">
-                                <div class="md:w-40 flex flex-col justify-center items-center">
-                                    <Avatar :image="item.profile_picture_url" shape="circle" />
+                            <div class="flex flex-row items-center justify-between py-3 border-b border-gray-400">
+                                <div class="flex flex-row justify-start items-center">
+                                    <div class="md:w-40 flex flex-col justify-center items-center">
+                                        <Avatar :image="item.profile_picture_url" shape="circle" />
+                                    </div>
+                                    <div class="flex flex-col justify-start items-start">
+                                        <div class="text-lg font-medium">{{ item.handle }}</div>
+                                        <div class="font-medium text-surface-500 dark:text-surface-400 text-sm">{{ item.email }}</div>
+                                    </div>
                                 </div>
-                                <div class="flex flex-col justify-start items-start">
-                                    <div class="text-lg font-medium">{{ item.handle }}</div>
-                                    <div class="font-medium text-surface-500 dark:text-surface-400 text-sm">{{ item.email }}</div>
+                                <div class="flex flex-row gap-4 mr-8">
+                                    <Button icon="pi pi-video" rounded variant="outlined" aria-label="Videos" v-tooltip.top="{ value: 'Prikaži videozapise', showDelay: 500, hideDelay: 100 }" />
+                                    <Button icon="pi pi-times" severity="danger" rounded variant="outlined" aria-label="Ban" v-tooltip.top="{ value: 'Uruči zabranu', showDelay: 500, hideDelay: 100 }" />
+                                    <ToggleButton onLabel="Moderator" offLabel="Korisnik" onIcon="pi pi-user-edit" offIcon="pi pi-user" class="w-36" aria-label="Do you confirm" v-tooltip.top="{ value: 'Promijeni ulogu', showDelay: 500, hideDelay: 100 }" />
                                 </div>
                             </div>
                         </div>
@@ -104,4 +115,12 @@ const measureDimensions = () => {
 .dataview-container {
     overflow: hidden;
 }
+
+.p-togglebutton {
+    --p-togglebutton-checked-color: rgb(123, 56, 128);
+    --p-togglebutton-checked-border-color: rgb(123, 56, 128);
+    --p-togglebutton-icon-checked-color: rgb(123, 56, 128);
+    --p-togglebutton-checked-background: rgb(255, 248, 254);
+}
+
 </style>
