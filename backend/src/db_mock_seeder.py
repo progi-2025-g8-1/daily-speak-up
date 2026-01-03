@@ -216,7 +216,7 @@ def seed_friendships_for_non_mock_user():
             (Friendship.user_id1 == non_mock_user.id) | (Friendship.user_id2 == non_mock_user.id)
         ).count() if non_mock_user else 0
 
-        if existing_count > FRIENDS_WITH_NON_MOCK_USER:
+        if existing_count >= FRIENDS_WITH_NON_MOCK_USER:
             logger.info(f'Friendships for non-mock user already exist. Skipping seeding.')
             return
 
@@ -264,13 +264,13 @@ def seed_speeches():
     ]
 
     VIDEO_URLS = [
-        'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-        'https://www.youtube.com/watch?v=jnAzOioELLQ',
-        'https://www.youtube.com/watch?v=7Gbg6Z70J7E',
-        'https://www.youtube.com/watch?v=ZADcpEwy8zs',
-        'https://www.youtube.com/watch?v=ANFmYIjptMs',
-        'https://www.youtube.com/watch?v=X4gkDPHT1bg',
-        'https://www.youtube.com/watch?v=V9vuCByb6js'
+        'https://www.youtube.com/embed/dQw4w9WgXcQ?si=Fi3kwUYMS3oOBXUK',
+        'https://www.youtube.com/embed/jnAzOioELLQ?si=9ByEQaQBKtsKkLLl',
+        'https://www.youtube.com/embed/7Gbg6Z70J7E?si=yWF74V6QOTu1oTEA',
+        'https://www.youtube.com/embed/ZADcpEwy8zs?si=WbOegWB58XHTnNUg',
+        'https://www.youtube.com/embed/ANFmYIjptMs?si=C19jbvq_pmSXL-Ij',
+        'https://www.youtube.com/embed/X4gkDPHT1bg?si=KxhN9TWgZZ6bwpWC',
+        'https://www.youtube.com/embed/V9vuCByb6js?si=tidLuwKKc8rP62TO'
     ]
 
     fake = Faker()
