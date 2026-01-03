@@ -120,7 +120,7 @@
             </template>
         </Card>
 
-        <Button v-if="showDashboardButton" icon="pi pi-sliders-h" label="Admin dashboard" class="w-full mt-[2vh]" :onClick="goToDashboard"  />
+        <Button v-if="showDashboardButton" icon="pi pi-sliders-h" label="Kontrolna ploča" class="w-full mt-[2vh]" :onClick="goToDashboard"  />
 
         <DatePicker inline class="mt-[2vh] w-full" @date-select="handleSelectedDate" @month-change="handleMonthChange" :key="calendarKey">
           <template #date="{ date }">
