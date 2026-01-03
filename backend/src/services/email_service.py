@@ -8,7 +8,7 @@ class EmailService:
     @staticmethod
     def send_email(to_mail: str, subject: str, 
                    message: str = 'Welcome to DailySpeakUp!',
-                   template: Literal['basic_message', 'welcome', 'passwordless_login'] = 'welcome',
+                   template: Literal['basic_message', 'welcome', 'passwordless_login', 'confirm_account_deletion'] = 'welcome',
                    code: Optional[str] = None,
                    magic_link: Optional[str] = None) -> None:
         """

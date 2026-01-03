@@ -5,24 +5,7 @@ services:
       - "5672:5672"
       - "15672:15672"
     networks:
-      - internal
-
-  postgres:
-    image: postgres:17
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB:-dailyspeakup}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - internal
+      - default
 
   supertokens:
     image: registry.supertokens.io/supertokens/supertokens-postgresql:latest
@@ -32,17 +15,8 @@ services:
       POSTGRESQL_CONNECTION_URI: "${SUPERTOKENS_DATABASE_URL}"
       API_KEYS: "${SUPERTOKENS_API_KEY}"
     restart: unless-stopped
-    depends_on:
-      postgres:
-        condition: service_healthy
-    healthcheck:
-      test: >
-        bash -c 'exec 3<>/dev/tcp/127.0.0.1/3567 && echo -e "GET /hello HTTP/1.1\r\nhost: 127.0.0.1:3567\r\nConnection: close\r\n\r\n" >&3 && cat <&3 | grep "Hello"'
-      interval: 10s
-      timeout: 5s
-      retries: 5
     networks:
-      - internal
+      - default
 
   backend:
     build:
@@ -76,24 +50,11 @@ services:
       - R2_ACCOUNT_ID=${R2_ACCOUNT_ID}
       - R2_ADMIN_API_KEY=${R2_ADMIN_API_KEY}
       - R2_ACCESS_KEY_ID=${R2_ACCESS_KEY_ID}
+      - R2_JURISDICTION=${R2_JURISDICTION}
     depends_on:
-      supertokens:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8123/api/v1/health"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+      - supertokens
     networks:
-      - internal
+      - default
 
   frontend:
     build:
@@ -107,21 +68,9 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      backend:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+      - backend
     networks:
-      - internal
+      - default
 
   celery_worker:
     build:
@@ -131,8 +80,6 @@ services:
     depends_on:
       - backend
       - rabbitmq
-      - supertokens
-      - postgres
     environment:
       - ENVIRONMENT=${ENVIRONMENT:-dev}
       - DATABASE_URL=${DATABASE_URL}
@@ -155,10 +102,4 @@ services:
       - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND:-rpc://}
       - CELERY_RATE_LIMIT=${CELERY_RATE_LIMIT:-2/s}
     networks:
-      - internal
-
-networks:
-  internal:
-
-volumes:
-  postgres_data:
+      - default

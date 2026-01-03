@@ -13,7 +13,7 @@ def send_email_task(to_mail : str, subject : str, body_text : str, template : st
         to_mail (str): Receiver's email address.
         subject (str): Subject of the email.
         body_text (str): Body text of the email.
-        template (str): Template type ('welcome', 'basic_message', or 'passwordless_login').
+        template (str): Template type ('welcome', 'basic_message',  'passwordless_login', 'confirm_account_deletion').
         code (str, optional): Code for passwordless login.
         magic_link (str, optional): Magic link for passwordless login.
     """
