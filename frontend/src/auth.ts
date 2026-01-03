@@ -1,6 +1,7 @@
 import Session from 'supertokens-web-js/recipe/session';
 import ThirdParty from 'supertokens-web-js/recipe/thirdparty';
 import Passwordless from 'supertokens-web-js/recipe/passwordless';
+import EmailPassword from 'supertokens-web-js/recipe/emailpassword';
 
 export async function signInWithGoogle() {
   try {
@@ -47,6 +48,28 @@ export async function resendPasswordlessCode() {
     return response;
   } catch (err) {
     console.error('Error resending passwordless code:', err);
+    throw err;
+  }
+}
+
+export async function signInWithEmailPassword(email: string, password: string) {
+  try {
+    const response = await EmailPassword.signIn({
+      formFields: [
+        { id: 'email', value: email },
+        { id: 'password', value: password }
+      ]
+    });
+    
+    if (response.status === 'OK') {
+      return response;
+    } else if (response.status === 'WRONG_CREDENTIALS_ERROR') {
+      throw new Error('Invalid email or password');
+    } else {
+      throw new Error('Sign in failed');
+    }
+  } catch (err) {
+    console.error('Error signing in with email/password:', err);
     throw err;
   }
 }
