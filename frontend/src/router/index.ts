@@ -7,6 +7,7 @@ import AuthCallbackView from '../views/AuthCallbackView.vue'
 import PasswordlessCallbackView from '../views/PasswordlessCallbackView.vue'
 import OnboardingView from '../views/OnboardingView.vue'
 import Profile from '../views/Profile.vue'
+import DashboardView from '../views/DashboardView.vue'
 import { isAuthenticated } from '../auth'
 
 const router = createRouter({
@@ -44,6 +45,33 @@ const router = createRouter({
       name: 'onboarding',
       component: OnboardingView,
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/dashboard',
+      name: 'dashboard',
+      component: DashboardView,
+      meta: { requiresAuth: true },
+      beforeEnter: async () => {
+        try {
+          const response = await fetch(`${import.meta.env.VITE_API_DOMAIN}/api/v1/user/me`, {
+            credentials: 'include',
+          });
+
+          if (!response.ok) {
+            return { path: '/' };
+          }
+          
+          const userData = await response.json();
+
+          if (userData.role === import.meta.env.VITE_ADMIN_ROLE ||
+              userData.handle === import.meta.env.VITE_MODERATOR_ROLE) {
+            return true
+          }
+          return { path: '/' };
+        } catch {
+          return { path: '/' };
+        }
+      }
     },
     {
       path: '/:handle',

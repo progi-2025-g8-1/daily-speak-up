@@ -174,6 +174,7 @@ export default {
 
         if (userResponse.ok) {
           user.value = await userResponse.json();
+          emit('user-role', user.value.role);
         } else {
           error.value = 'Failed to fetch user data';
         }
@@ -182,12 +183,13 @@ export default {
           const interestsData = await interestsResponse.json();
           interests.value = interestsData.interests || [];
         }
+
       } catch (e) {
-        error.value = 'An error occurred while fetching user data';
-        console.error('User fetch error:', e);
-      } finally {
-        loading.value = false;
-      }
+          error.value = 'An error occurred while fetching user data';
+          console.error('User fetch error:', e);
+        } finally {
+          loading.value = false;
+        }
     });
 
     return {
