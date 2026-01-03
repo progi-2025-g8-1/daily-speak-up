@@ -1,6 +1,7 @@
+import datetime
 from fastapi import APIRouter, FastAPI, HTTPException, Depends, status
 from ..deps import get_session, get_s3_service, get_gemini_service
-from ...models import User, Speech, UserInterest
+from ...models import User, Speech, UserInterest, SpeechVisibility, Rating, UserStreak
 from ...schemas import UploadRequestResponse, VideoReadResponse
 from sqlalchemy.orm import Session
 from ...db import get_db
@@ -52,6 +53,44 @@ async def get_upload_token(
     db.commit()
     db.refresh(speech)
     
+    # Check if user has an active streak for today, if not create one
+    today = datetime.date.today()
+    existing_streak = db.query(UserStreak).filter(
+        UserStreak.user_id == user.id,
+        UserStreak.start_date == today,
+        UserStreak.end_date == None
+    ).first()
+    
+    if not existing_streak:
+        # Check if there's a streak that expired
+        latest_streak = db.query(UserStreak).filter(
+            UserStreak.user_id == user.id
+        ).order_by(UserStreak.created_at.desc()).first()
+        
+        if latest_streak and latest_streak.ends_at >= datetime.datetime.now(datetime.timezone.utc):
+            # Extend the existing streak
+            latest_streak.end_date = today
+            latest_streak.ends_at = datetime.datetime.combine(
+                today,
+                datetime.time.max,
+                tzinfo=datetime.timezone.utc
+            )
+        else:
+            # Create a new streak starting today
+            new_streak = UserStreak(
+                user_id=user.id,
+                start_date=today,
+                end_date=None,
+                ends_at=datetime.datetime.combine(
+                    today + datetime.timedelta(days=1),
+                    datetime.time.min,
+                    tzinfo=datetime.timezone.utc
+                )
+            )
+            db.add(new_streak)
+    
+    db.commit()
+    
     # Now generate presigned upload URL using the committed speech ID
     upload_data = s3_service.get_upload_url(str(user.id), str(speech.id))
     speech.s3_url = upload_data['key']
@@ -89,7 +128,7 @@ async def get_video_play_token(
             detail='User not found'
         )
     
-    if user.id != target_user_id:
+    if str(user.id) != target_user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail='Access denied'
@@ -107,4 +146,127 @@ async def get_video_play_token(
             status_code=status.HTTP_404_NOT_FOUND,
             detail='Video not found or access error'
         )
+
+@router.put('/{video_id}/visibility', status_code=status.HTTP_200_OK, response_model=None)
+async def set_video_visibility(
+    video_id: str,
+    db: Session = Depends(get_db),
+    session: SessionContainer = Depends(get_session)
+):
+    supertokens_user_id = session.get_user_id()
+
+    user: User | None = db.query(User).filter(
+        User.supertokens_user_id == supertokens_user_id
+    ).first()
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='User not found'
+        )
     
+    speech: Speech | None = db.query(Speech).filter(
+        Speech.id == video_id,
+        Speech.user_id == user.id
+    ).first()
+
+    if speech is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Speech not found'
+        )
+    
+    if speech.visibility_level == SpeechVisibility.PRIVATE:
+        speech.visibility_level = SpeechVisibility.FRIENDS
+    else:
+        speech.visibility_level = SpeechVisibility.PRIVATE
+    db.commit()
+    db.refresh(speech)
+
+    return
+
+@router.delete('/{video_id}', status_code=status.HTTP_200_OK, response_model=None)
+async def delete_video(
+    video_id: str,
+    db: Session = Depends(get_db),
+    session: SessionContainer = Depends(get_session)
+):
+    supertokens_user_id = session.get_user_id()
+
+    user: User | None = db.query(User).filter(
+        User.supertokens_user_id == supertokens_user_id
+    ).first()
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='User not found'
+        )
+    
+    speech: Speech | None = db.query(Speech).filter(
+        Speech.id == video_id,
+        Speech.user_id == user.id
+    ).first()
+
+    ratings: list[Rating] | None = db.query(Rating).filter(
+        Rating.speech_id == video_id
+    ).all()
+
+    streak = db.query(UserStreak).filter(
+        UserStreak.user_id == user.id 
+    ).order_by(UserStreak.created_at.desc()).first()
+
+    if speech is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Speech not found'
+        )
+    
+    if streak:
+        if streak.start_date == streak.end_date:
+            db.delete(streak)
+            db.commit()
+        elif speech.created_at.date() == streak.end_date:
+            streak.end_date = streak.end_date - datetime.timedelta(days=1)
+            streak.ends_at = datetime.datetime.combine(
+                streak.end_date,
+                datetime.time.max,
+                tzinfo=datetime.timezone.utc
+            )
+            db.commit()
+        elif speech.created_at.date() == streak.start_date:
+            streak.start_date = streak.start_date + datetime.timedelta(days=1)
+            db.commit()
+        elif streak.start_date < speech.created_at.date() < streak.end_date:
+            original_end_date = streak.end_date
+            streak.end_date = speech.created_at.date() - datetime.timedelta(days=1)
+            streak.ends_at = datetime.datetime.combine(
+                streak.end_date,
+                datetime.time.max,
+                tzinfo=datetime.timezone.utc
+            )
+
+            new_streak = UserStreak(
+                user_id=user.id,
+                start_date=speech.created_at.date() + datetime.timedelta(days=1),
+                end_date=original_end_date,
+                ends_at=datetime.datetime.combine(
+                    original_end_date,
+                    datetime.time.max,
+                    tzinfo=datetime.timezone.utc
+                )
+            )
+            db.add(new_streak)
+            db.commit()
+    
+    if ratings:
+        for rating in ratings:
+            db.delete(rating)
+        db.commit()
+
+    # Tu negdje dodati brisanje iz S3
+
+    db.delete(speech)
+    db.commit()
+
+    return

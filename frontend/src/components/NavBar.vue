@@ -1,5 +1,5 @@
 <script setup>
-    import AccountDrawer from './AccountDrawer.vue';
+    import SettingsDrawer from './SettingsDrawer.vue';
 </script>
 
 <template>
@@ -12,7 +12,7 @@
             <div class="text-sky-500 font-semibold text-[2.5vh]">DailySpeakUp</div>
         </div>
 
-        <AccountDrawer />
+        <SettingsDrawer />
 
     </div>
     

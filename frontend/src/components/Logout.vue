@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <Button label="Log out" icon="pi pi-sign-out" severity="danger" @click="handleLogout" :loading="loading" />
-  </div>
+    <Button label="Odjava" icon="pi pi-sign-out" severity="warn" @click="handleLogout" :loading="loading" />
 </template>
 
 <script>

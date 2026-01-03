@@ -6,6 +6,7 @@ import NotFoundView from '../views/NotFoundView.vue'
 import AuthCallbackView from '../views/AuthCallbackView.vue'
 import PasswordlessCallbackView from '../views/PasswordlessCallbackView.vue'
 import OnboardingView from '../views/OnboardingView.vue'
+import Profile from '../views/Profile.vue'
 import { isAuthenticated } from '../auth'
 
 const router = createRouter({
@@ -43,6 +44,21 @@ const router = createRouter({
       name: 'onboarding',
       component: OnboardingView,
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/:handle',
+      name: 'Profile',
+      component: Profile,
+      beforeEnter: (to, _from, next) => {
+        const reservedPaths = ['login', 'profile', 'settings', 'auth'];
+        const handle = to.params.handle as string;
+        
+        if (reservedPaths.indexOf(handle) !== -1) {
+          next('/404');
+        } else {
+          next();
+        }
+      }
     }
   ]
 });

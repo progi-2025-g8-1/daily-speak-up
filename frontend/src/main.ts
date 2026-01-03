@@ -2,6 +2,9 @@ import App from './App.vue';
 import { createApp } from 'vue';
 import './style.css'
 import PrimeVue from 'primevue/config';
+import ToastService from 'primevue/toastservice';
+import ConfirmationService from 'primevue/confirmationservice';
+import Tooltip from 'primevue/tooltip';
 import Lara from '@primeuix/themes/lara';
 import { definePreset } from '@primeuix/themes';
 import router from './router';
@@ -68,6 +71,12 @@ app.use(PrimeVue, {
     }
 });
 
+app.use(ToastService);
+
+app.use(ConfirmationService);
+
 app.use(router);
+
+app.directive('tooltip', Tooltip);
 
 app.mount('#app');

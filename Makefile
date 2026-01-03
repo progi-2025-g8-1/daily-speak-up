@@ -57,20 +57,20 @@ test:
 	echo "Test test 1 2 3..."
 
 create-db:
-	@echo "Creating database tables in Docker..."
-	docker compose exec backend python -m backend.src.db_manager create
+	@echo "Creating database tables..."
+	.venv/bin/python -m backend.src.db_manager create
 
 reset-db:
-	@echo "Resetting database in Docker..."
-	docker compose exec backend python -m backend.src.db_manager reset
+	@echo "Resetting database (this will delete all data)..."
+	.venv/bin/python -m backend.src.db_manager reset
 
 reset-db-force:
-	@echo "Force resetting database in Docker..."
-	docker compose exec backend python -m backend.src.db_manager reset --force
+	@echo "Force resetting database..."
+	.venv/bin/python -m backend.src.db_manager reset --force
 
 drop-db:
-	@echo "Dropping database tables in Docker..."
-	docker compose exec backend python -m backend.src.db_manager drop
+	@echo "Dropping all database tables..."
+	.venv/bin/python -m backend.src.db_manager drop
 
 kill:
 	@echo "Stopping Docker containers..."
