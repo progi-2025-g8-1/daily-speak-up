@@ -8,8 +8,8 @@ from sqlalchemy.orm import Session
 
 from ..deps import get_session, get_s3_service
 from ...db import get_db
-from ...schemas import UserResponse, UserCreate, MonthlyUserVideosResponse, VideoInfo, FriendsListResponse, FriendInfo
-from ...models import User, Friendship, UserStreak, Speech, UserDevice, UserInterest, Rating, Ban, Report, UserRole
+from ...schemas import UserResponse, UserCreate, MonthlyUserVideosResponse, VideoInfo, FriendsListResponse, FriendInfo, UserInterestsResponse, NotificationSettingUpdate
+from ...models import User, Friendship, UserStreak, Speech, UserDevice, UserInterest, Interest, Rating, Ban, Report, UserRole
 from supertokens_python.recipe.session import SessionContainer
 from supertokens_python.asyncio import delete_user
 
@@ -345,3 +345,121 @@ async def delete_account(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail='Failed to delete user data'
         )
+        
+@router.get('/interests', response_model=UserInterestsResponse)
+async def get_user_interests(
+    db: Session = Depends(get_db),
+    session: SessionContainer = Depends(get_session)
+):
+    supertokens_user_id = session.get_user_id()
+
+    user: User | None = db.query(User).filter(
+        User.supertokens_user_id == supertokens_user_id
+    ).first()
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='User not found'
+        )
+    
+    interests = db.query(Interest).all()
+    user_interests_db = db.query(UserInterest).filter(UserInterest.user_id == user.id).all()
+
+    user_interests_return = []
+
+    for user_interest in user_interests_db:
+        for interest in interests:
+            if user_interest.interest_id == interest.id:
+                user_interests_return.append(interest.slug)
+                break
+    
+    return UserInterestsResponse(interests=user_interests_return)
+
+@router.put('/email-notifications', response_class=JSONResponse)
+async def update_email_notifications(
+    data: NotificationSettingUpdate,
+    db: Session = Depends(get_db),
+    session: SessionContainer = Depends(get_session)
+):
+    print(data)
+    supertokens_user_id = session.get_user_id()
+
+    user: User | None = db.query(User).filter(
+        User.supertokens_user_id == supertokens_user_id
+    ).first()
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='User not found'
+        )
+    
+    user.email_notifications_enabled = data.enabled
+    db.commit()
+    db.refresh(user)
+
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={
+            'message': 'ok'
+        }
+    )
+
+@router.put('/push-notifications', response_class=JSONResponse)
+async def update_push_notifications(
+    data: NotificationSettingUpdate,
+    db: Session = Depends(get_db),
+    session: SessionContainer = Depends(get_session)
+):
+    supertokens_user_id = session.get_user_id()
+
+    user: User | None = db.query(User).filter(
+        User.supertokens_user_id == supertokens_user_id
+    ).first()
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='User not found'
+        )
+    
+    user.push_notifications_enabled = data.enabled
+    db.commit()
+    db.refresh(user)
+
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={
+            'message': 'ok'
+        }
+    )
+
+@router.put('/streak-reminders', response_class=JSONResponse)
+async def update_streak_reminders(
+    data: NotificationSettingUpdate,
+    db: Session = Depends(get_db),
+    session: SessionContainer = Depends(get_session)
+):
+    supertokens_user_id = session.get_user_id()
+
+    user: User | None = db.query(User).filter(
+        User.supertokens_user_id == supertokens_user_id
+    ).first()
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='User not found'
+        )
+    
+    user.streak_reminders_enabled = data.enabled
+    db.commit()
+    db.refresh(user)
+
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={
+            'message': 'ok'
+        }
+    )

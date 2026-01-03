@@ -1,7 +1,7 @@
 from .auth import SessionPayload
 from .topic import TopicRequest, TopicResponse
 from .upload import UploadRequestResponse, VideoReadResponse
-from .user import UserCreate, UserResponse, MonthlyUserVideosResponse, VideoInfo, FriendsListResponse, FriendInfo
+from .user import UserCreate, UserResponse, MonthlyUserVideosResponse, VideoInfo, FriendsListResponse, FriendInfo, UserInterestsResponse, NotificationSettingUpdate
 from .userdata import UsernameData, EmailData, InterestData
 
 __all__ = [
@@ -18,5 +18,7 @@ __all__ = [
     'MonthlyUserVideosResponse',
     'VideoInfo',
     'FriendsListResponse',
-    'FriendInfo'
+    'FriendInfo',
+    'UserInterestsResponse',
+    'NotificationSettingUpdate'
 ]
