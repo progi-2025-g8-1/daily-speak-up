@@ -16,7 +16,7 @@ async def get_interests(
     
     return [
         {
-            "slug": interest.name,
+            "slug": interest.slug,
             "label": interest.name.replace("_", " ").title()
         }
         for interest in interests
