@@ -12,8 +12,17 @@
             <div class="text-sky-500 font-semibold text-[2.5vh]">DailySpeakUp</div>
         </div>
 
-        <SettingsDrawer />
+        <div class="flex flex-row items-center gap-2 mr-1">
+      <button
+        @click="$router.push('/search')"
+        class="icon-button"
+        title="Search"
+      >
+        <i class="pi pi-search text-black text-lg"></i>
+      </button>
 
+      <SettingsDrawer />
+    </div>
     </div>
     
 </template>

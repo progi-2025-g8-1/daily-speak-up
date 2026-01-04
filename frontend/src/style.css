@@ -119,3 +119,38 @@ button:focus-visible {
 .border-medium { border-color: var(--color-border-medium); }
 
 .gradient-primary { background: var(--gradient-primary); }
+
+
+.icon-button {
+  background: transparent !important;
+  border: none !important;
+  padding: 0.5rem;
+  color: black;
+}
+
+.icon-button:hover {
+  background: transparent !important;
+  transform: scale(1.15);
+}
+
+.icon-button:focus,
+.icon-button:active {
+  background: transparent !important;
+  outline: none !important;
+}.icon-button {
+  background: transparent !important;
+  border: none !important;
+  padding: 0.5rem;
+  color: black;
+}
+
+.icon-button:hover {
+  background: transparent !important;
+  transform: scale(1.15);
+}
+
+.icon-button:focus,
+.icon-button:active {
+  background: transparent !important;
+  outline: none !important;
+}
