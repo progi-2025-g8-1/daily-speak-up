@@ -5,6 +5,7 @@ from .topic import TopicRequest, TopicResponse
 from .upload import UploadRequestResponse, VideoReadResponse
 from .user import UserCreate, UserResponse, MonthlyUserVideosResponse, VideoInfo, FriendsListResponse, FriendInfo, UserInterestsResponse, NotificationSettingUpdate, PublicUserProfile
 from .userdata import UsernameData, EmailData, InterestData
+from .dashboard import ReportedVideoResponse
 
 __all__ = [
     'SessionPayload',
@@ -28,5 +29,6 @@ __all__ = [
     'FriendInfo',
     'UserInterestsResponse',
     'NotificationSettingUpdate',
-    'PublicUserProfile'
+    'PublicUserProfile',
+    'ReportedVideoResponse'
 ]
