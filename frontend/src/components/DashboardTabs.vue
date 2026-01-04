@@ -6,6 +6,7 @@
     import TabPanels from 'primevue/tabpanels';
     import TabPanel from 'primevue/tabpanel';
     import ShowUsers from './ShowUsers.vue';
+    import ShowReportedVideos from './ShowReportedVideos.vue';
 
     const activeTab = ref('0');
 </script>
@@ -46,11 +47,8 @@
             <TabPanel value="0" class="w-full h-full">
                 <ShowUsers />
             </TabPanel>
-            <TabPanel value="1" class="w-full h-auto">
-                <p class="h-full border-black border-1 m-0">
-                    Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim
-                    ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Consectetur, adipisci velit, sed quia non numquam eius modi.
-                </p>
+            <TabPanel value="1" class="w-full h-full">
+                <ShowReportedVideos />
             </TabPanel>
             <TabPanel value="2" class="w-full h-full">
                 <p class="h-full border-black border-1 m-0">

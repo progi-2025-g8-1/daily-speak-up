@@ -13,7 +13,7 @@ const users = ref([]);
 const showUsers = ref([]);
 const rowHeight = ref(0);
 const containerHeight = ref(0);
-const handles = ref([]);
+const handles = ref<string[]>([]);
 const searchValue = ref(null)
 
 const rowsPerPage = computed(() => {
