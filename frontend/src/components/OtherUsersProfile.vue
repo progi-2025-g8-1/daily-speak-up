@@ -1,3 +1,7 @@
+<script>
+
+</script>
+
 <template>
-  <p>tudi profil</p>
+  <p>Tudi profil</p>
 </template>
