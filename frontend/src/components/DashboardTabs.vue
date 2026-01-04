@@ -43,11 +43,14 @@
             </Tab>
         </TabList>
         
-        <TabPanels class="h-full">
+        <TabPanels>
             <TabPanel value="0" class="w-full h-full">
                 <ShowUsers />
             </TabPanel>
-            <TabPanel value="1" class="w-full h-full">
+            <TabPanel value="1" 
+                      class="flex flex-col 
+                             justify-center items-center 
+                             w-full h-full px-4 pt-4">
                 <ShowReportedVideos />
             </TabPanel>
             <TabPanel value="2" class="w-full h-full">
@@ -91,5 +94,10 @@
 :deep(.p-tablist) {
     display: flex;
     justify-content: center;
+}
+
+.p-tabpanels{
+    background-color: rgb(255, 255, 255);
+    height: 100%;
 }
 </style>
