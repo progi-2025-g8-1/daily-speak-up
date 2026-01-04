@@ -55,7 +55,7 @@ const checkIfOwnProfile = async () => {
       return;
     }
 
-    const handle = route.params.username;
+    const handle = route.params.handle;
 
     // Fetch current user's data
     const response = await fetch(

@@ -49,16 +49,12 @@ const router = createRouter({
       path: '/:handle',
       name: 'Profile',
       component: Profile,
-      beforeEnter: (to, _from, next) => {
-        const reservedPaths = ['login', 'profile', 'settings', 'auth'];
-        const handle = to.params.handle as string;
-        
-        if (reservedPaths.indexOf(handle) !== -1) {
-          next('/404');
-        } else {
-          next();
-        }
-      }
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: NotFoundView
     }
   ]
 });
