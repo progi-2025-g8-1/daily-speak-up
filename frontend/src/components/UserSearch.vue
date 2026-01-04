@@ -1,6 +1,5 @@
 <template>
     <div class="w-full space-y-4">
-      <!-- Search Input -->
       <div class="relative">
         <IconField iconPosition="left">
           <InputIcon>
@@ -10,19 +9,17 @@
           </InputIcon>
           <InputText 
             v-model="searchQuery" 
-            placeholder="Search users by handle or email..."
+            placeholder="Pretražite korisnike pomoću handlea ili emaila..."
             class="w-full"
             @input="handleSearch"
           />
         </IconField>
       </div>
   
-      <!-- Loading Spinner -->
       <div v-if="searching" class="flex justify-center py-8">
         <ProgressSpinner style="width: 50px; height: 50px" strokeWidth="4" />
       </div>
   
-      <!-- Search Results -->
       <div v-else-if="searchResults.length > 0" class="space-y-2">
         <div 
           v-for="user in searchResults" 
@@ -48,15 +45,14 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
-        <p class="text-gray-500">No users found</p>
+        <p class="text-gray-500">Nijedan korisnik nije pronađen</p>
       </div>
   
-      <!-- Initial State -->
       <div v-else class="text-center py-8">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
         </svg>
-        <p class="text-gray-500">Search for users to connect with</p>
+        <p class="text-gray-500">Pretražite korisnike s kojima se možete povezati</p>
       </div>
   
       <!-- Error Message -->
@@ -119,7 +115,7 @@
         error.value = 'Failed to search users';
       }
     } catch (e) {
-      error.value = 'An error occurred while searching';
+      error.value = 'Došlo je do pogreške tijekom pretraživanja';
       console.error('Search error:', e);
     } finally {
       searching.value = false;

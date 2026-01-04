@@ -6,7 +6,7 @@
         <Card class="shadow-lg">
           <template #header>
             <div class="px-6 pt-6 pb-2">
-              <h2 class="text-2xl font-semibold text-dark">Search Users</h2>
+              <h2 class="text-2xl font-semibold text-dark">Pretraživanje</h2>
             </div>
           </template>
           
