@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from ..deps import get_session, get_s3_service
 from ...db import get_db
-from ...schemas import UserResponse, ReportedVideoResponse
+from ...schemas import UserDashboardResponse, ReportedVideoResponse
 from ...models import User, Friendship, UserStreak, Speech, UserDevice, UserInterest, Interest, Rating, Ban, Report, UserRole
 from supertokens_python.recipe.session import SessionContainer
 from supertokens_python.asyncio import delete_user
@@ -14,7 +14,7 @@ from ...services import S3SecureService
 
 router = APIRouter(tags=['dashboard'], prefix='/dashboard')
 
-@router.get("/users", response_model=list[UserResponse], status_code=status.HTTP_200_OK)
+@router.get("/users", response_model=list[UserDashboardResponse], status_code=status.HTTP_200_OK)
 async def get_all_users(
     db: Session = Depends(get_db),
     session: SessionContainer = Depends(get_session)
@@ -38,20 +38,11 @@ async def get_all_users(
         )
     
     users = db.query(User).all()
-    return [UserResponse(
-                role=u.role,
+    return [UserDashboardResponse(
+                user_id=u.id,
                 email=u.email,
                 handle=u.handle,
-                profile_picture_url=u.profile_picture_url,
-                onboarding_status=u.onboarding_status,
-                preferred_lang=u.preferred_lang,
-                preferred_theme=u.preferred_theme,
-                preferred_tz_offset=u.preferred_tz_offset,
-                email_notifications_enabled=u.email_notifications_enabled,
-                push_notifications_enabled=u.push_notifications_enabled,
-                streak_reminders_enabled=u.streak_reminders_enabled,
-                friends_count=0,
-                streak=0
+                profile_picture_url=u.profile_picture_url
             ) 
             for u in users
             if u.role != UserRole.ADMIN
@@ -87,7 +78,8 @@ async def get_reported_videos(
 
     for video_id in reported_video_ids:
         speech = db.scalar(select(Speech).where(Speech.id == video_id))
-        if not speech:
+        user = db.scalar(select(User).where(User.id == speech.user_id)) if speech else None
+        if not speech or not user:
             continue
 
         report_reasons_query = db.scalars(select(Report.reason).where(Report.speech_id == video_id)).all()
@@ -103,7 +95,12 @@ async def get_reported_videos(
 
         response_list.append(ReportedVideoResponse(
             video_id=speech.id,
-            owner_id=speech.user_id,
+            user_info=UserDashboardResponse(
+                user_id=user.id,
+                email=user.email,
+                handle=user.handle,
+                profile_picture_url=user.profile_picture_url
+            ),
             year=speech.created_at.year,
             month=speech.created_at.month,
             day=speech.created_at.day,
