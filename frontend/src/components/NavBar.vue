@@ -1,5 +1,6 @@
 <script setup>
     import SettingsDrawer from './SettingsDrawer.vue';
+    import SearchIcon from './SearchIcon.vue'
 </script>
 
 <template>
@@ -13,16 +14,9 @@
         </div>
 
         <div class="flex flex-row items-center gap-2 mr-1">
-      <button
-        @click="$router.push('/search')"
-        class="icon-button"
-        title="Search"
-      >
-        <i class="pi pi-search text-black text-lg"></i>
-      </button>
-
-      <SettingsDrawer />
-    </div>
+            <SearchIcon />
+            <SettingsDrawer />
+        </div>
     </div>
     
 </template>
