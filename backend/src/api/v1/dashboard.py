@@ -1,13 +1,14 @@
 import datetime
+import calendar
 from uuid import UUID
 from fastapi import APIRouter, Body, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
-from sqlalchemy import extract, select, or_, delete
+from sqlalchemy import extract, func, select, or_, delete
 from sqlalchemy.orm import Session
 
 from ..deps import get_session, get_s3_service
 from ...db import get_db
-from ...schemas import UserDashboardResponse, ReportedVideoResponse, BanInfo
+from ...schemas import UserDashboardResponse, ReportedVideoResponse, BanInfo, UserStatsByMonthResponse
 from ...models import User, Friendship, UserStreak, Speech, UserDevice, UserInterest, Interest, Rating, Ban, Report, UserRole
 from supertokens_python.recipe.session import SessionContainer
 from supertokens_python.asyncio import delete_user
@@ -293,3 +294,53 @@ async def unban_user(
         )
 
     return JSONResponse(content={"detail": "User unbanned successfully"}, status_code=status.HTTP_200_OK)
+
+@router.get("/stats/users-by-month", response_model=UserStatsByMonthResponse, status_code=status.HTTP_200_OK)
+async def get_user_stats_by_month(
+    db: Session = Depends(get_db),
+    session: SessionContainer = Depends(get_session)
+):
+    """Get user registration stats by month for dashboard."""
+    
+    supertokens_user_id = session.get_user_id()
+
+    admin_user = db.scalar(select(User).where(User.supertokens_user_id == supertokens_user_id))
+
+    if not admin_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="User not found"
+        )
+
+    if admin_user.role != UserRole.ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail="Not authorized to access this resource"
+        )
+    
+    current_year = datetime.datetime.now().year
+    current_year_month = datetime.datetime.now().month
+    current_day = datetime.datetime.now().day
+
+    labels = []
+    user_counts = []
+
+    for i in range(11, -1, -1):
+        if current_year_month - i <= 0:
+            month = current_year_month - i + 12
+            year = current_year - 1
+        else:
+            month = current_year_month - i
+            year = current_year
+        
+        users = db.execute(
+            select(User).where(
+                extract('month', User.created_at) == month,
+                extract('year', User.created_at) == year
+            )
+        ).all()
+
+        labels.append(calendar.month_abbr[month])
+        user_counts.append(len(users))
+
+    return UserStatsByMonthResponse(labels=labels, user_counts=user_counts)

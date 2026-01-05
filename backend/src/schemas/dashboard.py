@@ -23,3 +23,7 @@ class ReportedVideoResponse(BaseModel):
     report_reasons: list[str]
     user_info: UserDashboardResponse
     video_url: str
+
+class UserStatsByMonthResponse(BaseModel):
+    labels: list[str]
+    user_counts: list[int]
