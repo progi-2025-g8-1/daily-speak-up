@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from ..deps import get_session, get_s3_service
 from ...db import get_db
-from ...schemas import UserDashboardResponse, ReportedVideoResponse, BanInfo, UserStatsByMonthResponse
+from ...schemas import UserDashboardResponse, ReportedVideoResponse, BanInfo, StatsResponse
 from ...models import User, Friendship, UserStreak, Speech, UserDevice, UserInterest, Interest, Rating, Ban, Report, UserRole
 from supertokens_python.recipe.session import SessionContainer
 from supertokens_python.asyncio import delete_user
@@ -295,7 +295,7 @@ async def unban_user(
 
     return JSONResponse(content={"detail": "User unbanned successfully"}, status_code=status.HTTP_200_OK)
 
-@router.get("/stats/users-by-month", response_model=UserStatsByMonthResponse, status_code=status.HTTP_200_OK)
+@router.get("/stats/users-by-month", response_model=StatsResponse, status_code=status.HTTP_200_OK)
 async def get_user_stats_by_month(
     db: Session = Depends(get_db),
     session: SessionContainer = Depends(get_session)
@@ -343,4 +343,4 @@ async def get_user_stats_by_month(
         labels.append(calendar.month_abbr[month])
         user_counts.append(len(users))
 
-    return UserStatsByMonthResponse(labels=labels, user_counts=user_counts)
+    return StatsResponse(labels=labels, counts=user_counts)
