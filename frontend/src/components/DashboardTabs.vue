@@ -8,12 +8,20 @@
     import ShowUsers from './ShowUsers.vue';
     import ShowReportedVideos from './ShowReportedVideos.vue';
     import ShowBans from './ShowBans.vue';
+    import type { ShowBansInterface } from '../types/show-bans';
 
     const activeTab = ref('0');
+    const showBansRef = ref<ShowBansInterface | null>(null);
+
+    const handleTabChange = (newValue: string | number) => {
+        if (newValue === '2' && showBansRef.value) {
+            showBansRef.value.refreshBans();
+        }
+    };
 </script>
 
 <template>
-    <Tabs v-model:value="activeTab" class="w-full h-full flex flex-col">
+    <Tabs v-model:value="activeTab" class="w-full h-full flex flex-col" @update:value="handleTabChange">
         <TabList>
             <Tab value="0">
                 <div :class="['hover:text-blue-600 transition-colors', activeTab === '0' ? 'text-blue-600 font-semibold' : '']">
@@ -56,7 +64,7 @@
             </TabPanel>
             <TabPanel value="2" class="w-full h-full overflow-hidden">
                <div class="w-full h-full overflow-y-auto">
-                    <ShowBans />
+                    <ShowBans ref="showBansRef" />
                </div>
             </TabPanel>
             <TabPanel value="3" class="w-full h-full">

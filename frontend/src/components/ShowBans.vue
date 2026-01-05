@@ -2,13 +2,14 @@
     import { ref, onMounted, computed, onBeforeUnmount, nextTick } from 'vue';
     import DataTable from 'primevue/datatable';
     import Column from 'primevue/column';
-    import ColumnGroup from 'primevue/columngroup';  
-    import Row from 'primevue/row';   
     import { Avatar } from 'primevue';
     import Button from 'primevue/button';
     import Popover from 'primevue/popover';
+    import ConfirmDialog from 'primevue/confirmdialog';
+    import { useConfirm } from "primevue/useconfirm";
 
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8123/api/v1'
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8123/api/v1';
+    const confirm = useConfirm();
 
     const bans = ref();
     const infoPopover = ref();
@@ -69,13 +70,55 @@
     const rowsPerPage = computed(() => {
         if (rowHeight.value === 0 || containerHeight.value === 0) return 5;
         const availableHeight = containerHeight.value - paginatorHeight.value - tableHeaderHeight.value;
-        console.log(Math.floor(availableHeight / rowHeight.value))
+
         return Math.floor(availableHeight / rowHeight.value);
+    });
+
+    const confirmUnban = (userId: string, userHandle: string) => {
+        console.log('Attempting to unban user with ID:', userId);
+        confirm.require({
+            message: `Jeste li sigurni da želite poništiti zabranu korisnika @${userHandle}?`,
+            header: 'Potvrda poništavanja zabrane',
+            icon: 'pi pi-exclamation-triangle',
+            acceptProps: { label: 'Poništi zabranu', icon: 'pi pi-check' },
+            rejectProps: { label: 'Odustani', icon: 'pi pi-times' },
+            accept: async () => {
+                const response = await fetch(`${API_BASE_URL}/dashboard/unban-user`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ user_id: userId }),
+                });
+                if (response.ok) {
+                    bans.value = bans.value.filter((ban: any) => ban.banned_user.user_id !== userId);
+                } else {
+                    console.error('Failed to unban user:', response.statusText);
+                }
+            },
+            reject: () => {
+            }
+        });
+    };
+
+    const refreshBans = async () => {
+        const response = await fetch(`${API_BASE_URL}/dashboard/bans`);
+        if(response.ok) {
+            bans.value = await response.json();
+        } else {
+            console.error('Failed to refetch bans:', response.statusText);
+        }
+    };
+
+    defineExpose({
+        refreshBans
     });
 
 </script>
 
 <template>
+    <ConfirmDialog />
+
     <div class="datatable-container h-full" >
         <DataTable :value="bans"         
                     paginator :rows="rowsPerPage"
@@ -193,6 +236,7 @@
                                 variant="text" 
                                 raised 
                                 rounded
+                                :onClick="() => confirmUnban(slotProps.data.banned_user.user_id, slotProps.data.banned_user.handle)"
                                 pt:root:class="!w-9 !h-9
                                             md:!w-11 md:!h-11"
                                 pt:icon:class="text-sm

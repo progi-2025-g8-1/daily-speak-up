@@ -260,7 +260,7 @@ async def get_banned_users(
 
 @router.post("/unban-user", status_code=status.HTTP_200_OK)
 async def unban_user(
-    user_id: UUID = Body(...),
+    user_id: UUID = Body(..., embed=True),
     db: Session = Depends(get_db),
     session: SessionContainer = Depends(get_session)
 ):
