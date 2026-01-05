@@ -2,7 +2,7 @@ import datetime
 from uuid import UUID
 from fastapi import APIRouter, Body, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
-from sqlalchemy import extract, select
+from sqlalchemy import extract, select, or_
 from sqlalchemy.orm import Session
 
 from ..deps import get_session, get_s3_service
@@ -50,16 +50,18 @@ async def get_all_users(
             if u.role != UserRole.ADMIN
            ]
 
-@router.get("/ban-reasons/{user_id}", response_model=list[str], status_code=status.HTTP_200_OK)
-async def get_ban_reasons(
+@router.get("/report-reasons/{user_id}", response_model=list[str], status_code=status.HTTP_200_OK)
+async def get_report_reasons(
     user_id: UUID,
     db: Session = Depends(get_db),
     session: SessionContainer = Depends(get_session)
 ):
     
-    """Get ban reasons for dashboard."""
+    """Get report reasons for dashboard."""
     
     supertokens_user_id = session.get_user_id()
+
+    print(user_id)
 
     admin_user = db.scalar(select(User).where(User.supertokens_user_id == supertokens_user_id))
 
@@ -75,17 +77,13 @@ async def get_ban_reasons(
             detail="Not authorized to access this resource"
         )
     
-    user_bans = db.scalars(select(Ban.reason)
-                        .where(
-                            Ban.user_id == user_id and 
-                            (Ban.ends_at == None or Ban.ends_at > datetime.datetime.now(datetime.timezone.utc))
-                            )
-                        ).all()
+    user_speech_ids = db.scalars(select(Speech.id).where(Speech.user_id == user_id)).all()
+    
+    user_reports = db.scalars(select(Report.reason).where(Report.speech_id.in_(user_speech_ids))).all()
 
-    ban_reasons = [str(reason) for reason in user_bans if reason is not None]
+    report_reasons = [str(reason) for reason in user_reports if reason is not None]
 
-    return ban_reasons
-
+    return report_reasons
 
 @router.get("/reported-videos", response_model=list[ReportedVideoResponse], status_code=status.HTTP_200_OK)
 async def get_reported_videos(
