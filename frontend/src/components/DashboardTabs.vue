@@ -7,6 +7,7 @@
     import TabPanel from 'primevue/tabpanel';
     import ShowUsers from './ShowUsers.vue';
     import ShowReportedVideos from './ShowReportedVideos.vue';
+    import ShowBans from './ShowBans.vue';
 
     const activeTab = ref('0');
 </script>
@@ -53,11 +54,10 @@
                     <ShowReportedVideos />
                 </div>
             </TabPanel>
-            <TabPanel value="2" class="w-full h-full">
-                <p class="h-full border-black border-1 m-0">
-                    At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa
-                    qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus.
-                </p>
+            <TabPanel value="2" class="w-full h-full overflow-hidden">
+               <div class="w-full h-full overflow-y-auto">
+                    <ShowBans />
+               </div>
             </TabPanel>
             <TabPanel value="3" class="w-full h-full">
                 <div class="w-full h-full border-black border-1 m-0 flex items-center justify-center">

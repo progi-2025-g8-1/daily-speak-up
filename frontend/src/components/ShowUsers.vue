@@ -81,13 +81,11 @@ const showConfirmBanDialog = async (user: any) => {
     const response = await fetch(`${API_BASE_URL}/dashboard/report-reasons/${user.user_id}`);
     if(response.ok) {
         let data = await response.json();
-        console.log(data);
         data.push('Prilagođeni razlog');
         let reasonObjectList = [];
         for (let reason of data) {
             reasonObjectList.push({name: reason});
         }
-        console.log(reasonObjectList);
         banReasons.value = reasonObjectList;
     } else {
         console.error('Failed to fetch ban reasons:', response.statusText);

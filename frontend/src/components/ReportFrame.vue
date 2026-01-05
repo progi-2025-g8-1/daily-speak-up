@@ -187,7 +187,7 @@
 
                         <hr class="my-2" />
 
-                        <p>
+                        <div>
                             <span class="font-semibold">Razlozi prijave:</span>
                             <br />
                             <ul class="list-disc pl-5">
@@ -195,7 +195,7 @@
                                     {{ reason }}
                                 </li>
                             </ul>
-                        </p>
+                        </div>
                     </ScrollPanel>
                     
                             

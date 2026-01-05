@@ -226,7 +226,7 @@ async def get_banned_users(
             detail="Not authorized to access this resource"
         )
     
-    active_bans = db.scalars(select(Ban.id, Ban.user_id, Ban.reason, Ban.banned_by)
+    active_bans = db.execute(select(Ban.id, Ban.user_id, Ban.reason, Ban.banned_by)
                                 .where(
                                     or_(Ban.ends_at == None, Ban.ends_at > datetime.datetime.now(datetime.timezone.utc))
                                 )).all()
