@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, onBeforeUnmount } from 'vue';
 import ReportFrame from './ReportFrame.vue';
 import Paginator from 'primevue/paginator';
 import Skeleton from 'primevue/skeleton';
@@ -32,6 +32,13 @@ onMounted(async () => {
     numOfPageLinks.value = window.innerWidth < 640 ? 3 : 5;
 
     window.addEventListener('resize', () => {
+        numOfRowsPerPage.value = window.innerWidth < 1024 ? 1 : 2;
+        numOfPageLinks.value = window.innerWidth < 640 ? 3 : 5;
+    });
+});
+
+onBeforeUnmount(() => {
+    window.removeEventListener('resize', () => {
         numOfRowsPerPage.value = window.innerWidth < 1024 ? 1 : 2;
         numOfPageLinks.value = window.innerWidth < 640 ? 3 : 5;
     });
