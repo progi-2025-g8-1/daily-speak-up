@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, onBeforeUnmount } from 'vue';
 import ConfirmBanDialog from './ConfirmBanDialog.vue';
 import DataView from 'primevue/dataview';
 import Avatar from 'primevue/avatar';
@@ -45,6 +45,10 @@ onMounted(async () => {
     }
     
     window.addEventListener('resize', measureDimensions);
+});
+
+onBeforeUnmount(() => {
+    window.removeEventListener('resize', measureDimensions);
 });
 
 const search = (event: { query: string }) => {
