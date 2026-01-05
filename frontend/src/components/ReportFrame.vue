@@ -8,7 +8,8 @@
     
     const props = defineProps<{ reportInfo: ReportInfo }>();
     const emit = defineEmits<{
-        (e: 'showReasons', reportInfo: ReportInfo): void;
+        (e: 'showInstructions'): void,
+        (e: 'banUser', user_id:string, handle:string, reasons:string[] | undefined): void
     }>();
 
     const items = ref([
@@ -18,7 +19,7 @@
             severity: 'contrast',
             class: '!bg-gray-200/50',
             command: () => {
-                showReasons();
+                showInstructions();
             }
         },
         {
@@ -45,13 +46,17 @@
             severity: 'danger',
             class: '!bg-red-200/50',
             command: () => {
-                console.log('Zabrana uručena');
+                showConfirmBanDialog()
             }
         }
     ])
 
-    const showReasons = () => {
-        emit('showReasons', props.reportInfo);
+    const showInstructions = () => {
+        emit('showInstructions');
+    };
+
+    const showConfirmBanDialog = () => {
+        emit('banUser', props.reportInfo.user_info.user_id, props.reportInfo.user_info.handle, props.reportInfo.report_reasons);
     };
 
 </script>
@@ -115,7 +120,7 @@
                             pt:icon:class="lg:!text-lg
                                         md:!text-base
                                         !text-sm"
-                            @click="showReasons" />
+                            @click="showInstructions" />
 
                 </div>
 
@@ -213,7 +218,8 @@
                             <Button label="Uruči zabranu" 
                                     icon="pi pi-times" 
                                     severity="danger" 
-                                    variant="outlined" 
+                                    variant="outlined"
+                                    :onClick="showConfirmBanDialog" 
                                     class="w-full shadow-inner-sm"
                                     pt:label:class="text-sm" />
                     </div>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
+import ConfirmBanDialog from './ConfirmBanDialog.vue';
 import DataView from 'primevue/dataview';
 import Avatar from 'primevue/avatar';
 import AutoComplete from 'primevue/autocomplete';
@@ -15,6 +16,11 @@ const rowHeight = ref(0);
 const containerHeight = ref(0);
 const handles = ref<string[]>([]);
 const searchValue = ref(null)
+const banReasons = ref<any[] | undefined>(undefined);
+const showBanConfirmDialog = ref(false);
+const banHandle = ref<string | null | undefined>(null);
+const banUserId = ref<string | null | undefined>(null);
+
 
 const rowsPerPage = computed(() => {
     if (rowHeight.value === 0 || containerHeight.value === 0) return 5;
@@ -69,9 +75,38 @@ const measureDimensions = () => {
         containerHeight.value = container.getBoundingClientRect().height;
     }
 };
+
+const showConfirmBanDialog = async (user: any) => {
+
+    const response = await fetch(`${API_BASE_URL}/dashboard/report-reasons/${user.user_id}`);
+    if(response.ok) {
+        let data = await response.json();
+        console.log(data);
+        data.push('Prilagođeni razlog');
+        let reasonObjectList = [];
+        for (let reason of data) {
+            reasonObjectList.push({name: reason});
+        }
+        console.log(reasonObjectList);
+        banReasons.value = reasonObjectList;
+    } else {
+        console.error('Failed to fetch ban reasons:', response.statusText);
+        banReasons.value = [{name: 'Prilagođeni razlog'}];
+    }
+
+    banHandle.value = user.handle;
+    banUserId.value = user.user_id;
+    showBanConfirmDialog.value = true;
+};
+
 </script>
 
 <template>
+    <ConfirmBanDialog :reasons="banReasons"
+                      :handle="banHandle"
+                      :userId="banUserId"
+                     v-model:showDialog="showBanConfirmDialog" />
+
    <div class="flex flex-col justify-center items-center gap-2">
         <div class="w-full flex justify-center items-center">
             <AutoComplete v-model="searchValue" placeholder="Pretraži korisnike po korisničkom imenu..." :suggestions="handles" :dropdown="false" @complete="search" @clear="resetUsers"/> 
@@ -94,7 +129,7 @@ const measureDimensions = () => {
                                 </div>
                                 <div class="flex flex-row gap-4 mr-8">
                                     <Button icon="pi pi-video" rounded variant="outlined" aria-label="Videos" v-tooltip.top="{ value: 'Prikaži videozapise', showDelay: 500, hideDelay: 100 }" />
-                                    <Button icon="pi pi-times" severity="danger" rounded variant="outlined" aria-label="Ban" v-tooltip.top="{ value: 'Uruči zabranu', showDelay: 500, hideDelay: 100 }" />
+                                    <Button icon="pi pi-times" severity="danger" rounded variant="outlined" aria-label="Ban" v-tooltip.top="{ value: 'Uruči zabranu', showDelay: 500, hideDelay: 100 }" :onClick="() => showConfirmBanDialog(item)" />
                                     <ToggleButton onLabel="Moderator" offLabel="Korisnik" onIcon="pi pi-user-edit" offIcon="pi pi-user" class="w-36" aria-label="Do you confirm" v-tooltip.top="{ value: 'Promijeni ulogu', showDelay: 500, hideDelay: 100 }" />
                                 </div>
                             </div>

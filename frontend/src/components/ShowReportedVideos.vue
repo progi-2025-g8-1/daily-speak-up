@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, onBeforeUnmount } from 'vue';
 import ReportFrame from './ReportFrame.vue';
+import ConfirmBanDialog from './ConfirmBanDialog.vue';
+import { useConfirm } from "primevue/useconfirm";
 import Paginator from 'primevue/paginator';
 import Skeleton from 'primevue/skeleton';
 import Dialog from 'primevue/dialog';
@@ -12,12 +14,29 @@ const first = ref(0);
 const showReasonDialog = ref(false);
 const numOfRowsPerPage = ref(2);
 const numOfPageLinks = ref(3);
+const banReasons = ref<any[] | undefined>(undefined);
+const showBanConfirmDialog = ref(false);
+const banHandle = ref<string | null | undefined>(null);
+const banUserId = ref<string | null | undefined>(null);
 
 const firstVideo = computed(() => videos.value[first.value]);
 const secondVideo = computed(() => videos.value[first.value + 1]);
+const confirm = useConfirm();
 
-const handleShowReasons = (reportInfo: ReportInfo) => {
+const handleShowInstructions = () => {
     showReasonDialog.value = true;
+};
+
+const showConfirmBanDialog = (user_id: string, handle: string, reasons: string[] | undefined) => {
+    const updatedReasons = reasons ? [...reasons, 'Prilagođeni razlog'] : ['Prilagođeni razlog'];
+    let reasonObjectList = [];
+    for (let reason of updatedReasons) {
+        reasonObjectList.push({name: reason});
+    }
+    banReasons.value = reasonObjectList;
+    banHandle.value = handle;
+    banUserId.value = user_id;
+    showBanConfirmDialog.value = true;
 };
 
 onMounted(async () => {
@@ -73,6 +92,11 @@ onBeforeUnmount(() => {
             </li>
         </ul>
     </Dialog>
+
+    <ConfirmBanDialog :reasons="banReasons"
+                      :handle="banHandle"
+                      :userId="banUserId"
+                      v-model:showDialog="showBanConfirmDialog" />
     
     <div class="flex flex-col 
                 items-center 
@@ -112,14 +136,16 @@ onBeforeUnmount(() => {
                 <ReportFrame
                     class="w-full lg:w-1/2"
                     :reportInfo="firstVideo"
-                    @showReasons="handleShowReasons"
+                    @showInstructions="handleShowInstructions"
+                    @banUser="showConfirmBanDialog"
                 />
 
                 <ReportFrame
                     class="w-full lg:w-1/2 hidden lg:block"
                     v-if="secondVideo"
                     :reportInfo="secondVideo"
-                    @showReasons="handleShowReasons"
+                    @showInstructions="handleShowInstructions"
+                    @banUser="showConfirmBanDialog"
                 />
             </div>
             
