@@ -27,3 +27,9 @@ class ReportedVideoResponse(BaseModel):
 class StatsResponse(BaseModel):
     labels: list[str]
     counts: list[int]
+
+class StatsSummaryResponse(BaseModel):
+    total_users: int
+    total_speeches: int
+    total_bans: int
+    pending_reports: int

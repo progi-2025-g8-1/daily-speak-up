@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from ..deps import get_session, get_s3_service
 from ...db import get_db
-from ...schemas import UserDashboardResponse, ReportedVideoResponse, BanInfo, StatsResponse
+from ...schemas import UserDashboardResponse, ReportedVideoResponse, BanInfo, StatsResponse, StatsSummaryResponse
 from ...models import User, Friendship, UserStreak, Speech, UserDevice, UserInterest, Interest, Rating, Ban, Report, UserRole
 from supertokens_python.recipe.session import SessionContainer
 from supertokens_python.asyncio import delete_user
@@ -425,3 +425,46 @@ async def get_speech_stats_by_day(
         speech_counts.append(len(speeches))
 
     return StatsResponse(labels=labels, counts=speech_counts)
+
+@router.get("/stats/summary", response_model=StatsSummaryResponse, status_code=status.HTTP_200_OK)
+async def get_user_count(
+    db: Session = Depends(get_db),
+    session: SessionContainer = Depends(get_session)
+):
+    """Get total user count for dashboard."""
+    
+    supertokens_user_id = session.get_user_id()
+
+    admin_user = db.scalar(select(User).where(User.supertokens_user_id == supertokens_user_id))
+
+    if not admin_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="User not found"
+        )
+
+    if admin_user.role != UserRole.ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail="Not authorized to access this resource"
+        )
+    
+    user_count = db.execute(select(func.count(User.id)).where(User.role != UserRole.ADMIN)).scalar_one()
+    speech_count = db.execute(select(func.count(Speech.id))).scalar_one()
+    ban_count = db.execute(
+        select(func.count(Ban.id)).where(
+            or_(Ban.ends_at == None, Ban.ends_at > datetime.datetime.now(datetime.timezone.utc))
+        )
+    ).scalar_one()
+    pending_report_count = db.execute(
+        select(func.count(Report.id)).where(
+            Report.resolved_by.is_(None)
+        )
+    ).scalar_one()
+
+    return StatsSummaryResponse(
+        total_users=user_count,
+        total_speeches=speech_count,
+        total_bans=ban_count,
+        pending_reports=pending_report_count
+    )
