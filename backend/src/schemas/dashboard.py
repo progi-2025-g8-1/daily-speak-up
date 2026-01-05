@@ -2,11 +2,14 @@ from uuid import UUID
 from pydantic import BaseModel
 from typing import Optional
 
+from ..models import UserRole
+
 class UserDashboardResponse(BaseModel):
     user_id: UUID
     email: str
     handle: str
     profile_picture_url: Optional[str]
+    user_role: Optional[UserRole]
 
 class BanInfo(BaseModel):
     ban_reason: Optional[str]

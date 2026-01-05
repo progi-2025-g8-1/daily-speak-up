@@ -45,7 +45,8 @@ async def get_all_users(
                 user_id=u.id,
                 email=u.email,
                 handle=u.handle,
-                profile_picture_url=u.profile_picture_url
+                profile_picture_url=u.profile_picture_url,
+                user_role=u.role
             ) 
             for u in users
             if u.role != UserRole.ADMIN
@@ -137,7 +138,8 @@ async def get_reported_videos(
                 user_id=user.id,
                 email=user.email,
                 handle=user.handle,
-                profile_picture_url=user.profile_picture_url
+                profile_picture_url=user.profile_picture_url,
+                user_role=user.role
             ),
             year=speech.created_at.year,
             month=speech.created_at.month,
@@ -247,12 +249,14 @@ async def get_banned_users(
                         email=banned_by_user.email,
                         handle=banned_by_user.handle,
                         profile_picture_url=banned_by_user.profile_picture_url,
+                        user_role=banned_by_user.role
                     ),
                     banned_user=UserDashboardResponse(
                         user_id=banned_user.id,
                         email=banned_user.email,
                         handle=banned_user.handle,
                         profile_picture_url=banned_user.profile_picture_url,
+                        user_role=banned_user.role
                     )
                 )
             )
@@ -468,3 +472,47 @@ async def get_user_count(
         total_bans=ban_count,
         pending_reports=pending_report_count
     )
+
+
+@router.put("/user-role", status_code=status.HTTP_200_OK)
+async def change_user_role(
+    user_id: UUID = Body(...),
+    db: Session = Depends(get_db),
+    session: Session = Depends(get_session)
+):
+    """Update (toggle) user role to MOD/USER by admin."""
+    
+    supertokens_user_id = session.get_user_id()
+
+    admin_user = db.scalar(select(User).where(User.supertokens_user_id == supertokens_user_id))
+
+    if not admin_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="User not found"
+        )
+
+    if admin_user.role != UserRole.ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail="Not authorized to access this resource"
+        )
+    
+    user_to_update = db.scalar(select(User).where(User.id == user_id))
+
+    if not user_to_update:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="User to update not found"
+        )
+    
+    try:
+        user_to_update.role = UserRole.MOD if user_to_update.role == UserRole.USER else UserRole.USER
+        db.commit()
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid role specified"
+        )
+
+    return JSONResponse(content={"detail": "User role updated successfully"}, status_code=status.HTTP_200_OK)
