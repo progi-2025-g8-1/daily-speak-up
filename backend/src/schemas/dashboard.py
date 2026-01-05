@@ -8,6 +8,12 @@ class UserDashboardResponse(BaseModel):
     handle: str
     profile_picture_url: Optional[str]
 
+class BanInfo(BaseModel):
+    ban_reason: Optional[str]
+    banned_by: UUID
+    ban_id: UUID
+    user_info: UserDashboardResponse
+
 class ReportedVideoResponse(BaseModel):
     video_id: UUID
     year: int

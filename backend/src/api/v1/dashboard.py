@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from ..deps import get_session, get_s3_service
 from ...db import get_db
-from ...schemas import UserDashboardResponse, ReportedVideoResponse
+from ...schemas import UserDashboardResponse, ReportedVideoResponse, BanInfo
 from ...models import User, Friendship, UserStreak, Speech, UserDevice, UserInterest, Interest, Rating, Ban, Report, UserRole
 from supertokens_python.recipe.session import SessionContainer
 from supertokens_python.asyncio import delete_user
@@ -202,3 +202,52 @@ async def ban_user(
     db.commit()
 
     return JSONResponse(content={"detail": "User banned successfully"}, status_code=status.HTTP_200_OK)
+
+@router.get("/bans", response_model=list[BanInfo], status_code=status.HTTP_200_OK)
+async def get_banned_users(
+    db: Session = Depends(get_db),
+    session: SessionContainer = Depends(get_session)
+):
+    """Get all banned users for dashboard."""
+    
+    supertokens_user_id = session.get_user_id()
+
+    admin_user = db.scalar(select(User).where(User.supertokens_user_id == supertokens_user_id))
+
+    if not admin_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="User not found"
+        )
+
+    if admin_user.role not in (UserRole.ADMIN, UserRole.MOD):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail="Not authorized to access this resource"
+        )
+    
+    active_bans = db.scalars(select(Ban.id, Ban.user_id, Ban.reason, Ban.banned_by)
+                                .where(
+                                    or_(Ban.ends_at == None, Ban.ends_at > datetime.datetime.now(datetime.timezone.utc))
+                                )).all()
+
+    banned_users_list = []
+
+    for active_ban in active_bans:
+        banned_user = db.scalar(select(User).where(User.id == active_ban[1]))
+        if banned_user:
+            banned_users_list.append(
+                BanInfo(
+                    ban_id=active_ban[0],
+                    ban_reason=active_ban[2],
+                    banned_by=active_ban[3],
+                    user_info=UserDashboardResponse(
+                        user_id=banned_user.id,
+                        email=banned_user.email,
+                        handle=banned_user.handle,
+                        profile_picture_url=banned_user.profile_picture_url,
+                    )
+                )
+            )
+
+    return banned_users_list
