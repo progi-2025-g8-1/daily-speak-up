@@ -344,3 +344,41 @@ async def get_user_stats_by_month(
         user_counts.append(len(users))
 
     return StatsResponse(labels=labels, counts=user_counts)
+
+
+@router.get("/stats/counts-by-topic", response_model=StatsResponse, status_code=status.HTTP_200_OK)
+async def get_speech_stats_by_month(
+    db: Session = Depends(get_db),
+    session: SessionContainer = Depends(get_session)
+):
+    """Get speech creation stats by month for dashboard."""
+    
+    supertokens_user_id = session.get_user_id()
+
+    admin_user = db.scalar(select(User).where(User.supertokens_user_id == supertokens_user_id))
+
+    if not admin_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="User not found"
+        )
+
+    if admin_user.role != UserRole.ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail="Not authorized to access this resource"
+        )
+
+    labels = []
+    counts = []
+
+    interests = db.execute(select(Interest.id, Interest.name)).all()
+
+    for interest_id, interest_name in interests:
+        speech_count = db.execute(
+            select(func.count(Speech.id)).where(Speech.interest_id == interest_id)
+        ).scalar_one()
+        labels.append(interest_name)
+        counts.append(speech_count)
+
+    return StatsResponse(labels=labels, counts=counts)
