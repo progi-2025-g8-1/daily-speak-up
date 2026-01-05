@@ -351,7 +351,7 @@ async def get_speech_stats_by_month(
     db: Session = Depends(get_db),
     session: SessionContainer = Depends(get_session)
 ):
-    """Get speech creation stats by month for dashboard."""
+    """Get speech counts by topic for dashboard."""
     
     supertokens_user_id = session.get_user_id()
 
@@ -382,3 +382,46 @@ async def get_speech_stats_by_month(
         counts.append(speech_count)
 
     return StatsResponse(labels=labels, counts=counts)
+
+@router.get("/stats/speeches-this-week", response_model=StatsResponse, status_code=status.HTTP_200_OK)
+async def get_speech_stats_by_day(
+    db: Session = Depends(get_db),
+    session: SessionContainer = Depends(get_session)
+):
+    """Get speech creation stats by day for the last week for dashboard."""
+    
+    supertokens_user_id = session.get_user_id()
+
+    admin_user = db.scalar(select(User).where(User.supertokens_user_id == supertokens_user_id))
+
+    if not admin_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="User not found"
+        )
+
+    if admin_user.role != UserRole.ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail="Not authorized to access this resource"
+        )
+    
+    labels = []
+    speech_counts = []
+
+    today = datetime.datetime.now().date()
+
+    for i in range(6, -1, -1):
+        day = today - datetime.timedelta(days=i)
+        speeches = db.execute(
+            select(Speech).where(
+                extract('day', Speech.created_at) == day.day,
+                extract('month', Speech.created_at) == day.month,
+                extract('year', Speech.created_at) == day.year
+            )
+        ).all()
+
+        labels.append(day.strftime('%a'))
+        speech_counts.append(len(speeches))
+
+    return StatsResponse(labels=labels, counts=speech_counts)
