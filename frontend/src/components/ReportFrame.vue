@@ -4,6 +4,7 @@
     import Button from 'primevue/button';
     import SpeedDial from 'primevue/speeddial';
     import type { ReportInfo } from '../types/report-info';
+    import ScrollPanel from 'primevue/scrollpanel';
     
     const props = defineProps<{ reportInfo: ReportInfo }>();
     const emit = defineEmits<{
@@ -12,8 +13,10 @@
 
     const items = ref([
         {
-            label: 'Prikaz razloga',
+            label: 'Upute',
             icon: 'pi pi-question',
+            severity: 'contrast',
+            class: '!bg-gray-200/50',
             command: () => {
                 showReasons();
             }
@@ -21,6 +24,8 @@
         {
             label: 'Obriši prijavu',
             icon: 'pi pi-angle-double-left',
+            class: '!bg-purple-200/50',
+            severity: 'help',
             command: () => {
                 console.log('Prijava obrisana');
             }
@@ -28,6 +33,8 @@
         {
             label: 'Obriši video',
             icon: 'pi pi-delete-left',
+            class: '!bg-orange-200/50',
+            severity: 'warn',
             command: () => {
                 console.log('Video obrisan');
             }
@@ -35,6 +42,8 @@
         {
             label: 'Uruči zabranu',
             icon: 'pi pi-times',
+            severity: 'danger',
+            class: '!bg-red-200/50',
             command: () => {
                 console.log('Zabrana uručena');
             }
@@ -63,8 +72,7 @@
                         bg-gray-200 shadow-sm rounded-full w-full">
 
                 <div class="flex flex-row 
-                            justify-start items-center 
-                            gap-4">
+                            justify-start items-center">
 
                     <Avatar unstyled :image="props.reportInfo.user_info.profile_picture_url" 
                             shape="circle" 
@@ -121,11 +129,22 @@
                                    severity: 'contrast',
                                    variant: 'outlined',
                                    rounded: true 
-                               }"
-                               :actionButtonProps="{
-                                    class: '!bg-sky-600/50 hover:!bg-sky-600/70 !text-white !w-10 !h-10 !border-sky-600/70',  
-                                    rounded: true
-                               }" />
+                               }" >
+
+                        <template #item="{ item }">
+
+                            <Button 
+                                :icon="item.icon"
+                                rounded
+                                variant="outlined"
+                                :severity="item.severity"
+                                :onClick="item.command"
+                                :pt:root:class="item.class"
+                                v-tooltip.left="item.label" />
+
+                        </template>
+
+                    </SpeedDial>
 
                 </div>
 
@@ -149,15 +168,31 @@
                 <div class="flex flex-col 
                             justify-jstart items-start 
                             gap-3 w-full h-full">
-                    <div class="bg-gray-100 shadow-inner rounded-md
-                                w-full p-4 
+
+                    <ScrollPanel class="bg-gray-100 shadow-inner rounded-md
+                                w-full lg:h-[100px] md:h-[200px] h-[100px] p-4 
                                 text-left  
                                 lg:text-sm
                                 md:text-sm 
                                 text-xs">
-                        <span class="font-semibold">Opis videa:</span>
-                        {{ props.reportInfo.caption }}
-                    </div>
+                        <p>
+                            <span class="font-semibold">Opis videa:</span>
+                            {{ props.reportInfo.caption }}
+                        </p>
+
+                        <hr class="my-2" />
+
+                        <p>
+                            <span class="font-semibold">Razlozi prijave:</span>
+                            <br />
+                            <ul class="list-disc pl-5">
+                                <li v-for="(reason, index) in props.reportInfo.report_reasons" :key="index">
+                                    {{ reason }}
+                                </li>
+                            </ul>
+                        </p>
+                    </ScrollPanel>
+                    
                             
                     <div class="hidden 
                                 md:flex md:flex-col 

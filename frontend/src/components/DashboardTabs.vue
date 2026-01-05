@@ -12,7 +12,7 @@
 </script>
 
 <template>
-    <Tabs v-model:value="activeTab" class="w-full h-full">
+    <Tabs v-model:value="activeTab" class="w-full h-full flex flex-col">
         <TabList>
             <Tab value="0">
                 <div :class="['hover:text-blue-600 transition-colors', activeTab === '0' ? 'text-blue-600 font-semibold' : '']">
@@ -48,10 +48,10 @@
                 <ShowUsers />
             </TabPanel>
             <TabPanel value="1" 
-                      class="flex flex-col 
-                             justify-center items-center 
-                             w-full h-full px-4 pt-4">
-                <ShowReportedVideos />
+                      class="w-full h-full overflow-hidden">
+                 <div class="w-full h-full overflow-y-auto">
+                    <ShowReportedVideos />
+                </div>
             </TabPanel>
             <TabPanel value="2" class="w-full h-full">
                 <p class="h-full border-black border-1 m-0">
@@ -69,35 +69,42 @@
 </template>
 
 <style scoped>
-/* Override PrimeVue's default active indicator */
+
+:deep(.p-tabpanels) {
+    background-color: rgb(255, 255, 255);
+    flex: 1;
+    min-height: 0; 
+    overflow: hidden;
+}
+
+:deep(.p-tabpanel) {
+    height: 100%;
+}
+
+
 :deep(.p-tab[data-p-active="true"]) {
     border-bottom: 2px solid transparent !important;
 }
 
-/* Custom active states for each tab */
 :deep(.p-tab[data-pc-name="tab"][data-p-active="true"]:nth-child(1)) {
-    border-top-color: rgb(37, 99, 235) !important; /* blue-600 */
+    border-top-color: rgb(37, 99, 235) !important;
 }
 
 :deep(.p-tab[data-pc-name="tab"][data-p-active="true"]:nth-child(2)) {
-    border-top-color: rgb(217, 119, 6) !important; /* amber-600 */
+    border-top-color: rgb(217, 119, 6) !important;
 }
 
 :deep(.p-tab[data-pc-name="tab"][data-p-active="true"]:nth-child(3)) {
-    border-top-color: rgb(220, 38, 38) !important; /* red-600 */
+    border-top-color: rgb(220, 38, 38) !important;
 }
 
 :deep(.p-tab[data-pc-name="tab"][data-p-active="true"]:nth-child(4)) {
-    border-top-color: rgb(147, 51, 234) !important; /* purple-600 */
+    border-top-color: rgb(147, 51, 234) !important;
 }
 
 :deep(.p-tablist) {
     display: flex;
     justify-content: center;
-}
-
-.p-tabpanels{
-    background-color: rgb(255, 255, 255);
-    height: 100%;
+    flex-shrink: 0; 
 }
 </style>
