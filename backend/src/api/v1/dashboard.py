@@ -50,6 +50,43 @@ async def get_all_users(
             if u.role != UserRole.ADMIN
            ]
 
+@router.get("/ban-reasons/{user_id}", response_model=list[str], status_code=status.HTTP_200_OK)
+async def get_ban_reasons(
+    user_id: UUID,
+    db: Session = Depends(get_db),
+    session: SessionContainer = Depends(get_session)
+):
+    
+    """Get ban reasons for dashboard."""
+    
+    supertokens_user_id = session.get_user_id()
+
+    admin_user = db.scalar(select(User).where(User.supertokens_user_id == supertokens_user_id))
+
+    if not admin_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="User not found"
+        )
+
+    if admin_user.role not in (UserRole.ADMIN, UserRole.MOD):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail="Not authorized to access this resource"
+        )
+    
+    user_bans = db.scalars(select(Ban.reason)
+                        .where(
+                            Ban.user_id == user_id and 
+                            (Ban.ends_at == None or Ban.ends_at > datetime.datetime.now(datetime.timezone.utc))
+                            )
+                        ).all()
+
+    ban_reasons = [str(reason) for reason in user_bans if reason is not None]
+
+    return ban_reasons
+
+
 @router.get("/reported-videos", response_model=list[ReportedVideoResponse], status_code=status.HTTP_200_OK)
 async def get_reported_videos(
     db: Session = Depends(get_db),
