@@ -2,7 +2,7 @@ import datetime
 from uuid import UUID
 from fastapi import APIRouter, Body, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
-from sqlalchemy import extract, select, or_
+from sqlalchemy import extract, select, or_, delete
 from sqlalchemy.orm import Session
 
 from ..deps import get_session, get_s3_service
@@ -257,3 +257,39 @@ async def get_banned_users(
             )
 
     return banned_users_list
+
+@router.delete("/unban-user", status_code=status.HTTP_200_OK)
+async def unban_user(
+    user_id: UUID = Body(...),
+    db: Session = Depends(get_db),
+    session: SessionContainer = Depends(get_session)
+):
+    """Unban a user by admin/mod."""
+    
+    supertokens_user_id = session.get_user_id()
+
+    admin_user = db.scalar(select(User).where(User.supertokens_user_id == supertokens_user_id))
+
+    if not admin_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="User not found"
+        )
+
+    if admin_user.role not in (UserRole.ADMIN, UserRole.MOD):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail="Not authorized to access this resource"
+        )
+    
+    try:
+        db.execute(delete(Ban).where(Ban.user_id == user_id))
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to unban user: {str(e)}"
+        )
+
+    return JSONResponse(content={"detail": "User unbanned successfully"}, status_code=status.HTTP_200_OK)
