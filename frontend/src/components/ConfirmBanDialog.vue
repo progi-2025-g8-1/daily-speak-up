@@ -40,7 +40,23 @@
     };
 
     const issueBan = () => {
-        console.log('Issuing ban to user ID:', props.userId);
+        let reason = selectedReason.value.name === 'Prilagođeni razlog' ? customReason.value : selectedReason.value.name;
+        fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8123/api/v1'}/dashboard/ban-user`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                user_id: props.userId,
+                reason: reason
+            })
+        }).then(response => {
+            if(!response.ok) {
+                console.error('Failed to ban user:', response.statusText);
+            }
+        }).catch(error => {
+            console.error('Error banning user:', error);
+        });
     };
 </script>
 

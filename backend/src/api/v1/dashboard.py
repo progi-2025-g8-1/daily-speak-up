@@ -151,7 +151,7 @@ async def get_reported_videos(
 @router.post("/ban-user", status_code=status.HTTP_200_OK)
 async def ban_user(
     user_id: UUID = Body(...),
-    reason: str = Body(None),
+    reason: str = Body(...),
     db: Session = Depends(get_db),
     session: SessionContainer = Depends(get_session)
 ):
@@ -196,7 +196,7 @@ async def ban_user(
     ban_entry = Ban(
                     user_id=user_id,
                     banned_by=admin_user.id,
-                    reason=reason
+                    reason=reason if reason else None,
                 )
     db.add(ban_entry)
     db.commit()
