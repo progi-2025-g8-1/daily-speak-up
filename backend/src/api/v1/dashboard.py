@@ -476,7 +476,7 @@ async def get_user_count(
 
 @router.put("/user-role", status_code=status.HTTP_200_OK)
 async def change_user_role(
-    user_id: UUID = Body(...),
+    user_id: UUID = Body(..., embed=True),
     db: Session = Depends(get_db),
     session: Session = Depends(get_session)
 ):

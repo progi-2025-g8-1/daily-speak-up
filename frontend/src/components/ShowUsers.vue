@@ -33,7 +33,12 @@ const rowsPerPage = computed(() => {
 onMounted(async () => {
     const response = await fetch(`${API_BASE_URL}/dashboard/users`);
     if(response.ok) {
-        const data = await response.json();
+        let data = await response.json();
+
+        for (let user of data) {
+            user.onToggle = user.user_role === 'mod';
+        }
+
         users.value = data;
         showUsers.value = data;
         handles.value = data.map((user: any) => user.handle);
@@ -101,6 +106,33 @@ const showConfirmBanDialog = async (user: any) => {
     showBanConfirmDialog.value = true;
 };
 
+const handleRoleToggle = async (item: any) => {
+    const newRole = item.onToggle ? 'mod' : 'user';
+    item.user_role = newRole;
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/dashboard/user-role`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                user_id: item.user_id
+            })
+        });
+        
+        if (!response.ok) {
+            item.onToggle = !item.onToggle;
+            item.user_role = item.onToggle ? 'mod' : 'user';
+            console.error('Failed to update user role');
+        }
+    } catch (error) {
+        item.onToggle = !item.onToggle;
+        item.user_role = item.onToggle ? 'mod' : 'user';
+        console.error('Failed to update user role:', error);
+    }
+};
+
 </script>
 
 <template>
@@ -118,7 +150,7 @@ const showConfirmBanDialog = async (user: any) => {
             <DataView :value="showUsers" paginator :rows="rowsPerPage">
                 <template #list="slotProps">
                     <div class="flex flex-col">
-                        <div v-for="(item, index) in slotProps.items" :key="index" class="user-row">
+                        <div v-for="item in slotProps.items" :key="item.user_id" class="user-row">
                             <div class="flex flex-row items-center justify-between py-3 border-b border-gray-400">
                                 <div class="flex flex-row justify-start items-center">
                                     <div class="md:w-40 flex flex-col justify-center items-center">
@@ -132,7 +164,14 @@ const showConfirmBanDialog = async (user: any) => {
                                 <div class="flex flex-row gap-4 mr-8">
                                     <Button icon="pi pi-video" rounded variant="outlined" aria-label="Videos" v-tooltip.top="{ value: 'Prikaži videozapise', showDelay: 500, hideDelay: 100 }" />
                                     <Button icon="pi pi-times" severity="danger" rounded variant="outlined" aria-label="Ban" v-tooltip.top="{ value: 'Uruči zabranu', showDelay: 500, hideDelay: 100 }" :onClick="() => showConfirmBanDialog(item)" />
-                                    <ToggleButton onLabel="Moderator" offLabel="Korisnik" onIcon="pi pi-user-edit" offIcon="pi pi-user" class="w-36" aria-label="Do you confirm" v-tooltip.top="{ value: 'Promijeni ulogu', showDelay: 500, hideDelay: 100 }" />
+                                    <ToggleButton onLabel="Moderator" 
+                                                  offLabel="Korisnik" 
+                                                  onIcon="pi pi-user-edit" 
+                                                  offIcon="pi pi-user" 
+                                                  class="w-36" 
+                                                  v-tooltip.top="{ value: 'Promijeni ulogu', showDelay: 500, hideDelay: 100 }"
+                                                  @change="handleRoleToggle(item)" 
+                                                  v-model="item.onToggle" />
                                 </div>
                             </div>
                         </div>
