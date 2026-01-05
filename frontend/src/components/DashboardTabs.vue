@@ -8,6 +8,7 @@
     import ShowUsers from './ShowUsers.vue';
     import ShowReportedVideos from './ShowReportedVideos.vue';
     import ShowBans from './ShowBans.vue';
+    import ShowStats from './ShowStats.vue';
     import type { ShowBansInterface } from '../types/show-bans';
 
     const activeTab = ref('0');
@@ -67,9 +68,9 @@
                     <ShowBans ref="showBansRef" />
                </div>
             </TabPanel>
-            <TabPanel value="3" class="w-full h-full">
-                <div class="w-full h-full border-black border-1 m-0 flex items-center justify-center">
-                    hahahha
+            <TabPanel value="3" class="w-full h-full overflow-hidden">
+                <div class="w-full h-full overflow-y-auto">
+                    <ShowStats />
                 </div>
             </TabPanel>
         </TabPanels>
