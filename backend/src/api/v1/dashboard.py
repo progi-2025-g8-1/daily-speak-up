@@ -258,7 +258,7 @@ async def get_banned_users(
 
     return banned_users_list
 
-@router.delete("/unban-user", status_code=status.HTTP_200_OK)
+@router.post("/unban-user", status_code=status.HTTP_200_OK)
 async def unban_user(
     user_id: UUID = Body(...),
     db: Session = Depends(get_db),
