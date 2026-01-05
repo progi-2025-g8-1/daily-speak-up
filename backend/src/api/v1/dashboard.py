@@ -233,15 +233,21 @@ async def get_banned_users(
 
     banned_users_list = []
 
-    for active_ban in active_bans:
-        banned_user = db.scalar(select(User).where(User.id == active_ban[1]))
-        if banned_user:
+    for ban_id, banned_user_id, reason, banned_by_id in active_bans:
+        banned_user = db.scalar(select(User).where(User.id == banned_user_id))
+        banned_by_user = db.scalar(select(User).where(User.id == banned_by_id))
+        if banned_user and banned_by_user:
             banned_users_list.append(
                 BanInfo(
-                    ban_id=active_ban[0],
-                    ban_reason=active_ban[2],
-                    banned_by=active_ban[3],
-                    user_info=UserDashboardResponse(
+                    ban_id=ban_id,
+                    ban_reason=reason,
+                    banned_by=UserDashboardResponse(
+                        user_id=banned_by_user.id,
+                        email=banned_by_user.email,
+                        handle=banned_by_user.handle,
+                        profile_picture_url=banned_by_user.profile_picture_url,
+                    ),
+                    banned_user=UserDashboardResponse(
                         user_id=banned_user.id,
                         email=banned_user.email,
                         handle=banned_user.handle,
