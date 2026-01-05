@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+import datetime
+from uuid import UUID
+from fastapi import APIRouter, Body, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 from sqlalchemy import extract, select
 from sqlalchemy.orm import Session
@@ -110,3 +112,58 @@ async def get_reported_videos(
         ))
 
     return response_list
+
+@router.post("/ban-user", status_code=status.HTTP_200_OK)
+async def ban_user(
+    user_id: UUID = Body(...),
+    reason: str = Body(None),
+    db: Session = Depends(get_db),
+    session: SessionContainer = Depends(get_session)
+):
+    """Ban a user by admin/mod."""
+    
+    supertokens_user_id = session.get_user_id()
+
+    admin_user = db.query(User).filter(User.supertokens_user_id == supertokens_user_id).first()
+
+    if not admin_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="User not found"
+        )
+
+    if admin_user.role not in (UserRole.ADMIN, UserRole.MOD):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail="Not authorized to access this resource"
+        )
+    
+    user_to_ban = db.scalar(select(User).where(User.id == user_id))
+
+    if not user_to_ban:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="User to ban not found"
+        )
+    
+    existing_ban = db.scalar(select(Ban)
+                            .where(
+                                Ban.user_id == user_id and 
+                                (Ban.ends_at == None or Ban.ends_at > datetime.datetime.now(datetime.timezone.utc))
+                            ))
+
+    if existing_ban:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail="User is already banned"
+        )
+    
+    ban_entry = Ban(
+                    user_id=user_id,
+                    banned_by=admin_user.id,
+                    reason=reason
+                )
+    db.add(ban_entry)
+    db.commit()
+
+    return JSONResponse(content={"detail": "User banned successfully"}, status_code=status.HTTP_200_OK)
