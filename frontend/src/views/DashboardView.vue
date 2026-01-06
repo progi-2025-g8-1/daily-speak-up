@@ -4,7 +4,7 @@
    import DashboardTabs from '../components/DashboardTabs.vue';
 
    const router = useRouter();
-   const goBack = () => router.push('/');
+   const goBack = () => router.push('/home');
 </script>
 
 <template>
