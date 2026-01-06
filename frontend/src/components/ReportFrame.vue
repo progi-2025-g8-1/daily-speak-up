@@ -9,7 +9,8 @@
     const props = defineProps<{ reportInfo: ReportInfo }>();
     const emit = defineEmits<{
         (e: 'showInstructions'): void,
-        (e: 'banUser', user_id:string, handle:string, reasons:string[] | undefined): void
+        (e: 'banUser', user_id:string, handle:string, reasons:string[] | undefined): void,
+        (e: 'dismissReport', video_id:string): void
     }>();
 
     const items = ref([
@@ -28,7 +29,7 @@
             class: '!bg-purple-200/50',
             severity: 'help',
             command: () => {
-                console.log('Prijava obrisana');
+                showConfirmDismissReportDialog();
             }
         },
         {
@@ -57,6 +58,10 @@
 
     const showConfirmBanDialog = () => {
         emit('banUser', props.reportInfo.user_info.user_id, props.reportInfo.user_info.handle, props.reportInfo.report_reasons);
+    };
+
+    const showConfirmDismissReportDialog = () => {
+        emit('dismissReport', props.reportInfo.video_id);
     };
 
 </script>
@@ -207,6 +212,7 @@
                                     icon="pi pi-angle-double-left" 
                                     severity="help" 
                                     variant="outlined" 
+                                    :onClick="showConfirmDismissReportDialog"
                                     class="w-full"
                                     pt:label:class="text-sm"/>
                             <Button label="Obriši video" 

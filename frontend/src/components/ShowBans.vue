@@ -5,7 +5,6 @@
     import { Avatar } from 'primevue';
     import Button from 'primevue/button';
     import Popover from 'primevue/popover';
-    import ConfirmDialog from 'primevue/confirmdialog';
     import { useConfirm } from "primevue/useconfirm";
 
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8123/api/v1';
@@ -117,7 +116,6 @@
 </script>
 
 <template>
-    <ConfirmDialog />
 
     <div class="datatable-container h-full" >
         <DataTable :value="bans"         

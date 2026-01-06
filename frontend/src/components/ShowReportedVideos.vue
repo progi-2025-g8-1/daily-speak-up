@@ -7,6 +7,7 @@ import Paginator from 'primevue/paginator';
 import Skeleton from 'primevue/skeleton';
 import Dialog from 'primevue/dialog';
 import type { ReportInfo } from '../types/report-info';
+import { outlined } from '@primeuix/themes/aura/message';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8123/api/v1'
 const videos = ref<ReportInfo[]>([]);
@@ -24,6 +25,7 @@ const secondVideo = computed(() => videos.value[first.value + 1]);
 const confirm = useConfirm();
 
 const handleShowInstructions = () => {
+      console.log('show instructions');
     showReasonDialog.value = true;
 };
 
@@ -62,6 +64,34 @@ onBeforeUnmount(() => {
         numOfPageLinks.value = window.innerWidth < 640 ? 3 : 5;
     });
 });
+
+const handleDismissReport = (video_id: string) => {
+    console.log('Dismiss report for video ID:', video_id);
+    confirm.require({
+        message: 'Jeste li sigurni da želite obrisati ovu prijavu?',
+        header: 'Potvrda brisanja prijave',
+        icon: 'pi pi-exclamation-triangle',
+        acceptProps: { label: 'Obriši prijavu', icon: 'pi pi-times', severity: 'danger' },
+        rejectProps: { label: 'Odustani', outlined: true, severity: 'secondary' },
+        accept: async () => {
+            const response = await fetch(`${API_BASE_URL}/dashboard/dismiss-reports/${video_id}`, {
+                method: 'DELETE',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.ok) {
+                videos.value = videos.value.filter(video => video.video_id !== video_id);
+            } else {
+                console.error('Failed to dismiss report:', response.statusText);
+            }
+        },
+        reject: () => {
+        }
+    });
+};
 </script>
 
 <template>
@@ -138,6 +168,7 @@ onBeforeUnmount(() => {
                     :reportInfo="firstVideo"
                     @showInstructions="handleShowInstructions"
                     @banUser="showConfirmBanDialog"
+                    @dismissReport="handleDismissReport"
                 />
 
                 <ReportFrame
@@ -146,6 +177,7 @@ onBeforeUnmount(() => {
                     :reportInfo="secondVideo"
                     @showInstructions="handleShowInstructions"
                     @banUser="showConfirmBanDialog"
+                    @dismissReport="handleDismissReport"
                 />
             </div>
             

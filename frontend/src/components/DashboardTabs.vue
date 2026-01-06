@@ -8,6 +8,7 @@
     import ShowUsers from './ShowUsers.vue';
     import ShowReportedVideos from './ShowReportedVideos.vue';
     import ShowBans from './ShowBans.vue';
+    import ConfirmDialog from 'primevue/confirmdialog';
     import ShowStats from './ShowStats.vue';
     import type { ShowBansInterface } from '../types/show-bans';
 
@@ -48,6 +49,7 @@
 </script>
 
 <template>
+    <ConfirmDialog></ConfirmDialog>
     <Tabs v-model:value="activeTab" class="w-full h-full flex flex-col" @update:value="handleTabChange">
         <TabList>
             <Tab v-if="showAdminTabs" value="0">
