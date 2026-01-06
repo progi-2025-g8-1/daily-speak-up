@@ -4,8 +4,8 @@ import Card from 'primevue/card';
 import UserGrowthChart from './UserGrowthChart.vue';
 import SpeechesByInterestChart from './SpeechesByInterestChart.vue';
 import DailySpeechActivityChart from './DailySpeechActivityChart.vue';
-import NormalisedURLDomain from 'supertokens-web-js/lib/build/normalisedURLDomain';
 import Skeleton from 'primevue/skeleton';
+import type { RefreshStatsInterface } from '../types/stats-types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8123/api/v1';
 
@@ -15,8 +15,11 @@ const stats = ref({
     totalBans: null,
     pendingReports: null
 });
-
-onMounted(async () => {
+const userGrowthChartRef = ref<RefreshStatsInterface | null>(null);
+const speechesByInterestChartRef = ref<RefreshStatsInterface | null>(null);
+const dailySpeechActivityChartRef = ref<RefreshStatsInterface | null>(null);
+    
+const refreshStatas = async () => {
     const response = await fetch(`${API_BASE_URL}/dashboard/stats/summary`);
     if (response.ok) {
         const data = await response.json();
@@ -25,6 +28,20 @@ onMounted(async () => {
         stats.value.totalBans = data.total_bans;
         stats.value.pendingReports = data.pending_reports;
     }
+
+    if (userGrowthChartRef.value) {
+        userGrowthChartRef.value.refreshStats();
+    }
+    if (speechesByInterestChartRef.value) {
+        speechesByInterestChartRef.value.refreshStats();
+    }
+    if (dailySpeechActivityChartRef.value) {
+        dailySpeechActivityChartRef.value.refreshStats();
+    }
+};
+
+defineExpose({
+    refreshStatas
 });
 
 </script>
@@ -104,11 +121,11 @@ onMounted(async () => {
 
         <div class="flex flex-col gap-6">
             <div>
-                <UserGrowthChart />
+                <UserGrowthChart ref="userGrowthChartRef" />
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <SpeechesByInterestChart />
-                <DailySpeechActivityChart />
+                <SpeechesByInterestChart ref="speechesByInterestChartRef" />
+                <DailySpeechActivityChart ref="dailySpeechActivityChartRef" />
             </div>
         </div>
     </div>
