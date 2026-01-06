@@ -104,9 +104,6 @@
 
     const refreshBans = async () => {
 
-        isLoading.value = true;
-        bans.value = new Array(rowsPerPage.value);
-
         const response = await fetch(`${API_BASE_URL}/dashboard/bans`);
         if(response.ok) {
             bans.value = await response.json();
