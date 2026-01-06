@@ -3,45 +3,44 @@ import { ref, onMounted } from 'vue';
 import Chart from 'primevue/chart';
 import ProgressSpinner from 'primevue/progressspinner';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8123/api/v1/';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8123/api/v1';
 
 const chartData = ref();
 const chartOptions = ref();
 
 onMounted(async () => {
-    const data = {
-        labels: [],
-        totalUsers: [],
-    };
-
-
-    const response = await fetch(`${API_BASE_URL}/dashboard/stats/users-by-month`);
-
-    if (response.ok) {
-        const response_data = await response.json();
-        data.totalUsers = response_data.counts;
-        data.labels = response_data.labels;
-    }
-    
-    chartData.value = {
-        labels: data.labels,
-        datasets: [
-            {
-                label: 'Ukupno korisnika',
-                data: data.totalUsers,
-                fill: true,
-                backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                borderColor: '#10b981',
-                tension: 0.4,
-                pointBackgroundColor: '#10b981',
-                pointBorderColor: '#fff',
-                pointBorderWidth: 2,
-                pointRadius: 4
-            }
-        ]
-    };
-    
     chartOptions.value = setChartOptions();
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/dashboard/stats/users-by-month`, {
+            credentials: 'include'
+        });
+
+        if (response.ok) {
+            const response_data = await response.json();
+            if (response_data.counts && response_data.labels) {
+                chartData.value = {
+                    labels: response_data.labels,
+                    datasets: [
+                        {
+                            label: 'Ukupno korisnika',
+                            data: response_data.counts,
+                            fill: true,
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            borderColor: '#10b981',
+                            tension: 0.4,
+                            pointBackgroundColor: '#10b981',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 4
+                        }
+                    ]
+                };
+            }
+        }
+    } catch (error) {
+        console.error('Failed to fetch user growth data:', error);
+    }
 });
 
 const setChartOptions = () => {

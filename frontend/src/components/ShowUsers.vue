@@ -31,7 +31,11 @@ const rowsPerPage = computed(() => {
 });
 
 onMounted(async () => {
-    const response = await fetch(`${API_BASE_URL}/dashboard/users`);
+    const response = await fetch(`${API_BASE_URL}/dashboard/users`,
+    {
+        credentials: 'include'
+    }
+    );
     if(response.ok) {
         let data = await response.json();
 
