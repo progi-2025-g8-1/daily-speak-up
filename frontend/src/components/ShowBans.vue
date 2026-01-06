@@ -21,12 +21,7 @@
     const containerHeight = ref(0);
     
     onMounted( async() => {
-        const response = await fetch(`${API_BASE_URL}/dashboard/bans`);
-        if(response.ok) {
-            bans.value = await response.json();
-        } else {
-            console.error('Failed to fetch bans:', response.statusText);
-        }
+      
         await nextTick();
         setTimeout(() => {
             measureDimensions();
