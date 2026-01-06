@@ -11,6 +11,7 @@
   "dependencies": {
     "@primeuix/themes": "^1.2.5",
     "@tailwindcss/vite": "^4.1.16",
+    "pinia": "^3.0.4",
     "primeicons": "^7.0.0",
     "primevue": "^4.4.1",
     "supertokens-web-js": "^0.16.0",

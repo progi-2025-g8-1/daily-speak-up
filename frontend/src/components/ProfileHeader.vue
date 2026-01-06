@@ -6,33 +6,32 @@
         <Avatar 
           :label="user.handle?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase()" 
           shape="circle" 
-          class="bg-sky-400 text-white"
-          style="width: 100px; height: 100px; font-size: 3rem;"
+          style="width: 100px; height: 100px; font-size: 3rem; background-color: var(--color-primary); color: white;"
         />
   
         <div class="flex flex-col items-start">
-          <h2 class="text-2xl font-semibold text-dark m-0 mb-1">
+          <h2 class="text-2xl font-semibold m-0 mb-1" style="color: var(--color-text-dark);">
             {{ user.handle || user.email }}
           </h2>
           
-          <h3 class="text-sm text-gray-500 m-0 mb-3">
+          <h3 class="text-sm m-0 mb-3" style="color: var(--color-text-secondary);">
             {{ user.email }}
           </h3>
   
           <div class="flex gap-10">
             <div class="flex flex-col items-start">
               <div class="flex flex-row items-center gap-2">
-                <span class="text-2xl font-bold text-dark">{{ user.streak || 0 }}</span>
+                <span class="text-2xl font-bold" style="color: var(--color-text-dark);">{{ user.streak || 0 }}</span>
                 <span class="pi pi-sparkles font-xl"></span>
               </div>
-              <span class="text-xs text-gray-600">streak</span>
+              <span class="text-xs" style="color: var(--color-text-light);">streak</span>
             </div>
             <div class="flex flex-col items-start">
               <div class="flex flex-row items-center gap-2" v-on:click="handleShowFriends">
-                <span class="text-2xl font-bold text-dark">{{ user.friends_count || 0 }}</span>
+                <span class="text-2xl font-bold" style="color: var(--color-text-dark);">{{ user.friends_count || 0 }}</span>
                 <span class="pi pi-users font-xl"></span>
               </div>
-              <span class="text-xs text-gray-600">prijatelji</span>
+              <span class="text-xs" style="color: var(--color-text-light);">prijatelji</span>
             </div>
           </div>
         </div>

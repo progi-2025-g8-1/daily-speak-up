@@ -11,13 +11,22 @@
     import Logout from './Logout.vue';
     import User from './User.vue';
     import { RouterLink } from 'vue-router';
-    import { ref, onMounted } from 'vue';
+    import { ref, onMounted, watch } from 'vue';
+    import { useThemeStore } from '../stores/themeStore';
 
     const visible = ref(false);
     const selectedTheme = ref('light');
+    const themeStore = useThemeStore();
     const selectedLanguage = ref('hr');
     const selectedInterests = ref([]);
     const interests = ref([]);
+    
+    // Watch for theme changes and update theme store
+    watch(selectedTheme, (newTheme) => {
+        if (newTheme === 'light' || newTheme === 'dark') {
+            themeStore.setTheme(newTheme);
+        }
+    });
     const emailNotifs = ref(false);
     const pushNotifs = ref(false);
     const streakNotifs = ref(false);
@@ -225,10 +234,10 @@
                 </div>
             </div>
         </Drawer>
-        <div class="flex flex-col justify-center items-center border-2 border-solid aspect-square
-                    rounded-full border-blue w-10 mr-1 h-10 hover:scale-105 cursor-pointer transition duration-200"
+        <div class="flex flex-col justify-center items-center aspect-square rounded-full w-10 mr-1 h-10 hover:scale-105 cursor-pointer transition duration-200"
+            style="border: 2px solid var(--color-primary);"
             @click="visible = true">
-            <span class="pi pi-cog" style="color:black; font-size: 1.2rem;"></span>
+            <span class="pi pi-cog" style="color: var(--color-text-dark); font-size: 1.2rem;"></span>
         </div>
     </div>
 </template>

@@ -44,7 +44,7 @@
         <Card v-if="friendsList.length === 0" class="w-full mt-[2vh]">
             <template #content>
                 <ProgressSpinner style="width: 4rem; height: 4rem;" />
-                <div class="mt-4 text-gray-500">Učitavanje prijatelja...</div>
+                <div class="mt-4" style="color: var(--color-text-secondary);">Učitavanje prijatelja...</div>
             </template>
         </Card>
         <Card v-else-if="friendsList.length === 0" class="mt-[2vh]">
@@ -56,11 +56,11 @@
             <template #content class="flex justify-center items-center">
                 <ScrollPanel  class="w-full h-[82vh]">
                     <div class="flex flex-col gap-4 p-4">
-                        <div v-for="friend in friendsList" :key="friend.handle" class="flex flex-row items-center gap-4 p-2 border-b border-gray-200">
+                        <div v-for="friend in friendsList" :key="friend.handle" class="flex flex-row items-center gap-4 p-2" style="border-bottom: 1px solid var(--color-border-light);">
                             <Avatar :image="friend.profile_picture_url" class="mr-2" size="xlarge" shape="circle" />
                             <div class="flex flex-col">
-                                <span class="font-medium text-lg">{{ friend.name }}</span>
-                                <span class="text-gray-500 text-sm">@{{ friend.handle }}</span>
+                                <span class="font-medium text-lg" style="color: var(--color-text-primary);">{{ friend.name }}</span>
+                                <span class="text-sm" style="color: var(--color-text-secondary);">@{{ friend.handle }}</span>
                             </div>
                         </div>
                     </div>

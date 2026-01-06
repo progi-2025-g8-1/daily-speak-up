@@ -32,7 +32,8 @@ const handleUploadData = (uploadMethod: string, uploadUrl: string, userId: strin
 
 <template>
   <div
-    class="flex flex-col justify-start items-center bg-sky-100 w-[100vw] lg:w-[60vw] h-full"
+    class="flex flex-col justify-start items-center w-[100vw] lg:w-[60vw] h-full"
+    style="background-color: var(--color-bg-main);"
   >
     <NavBar />
 
@@ -40,8 +41,8 @@ const handleUploadData = (uploadMethod: string, uploadUrl: string, userId: strin
       class="w-full h-[53vh] lg:h-full flex flex-col justify-around items-center "
     >
       <div
-        class="border-black justify-center
-                font-sans text-[1.5vw] font-semibold text-center"
+        class="justify-center font-sans text-[1.5vw] font-semibold text-center"
+        style="border: 1px solid var(--color-border-primary); color: var(--color-text-primary);"
       >
         <h1>Započnite vježbu!</h1>
       </div>

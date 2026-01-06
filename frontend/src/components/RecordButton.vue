@@ -156,11 +156,8 @@ const generateTopic = async () => {
 
     <!-- Krug sa hover efektom koji ga samo potamni -->
     <div
-      class="relative w-[22vw] h-[22vw] 2xl:w-[16vw] 2xl:h-[16vw] rounded-full
-             bg-[radial-gradient(circle,_#c4eafe,_#38bdf8)]
-             shadow-lg flex items-center justify-center
-             hover:cursor-pointer transition-all duration-200
-             hover:brightness-90"
+      class="relative w-[22vw] h-[22vw] 2xl:w-[16vw] 2xl:h-[16vw] rounded-full shadow-lg flex items-center justify-center hover:cursor-pointer transition-all duration-200 hover:brightness-90"
+             style="background: radial-gradient(circle, rgba(196, 234, 254, 0.8), var(--color-primary));"
       @click="!isCounting ? startTimer() : null"
     >
       <!-- Mikrofon ikona - u sredini kada se ne broji -->

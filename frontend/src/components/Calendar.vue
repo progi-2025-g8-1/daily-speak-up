@@ -144,7 +144,7 @@
   .calendar-container {
     width: 100%;
     max-width: 500px;
-    background: white;
+    background: var(--color-bg-card);
     border-radius: 12px;
     padding: 24px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -160,7 +160,7 @@
   .calendar-title {
     font-size: 18px;
     font-weight: 600;
-    color: #1f2937;
+    color: var(--color-text-dark);
     margin: 0;
   }
   
@@ -175,7 +175,7 @@
     text-align: center;
     font-size: 11px;
     font-weight: 600;
-    color: #9ca3af;
+    color: var(--color-text-light);
     padding: 8px 4px;
   }
   
@@ -193,7 +193,7 @@
     justify-content: center;
     font-size: 15px;
     font-weight: 500;
-    color: #000000;
+    color: var(--color-text-dark);
     border-radius: 8px;
     transition: all 0.2s ease;
     cursor: default;
@@ -201,17 +201,17 @@
   }
   
   .calendar-day:not(.empty):hover {
-    background: #f3f4f6;
+    background: var(--color-bg-main);
   }
   
   .calendar-day.has-video {
-    color: #3b82f6 !important;
+    color: var(--color-primary) !important;
     font-weight: 700;
     cursor: pointer;
   }
   
   .calendar-day.has-video:hover {
-    background: #eff6ff;
+    background: var(--color-bg-accent);
     transform: scale(1.05);
   }
   

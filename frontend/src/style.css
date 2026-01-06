@@ -48,6 +48,44 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Dark Mode Styling */
+html.dark,
+.dark-mode {
+  --color-primary: #60a5fa;           /* Lighter blue for dark mode */
+  --color-primary-dark: #1e40af;      /* Keep dark blue for contrast */
+  --color-primary-darker: #3b82f6;    /* Medium blue */
+  --color-primary-light: #1e3a8a;     /* Dark blue for backgrounds */
+  --color-primary-medium: #93c5fd;    /* Even lighter blue for hover */
+  
+  /* Dark Mode Backgrounds */
+  --color-bg-main: #0f172a;           /* Very dark background */
+  --color-bg-card: #1e293b;           /* Dark card background */
+  --color-bg-accent: #334155;         /* Slightly lighter accent */
+  
+  /* Dark Mode Text */
+  --color-text-primary: #93c5fd;      /* Light blue text */
+  --color-text-secondary: #cbd5e1;    /* Light gray text */
+  --color-text-dark: #f1f5f9;         /* Very light text */
+  --color-text-light: #cbd5e1;        /* Medium light text */
+  --color-text-white: #f8fafc;        /* Almost white text */
+  --color-text-muted: #64748b;        /* Muted text */
+  
+  /* Dark Mode Borders */
+  --color-border-light: #334155;      /* Dark borders */
+  --color-border-medium: #475569;     /* Medium dark borders */
+  --color-border-primary: #60a5fa;    /* Light blue borders */
+  
+  /* Dark Mode Status Colors */
+  --color-success: #34d399;           /* Lighter green */
+  --color-error: #f87171;             /* Lighter red */
+  --color-warning: #fbbf24;           /* Lighter orange */
+  --color-info: #60a5fa;              /* Lighter blue */
+  
+  /* Dark Mode Gradient */
+  --gradient-primary: linear-gradient(135deg, #1e40af 0%, #60a5fa 100%);
+}
+
+
 a {
   font-weight: 500;
   color: var(--color-primary);

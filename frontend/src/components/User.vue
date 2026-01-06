@@ -4,16 +4,17 @@
     
     <div 
       v-else-if="user" 
-      class="flex items-center gap-3 cursor-pointer hover:bg-gray-100 p-2 rounded-lg transition-colors"
+      class="flex items-center gap-3 cursor-pointer p-2 rounded-lg transition-colors"
+      style="background-color: var(--color-bg-main); color: var(--color-text-primary);"
       @click="goToProfile"
     >
       <Avatar :label="user.handle?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase()" 
               shape="circle" 
               size="large" 
-              class="bg-sky-500 text-white" />
+              style="background-color: var(--color-primary); color: white;" />
       <div class="flex flex-col">
-        <span class="font-semibold">{{ user.handle || user.email }}</span>
-        <span class="text-sm text-gray-500">{{ user.email }}</span>
+        <span class="font-semibold" style="color: var(--color-text-primary);">{{ user.handle || user.email }}</span>
+        <span class="text-sm" style="color: var(--color-text-secondary);">{{ user.email }}</span>
       </div>
     </div>
     

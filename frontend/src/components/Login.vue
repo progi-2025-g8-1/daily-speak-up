@@ -3,7 +3,8 @@
     <Button
       label="Log in"
       icon="pi pi-sign-in"
-      class="!bg-sky-500 hover:!bg-sky-600 !text-white !border-none !shadow-md"
+      style="background-color: var(--color-primary); color: white; border: none;"
+      class="!shadow-md"
       @click="visible = true"
     />
     
