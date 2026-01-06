@@ -47,6 +47,7 @@ const setChartOptions = () => {
                 }
             }
         }
+    };
 };
 
 const refreshStats = async () => {
@@ -81,7 +82,6 @@ const refreshStats = async () => {
 defineExpose({
     refreshStats
 });
-};
 </script>
 
 <template>

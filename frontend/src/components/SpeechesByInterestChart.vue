@@ -26,6 +26,7 @@ onMounted(async () => {
             }
         }
     };
+});
 
 const refreshStats = async () => {
     isLoaded.value = false;

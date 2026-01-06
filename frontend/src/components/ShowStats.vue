@@ -19,8 +19,7 @@ const userGrowthChartRef = ref<RefreshStatsInterface | null>(null);
 const speechesByInterestChartRef = ref<RefreshStatsInterface | null>(null);
 const dailySpeechActivityChartRef = ref<RefreshStatsInterface | null>(null);
     
-const refreshStatas = async () => {
-
+const refreshStats = async () => {
     stats.value = {
         totalUsers: null,
         totalSpeeches: null,
@@ -49,7 +48,7 @@ const refreshStatas = async () => {
 };
 
 defineExpose({
-    refreshStatas
+    refreshStats
 });
 
 </script>
