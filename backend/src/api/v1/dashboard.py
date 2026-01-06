@@ -516,3 +516,39 @@ async def change_user_role(
         )
 
     return JSONResponse(content={"detail": "User role updated successfully"}, status_code=status.HTTP_200_OK)
+
+@router.delete("/dismiss-reports/{speech_id}", status_code=status.HTTP_200_OK)
+async def dismiss_reports_for_speech(
+    speech_id: UUID,
+    db: Session = Depends(get_db),
+    session: Session = Depends(get_session)
+):
+    """Dismiss all reports for a specific speech by admin/mod."""
+    
+    supertokens_user_id = session.get_user_id()
+
+    admin_user = db.scalar(select(User).where(User.supertokens_user_id == supertokens_user_id))
+
+    if not admin_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="User not found"
+        )
+
+    if admin_user.role not in (UserRole.ADMIN, UserRole.MOD):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail="Not authorized to access this resource"
+        )
+    
+    try:
+        db.execute(delete(Report).where(Report.speech_id == speech_id))
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to delete reports: {str(e)}"
+        )
+
+    return JSONResponse(content={"detail": "Reports deleted successfully"}, status_code=status.HTTP_200_OK)
