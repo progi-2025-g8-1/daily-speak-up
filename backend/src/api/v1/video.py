@@ -1,7 +1,8 @@
 import datetime
 from fastapi import APIRouter, FastAPI, HTTPException, Depends, status
 from ..deps import get_session, get_s3_service, get_gemini_service
-from ...models import User, Speech, UserInterest, SpeechVisibility, Rating, UserStreak
+from ...models import User, Speech, Report, SpeechVisibility, Rating, UserStreak
+from ...models.enums import UserRole
 from ...schemas import UploadRequestResponse, VideoReadResponse
 from sqlalchemy.orm import Session
 from ...db import get_db
@@ -208,24 +209,33 @@ async def delete_video(
         )
     
     speech: Speech | None = db.query(Speech).filter(
-        Speech.id == video_id,
-        Speech.user_id == user.id
+        Speech.id == video_id
     ).first()
-
-    ratings: list[Rating] | None = db.query(Rating).filter(
-        Rating.speech_id == video_id
-    ).all()
-
-    streak = db.query(UserStreak).filter(
-        UserStreak.user_id == user.id 
-    ).order_by(UserStreak.created_at.desc()).first()
 
     if speech is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail='Speech not found'
         )
-    
+
+    if speech.user_id != user.id and user.role not in (UserRole.ADMIN, UserRole.MOD):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail='Access denied'
+        )
+
+    ratings: list[Rating] | None = db.query(Rating).filter(
+        Rating.speech_id == video_id
+    ).all()
+
+    reports: list[Report] | None = db.query(Report).filter(
+        Report.speech_id == video_id
+    ).all()
+
+    streak = db.query(UserStreak).filter(
+        UserStreak.user_id == user.id 
+    ).order_by(UserStreak.created_at.desc()).first()
+
     if streak:
         if streak.start_date == streak.end_date:
             db.delete(streak)
@@ -266,6 +276,11 @@ async def delete_video(
     if ratings:
         for rating in ratings:
             db.delete(rating)
+        db.commit()
+    
+    if reports:
+        for report in reports:
+            db.delete(report)
         db.commit()
 
     # Tu negdje dodati brisanje iz S3
