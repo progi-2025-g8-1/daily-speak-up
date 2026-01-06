@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import Card from 'primevue/card';
 import UserGrowthChart from './UserGrowthChart.vue';
 import SpeechesByInterestChart from './SpeechesByInterestChart.vue';
@@ -20,6 +20,14 @@ const speechesByInterestChartRef = ref<RefreshStatsInterface | null>(null);
 const dailySpeechActivityChartRef = ref<RefreshStatsInterface | null>(null);
     
 const refreshStatas = async () => {
+
+    stats.value = {
+        totalUsers: null,
+        totalSpeeches: null,
+        totalBans: null,
+        pendingReports: null
+    };
+
     const response = await fetch(`${API_BASE_URL}/dashboard/stats/summary`);
     if (response.ok) {
         const data = await response.json();

@@ -49,6 +49,10 @@ const setChartOptions = () => {
 
 onMounted(async () => {
     chartOptions.value = setChartOptions();
+});
+
+const refreshStats = async () => {
+    isLoaded.value = false;
 
     try {
         const response = await fetch(`${API_BASE_URL}/dashboard/stats/speeches-this-week`, {
@@ -81,7 +85,12 @@ onMounted(async () => {
     } finally {
         isLoaded.value = true;
     }
+};
+
+defineExpose({
+    refreshStats
 });
+
 </script>
 
 <template>
