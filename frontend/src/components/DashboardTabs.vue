@@ -11,12 +11,14 @@
     import ConfirmDialog from 'primevue/confirmdialog';
     import ShowStats from './ShowStats.vue';
     import type { ShowBansInterface } from '../types/show-bans';
+    import type { RefreshStatsInterface } from '../types/stats-types';
 
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8123/api/v1/';
 
     const activeTab = ref('1');
     const showBansRef = ref<ShowBansInterface | null>(null);
     const showAdminTabs = ref(false);
+    const showStatsRef = ref<RefreshStatsInterface | null>(null);
 
     onMounted(async () => {
         const userRole = localStorage.getItem('userRole');
@@ -44,6 +46,9 @@
     const handleTabChange = (newValue: string | number) => {
         if (newValue === '2' && showBansRef.value) {
             showBansRef.value.refreshBans();
+        }
+        if (newValue === '3' && showStatsRef.value) {
+            showStatsRef.value.refreshStats();
         }
     };
 </script>
@@ -98,7 +103,7 @@
             </TabPanel>
             <TabPanel v-if="showAdminTabs" value="3" class="w-full h-full overflow-hidden">
                 <div class="w-full h-full overflow-y-auto">
-                    <ShowStats />
+                    <ShowStats ref="showStatsRef" />
                 </div>
             </TabPanel>
         </TabPanels>
