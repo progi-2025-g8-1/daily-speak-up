@@ -66,7 +66,6 @@ onBeforeUnmount(() => {
 });
 
 const handleDismissReport = (video_id: string) => {
-    console.log('Dismiss report for video ID:', video_id);
     confirm.require({
         message: 'Jeste li sigurni da želite obrisati ovu prijavu?',
         header: 'Potvrda brisanja prijave',
@@ -91,6 +90,35 @@ const handleDismissReport = (video_id: string) => {
         reject: () => {
         }
     });
+
+};
+
+const handleDeleteVideo = (video_id: string) => {
+    confirm.require({
+        message: 'Jeste li sigurni da želite obrisati ovaj videozapis?',
+        header: 'Potvrda brisanja videozapisa',
+        icon: 'pi pi-exclamation-triangle',
+        acceptProps: { label: 'Obriši video', icon: 'pi pi-times', severity: 'danger' },
+        rejectProps: { label: 'Odustani', outlined: true, severity: 'secondary' },
+        accept: async () => {
+            const response = await fetch(`${API_BASE_URL}/video/${video_id}`, {
+                method: 'DELETE',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.ok) {
+                videos.value = videos.value.filter(video => video.video_id !== video_id);
+            } else {
+                console.error('Failed to delete video:', response.statusText);
+            }
+        },
+        reject: () => {
+        }
+    });
+
 };
 </script>
 
@@ -169,6 +197,7 @@ const handleDismissReport = (video_id: string) => {
                     @showInstructions="handleShowInstructions"
                     @banUser="showConfirmBanDialog"
                     @dismissReport="handleDismissReport"
+                    @deleteVideo="handleDeleteVideo"
                 />
 
                 <ReportFrame
@@ -178,6 +207,7 @@ const handleDismissReport = (video_id: string) => {
                     @showInstructions="handleShowInstructions"
                     @banUser="showConfirmBanDialog"
                     @dismissReport="handleDismissReport"
+                    @deleteVideo="handleDeleteVideo"
                 />
             </div>
             

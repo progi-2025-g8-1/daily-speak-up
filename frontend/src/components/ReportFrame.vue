@@ -10,7 +10,8 @@
     const emit = defineEmits<{
         (e: 'showInstructions'): void,
         (e: 'banUser', user_id:string, handle:string, reasons:string[] | undefined): void,
-        (e: 'dismissReport', video_id:string): void
+        (e: 'dismissReport', video_id:string): void,
+        (e: 'deleteVideo', video_id:string): void
     }>();
 
     const items = ref([
@@ -38,7 +39,7 @@
             class: '!bg-orange-200/50',
             severity: 'warn',
             command: () => {
-                console.log('Video obrisan');
+                showConfirmDeleteVideoDialog();
             }
         },
         {
@@ -62,6 +63,10 @@
 
     const showConfirmDismissReportDialog = () => {
         emit('dismissReport', props.reportInfo.video_id);
+    };
+
+    const showConfirmDeleteVideoDialog = () => {
+        emit('deleteVideo', props.reportInfo.video_id);
     };
 
 </script>
@@ -219,6 +224,7 @@
                                     icon="pi pi-delete-left" 
                                     severity="warn" 
                                     variant="outlined" 
+                                    :onClick="showConfirmDeleteVideoDialog"
                                     class="w-full" 
                                     pt:label:class="text-sm" />
                             <Button label="Uruči zabranu" 
