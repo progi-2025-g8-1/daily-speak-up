@@ -84,7 +84,9 @@
                 <span v-else>Send Magic Link</span>
               </button>
             </div>
-rounded-lg" style="background-color: var(--color-bg-main); border: 1px solid var(--color-border-light);">
+
+            <div v-else class="text-center">
+              <div class="mb-4 p-4 rounded-lg" style="background-color: var(--color-bg-main); border: 1px solid var(--color-success);">
                 <svg class="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--color-success);">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -103,16 +105,14 @@ rounded-lg" style="background-color: var(--color-bg-main); border: 1px solid var
               <button
                 @click="closeModal"
                 class="w-full px-4 py-2 font-medium rounded-lg transition-colors"
-                style="background-color: var(--color-bg-main); color: var(--color-text-primary);
-                @click="closeModal"
-                class="w-full px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors"
+                style="background-color: var(--color-bg-main); color: var(--color-text-primary); border: 1px solid var(--color-border-light);"
               >
                 Close
-              </button>rounded-lg" style="background-color: var(--color-bg-main); border: 1px solid var(--color-error);">
-              <p class="text-sm" style="color: var(--color-error);
+              </button>
+            </div>
 
-            <div v-if="errorMessage" class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p class="text-sm text-red-800">{{ errorMessage }}</p>
+            <div v-if="errorMessage" class="mt-4 p-3 rounded-lg" style="background-color: var(--color-bg-main); border: 1px solid var(--color-error);">
+              <p class="text-sm" style="color: var(--color-error);">{{ errorMessage }}</p>
             </div>
           </div>
         </div>
