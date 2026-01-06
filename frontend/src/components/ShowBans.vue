@@ -6,6 +6,7 @@
     import Button from 'primevue/button';
     import Popover from 'primevue/popover';
     import { useConfirm } from "primevue/useconfirm";
+    import Skeleton from 'primevue/skeleton';
 
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8123/api/v1';
     const confirm = useConfirm();
@@ -19,6 +20,7 @@
     const paginatorHeight = ref(0);
     const tableHeaderHeight = ref(0);
     const containerHeight = ref(0);
+    const isLoading = ref(true);
     
     onMounted( async() => {
       
@@ -26,6 +28,9 @@
         setTimeout(() => {
             measureDimensions();
         }, 100);
+
+        isLoading.value = true
+        bans.value = new Array(rowsPerPage.value);
 
         window.addEventListener('resize', measureDimensions);
     });
@@ -98,9 +103,14 @@
     };
 
     const refreshBans = async () => {
+
+        isLoading.value = true;
+        bans.value = new Array(rowsPerPage.value);
+
         const response = await fetch(`${API_BASE_URL}/dashboard/bans`);
         if(response.ok) {
             bans.value = await response.json();
+            isLoading.value = false;
         } else {
             console.error('Failed to refetch bans:', response.statusText);
         }
@@ -120,7 +130,8 @@
                     paginatorTemplate="FirstPageLink PageLinks LastPageLink JumpToPageInput CurrentPageReport">
             <Column field="banned_user.handle" header="Korisnik">
                 <template #body="slotProps">
-                    <div class="flex flex-row
+                    <Skeleton v-if="isLoading" height="2rem" />
+                    <div v-else class="flex flex-row
                                 items-center">
                         <Avatar :image="slotProps.data.banned_user.profile_picture_url" 
                                 :label="!slotProps.data.banned_user.profile_picture_url ? slotProps.data.banned_user.handle[0].toUpperCase() : ''"
@@ -144,7 +155,8 @@
                     header="Uručitelj zabrane"
                     class="max-lg:hidden">
                 <template #body="slotProps">
-                    <div class="flex flex-row 
+                    <Skeleton v-if="isLoading" height="2rem" />
+                    <div v-else class="flex flex-row 
                                 items-center">
                         <Avatar :image="slotProps.data.banned_by.profile_picture_url" 
                                 :label="!slotProps.data.banned_by.profile_picture_url ? slotProps.data.banned_by.handle[0].toUpperCase() : ''" 
@@ -164,11 +176,16 @@
             <Column field="ban_reason" 
                     header="Razlog zabrane"
                     class="max-lg:hidden">
+                <template #body="slotProps">
+                    <Skeleton v-if="isLoading" height="2rem" />
+                    <span v-else>{{ slotProps.data.ban_reason }}</span>
+                </template>
             </Column>
             <Column header="Detalji"
                     class="lg:hidden">
                 <template #body="slotProps">
-                    <div class="flex flex-row 
+                    <Skeleton v-if="isLoading" shape="circle" size="2rem" />
+                    <div v-else class="flex flex-row 
                                 justify-center
                                 w-full">
                         <Button icon="pi pi-info" 
@@ -186,7 +203,8 @@
             </Column>
             <Column header="Poništi zabranu">
                 <template #body="slotProps">
-                    <div class="flex flex-row 
+                    <Skeleton v-if="isLoading" shape="circle" size="2rem" />
+                    <div v-else class="flex flex-row 
                                 justify-center
                                 w-full">
                         <Button icon="pi pi-undo" 
