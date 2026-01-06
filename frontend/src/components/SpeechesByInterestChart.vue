@@ -27,6 +27,9 @@ onMounted(async () => {
         }
     };
 
+const refreshStats = async () => {
+    isLoaded.value = false;
+
     try {
         const response = await fetch(`${API_BASE_URL}/dashboard/stats/counts-by-topic`, {
             credentials: 'include'
@@ -86,7 +89,12 @@ onMounted(async () => {
     } finally {
         isLoaded.value = true;
     }
+};
+
+defineExpose({
+    refreshStats
 });
+
 </script>
 
 <template>
