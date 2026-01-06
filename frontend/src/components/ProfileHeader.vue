@@ -174,6 +174,7 @@ export default {
 
         if (userResponse.ok) {
           user.value = await userResponse.json();
+          localStorage.setItem('userRole', user.value.role);
           emit('user-role', user.value.role);
         } else {
           error.value = 'Failed to fetch user data';

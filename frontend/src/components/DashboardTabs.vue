@@ -11,8 +11,34 @@
     import ShowStats from './ShowStats.vue';
     import type { ShowBansInterface } from '../types/show-bans';
 
-    const activeTab = ref('0');
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8123/api/v1/';
+
+    const activeTab = ref('1');
     const showBansRef = ref<ShowBansInterface | null>(null);
+    const showAdminTabs = ref(false);
+
+    onMounted(async () => {
+        const userRole = localStorage.getItem('userRole');
+        if(userRole === undefined || userRole === null) {
+            const response = await fetch(`${API_BASE_URL}/user/me`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.ok) {
+                const userData = await response.json();
+                localStorage.setItem('userRole', userData.role);
+                showAdminTabs.value = userData.role === import.meta.env.VITE_ADMIN_ROLE;
+                activeTab.value = showAdminTabs.value ? '0' : '1';
+            }
+        } else {
+            showAdminTabs.value = userRole === import.meta.env.VITE_ADMIN_ROLE;
+            activeTab.value = showAdminTabs.value ? '0' : '1';
+        }
+    });
 
     const handleTabChange = (newValue: string | number) => {
         if (newValue === '2' && showBansRef.value) {
@@ -24,7 +50,7 @@
 <template>
     <Tabs v-model:value="activeTab" class="w-full h-full flex flex-col" @update:value="handleTabChange">
         <TabList>
-            <Tab value="0">
+            <Tab v-if="showAdminTabs" value="0">
                 <div :class="['hover:text-blue-600 transition-colors', activeTab === '0' ? 'text-blue-600 font-semibold' : '']">
                     <span class="pi pi-users mr-3"></span>
                     <span>Korisnici</span>
@@ -45,7 +71,7 @@
                 </div>
             </Tab>
             
-            <Tab value="3">
+            <Tab v-if="showAdminTabs" value="3">
                 <div :class="['hover:text-purple-600 transition-colors', activeTab === '3' ? 'text-purple-600 font-semibold' : '']">
                     <span class="pi pi-chart-pie mr-3"></span>
                     <span>Statistika</span>
@@ -54,7 +80,7 @@
         </TabList>
         
         <TabPanels>
-            <TabPanel value="0" class="w-full h-full">
+            <TabPanel v-if="showAdminTabs" value="0" class="w-full h-full">
                 <ShowUsers />
             </TabPanel>
             <TabPanel value="1" 
@@ -68,7 +94,7 @@
                     <ShowBans ref="showBansRef" />
                </div>
             </TabPanel>
-            <TabPanel value="3" class="w-full h-full overflow-hidden">
+            <TabPanel v-if="showAdminTabs" value="3" class="w-full h-full overflow-hidden">
                 <div class="w-full h-full overflow-y-auto">
                     <ShowStats />
                 </div>

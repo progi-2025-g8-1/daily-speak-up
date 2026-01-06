@@ -64,7 +64,7 @@ const router = createRouter({
           const userData = await response.json();
 
           if (userData.role === import.meta.env.VITE_ADMIN_ROLE ||
-              userData.handle === import.meta.env.VITE_MODERATOR_ROLE) {
+              userData.role === import.meta.env.VITE_MODERATOR_ROLE) {
             return true
           }
           return { path: '/' };
