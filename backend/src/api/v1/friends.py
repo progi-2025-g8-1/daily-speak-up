@@ -549,3 +549,27 @@ async def get_friends_speeches_and_profile(
             'speeches': [],
             'current_user_profile': None  # ili vratiti osnovne podatke ako želiš
         }
+    
+    # speeches friends visibility
+    speeches = db.query(Speech).filter(
+        Speech.user_id == target_user_id,
+        Speech.visibility == SpeechVisibility.FRIENDS
+    ).order_by(Speech.created_at.desc()).offset(offset).limit(limit).all()
+
+    # users profile
+    friends_count = db.query(Friendship).filter(
+        and_(
+            or_(Friendship.user_id1 == current_user.id, Friendship.user_id2 == current_user.id),
+            Friendship.status == RequestStatus.ACCEPTED,
+            Friendship.deleted_at.is_(None)
+        )
+    ).count()
+    
+    current_streak_obj = db.query(UserStreak).filter(UserStreak.user_id == current_user.id).first()
+    streak = current_streak_obj.current_streak if current_streak_obj else 0
+    
+    interests = db.query(UserInterest).filter(UserInterest.user_id == current_user.id).all()
+    interests_list = [i.interest.name for i in interests]
+    
+    photo_result = s3_service.get_photo_read_url(str(current_user.id))
+    profile_picture_url = photo_result.get('download_url') if photo_result else None
