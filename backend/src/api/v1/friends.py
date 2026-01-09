@@ -513,13 +513,13 @@ async def check_friendship_status(
 @router.get("/{user_id}/friends", response_model=List[dict])
 async def get_user_friends_list(
     user_id: UUID,
+    limit: int = 50,
+    offset: int = 0,
     db: Session = Depends(get_db),
     session: SessionContainer = Depends(get_session),
     s3_service: S3SecureService = Depends(get_s3_service)
 ):
     """Get target user's friends list - requires friendship"""
-    from sqlalchemy import and_, or_
-    import asyncio
     
     # Current user
     supertokens_user_id = session.get_user_id()
@@ -540,12 +540,13 @@ async def get_user_friends_list(
         raise HTTPException(status_code=404, detail="Target user not found")
     
     # Verify friendship
+    user_id1 = min(current_user.id, target_user.id)
+    user_id2 = max(current_user.id, target_user.id)
+    
     friendship = db.query(Friendship).filter(
         and_(
-            or_(
-                and_(Friendship.user_id1 == current_user.id, Friendship.user_id2 == target_user.id),
-                and_(Friendship.user_id1 == target_user.id, Friendship.user_id2 == current_user.id)
-            ),
+            Friendship.user_id1 == user_id1,
+            Friendship.user_id2 == user_id2,
             Friendship.status == RequestStatus.ACCEPTED,
             Friendship.deleted_at.is_(None)
         )
@@ -564,7 +565,7 @@ async def get_user_friends_list(
             Friendship.status == RequestStatus.ACCEPTED,
             Friendship.deleted_at.is_(None)
         )
-    ).limit(50).all()
+    ).limit(limit).offset(offset).all()
     
     # Build friends list
     friends_list = []
