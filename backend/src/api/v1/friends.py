@@ -3,14 +3,14 @@ import datetime
 import asyncio
 from typing import List
 from supertokens_python.recipe.session import SessionContainer
-from fastapi import APIRouter, Depends, HTTPException, status, Body
+from fastapi import APIRouter, Depends, HTTPException, status, Body, Query
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_
 from ..deps import get_session, get_s3_service
-from ...schemas import FriendshipResponse, FriendRequestResponse, FriendshipStatusResponse
+from ...schemas import FriendshipResponse, FriendRequestResponse, FriendshipStatusResponse,UserResponse,VideoInfo
 from ...db import get_db
-from ...models import User, Friendship, RequestStatus
+from ...models import User, Friendship, RequestStatus, Speech, SpeechVisibility, UserStreak, UserInterest, Interest
 from ...services import S3SecureService
 
 router = APIRouter(prefix='/friend', tags=['friend'])
@@ -507,3 +507,45 @@ async def check_friendship_status(
         'status': status_value,
         'friendship_id': str(friendship.id) if friendship else None
     }
+
+@router.get('/{target_user_id}/speeches-with-profile')
+async def get_friends_speeches_and_profile(
+    target_user_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    session: SessionContainer = Depends(get_session),
+    s3_service: S3SecureService = Depends(get_s3_service),
+    limit: int = Query(20, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+):
+    supertokens_user_id = session.get_user_id()
+    
+    current_user: User | None = db.query(User).filter(
+        User.supertokens_user_id == supertokens_user_id
+    ).first()
+    if not current_user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User not found')
+
+    target_user: User | None = db.query(User).filter(User.id == target_user_id).first()
+    if not target_user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Target user not found')
+
+    # Jesu li prijatelji?
+    user_id1 = min(current_user.id, target_user_id)
+    user_id2 = max(current_user.id, target_user_id)
+    
+    friendship = db.query(Friendship).filter(
+        and_(
+            Friendship.user_id1 == user_id1,
+            Friendship.user_id2 == user_id2,
+            Friendship.status == RequestStatus.ACCEPTED,
+            Friendship.deleted_at.is_(None)
+        )
+    ).first()
+    
+    if not friendship:
+        return {
+            'are_friends': False,
+            'friendship_id': None,
+            'speeches': [],
+            'current_user_profile': None  # ili vratiti osnovne podatke ako želiš
+        }
