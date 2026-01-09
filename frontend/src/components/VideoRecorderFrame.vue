@@ -7,6 +7,7 @@ import { VideoConstraints } from "../AV_settings/video_constraints";
 import { AudioConstraints } from "../AV_settings/audio_constraints";
 
 const toast = useToast();
+const emit = defineEmits(['recording-finished']);
 const RECORDING_DURATION = 60000;
 const TOAST_DISPLAY_DURATION = 4000;
 
@@ -101,11 +102,9 @@ async function uploadToS3() {
   }
 
   try {
-    const videoBlob = new Blob([recordedBlob], { type: "video/mp4" });
-    
     const response = await window.fetch(uploadUrl, {
-      method: "PUT",
-      body: videoBlob,
+      method: uploadMethod || "PUT",
+      body: recordedBlob,
     });
 
     if (!response.ok) {   
@@ -151,7 +150,20 @@ async function startRecording() {
     await nextTick();
 
     if (videoRef.value) {
-      mediaRecorder = new MediaRecorder(mediaStream);
+      const mimeTypes = [
+        "video/mp4",
+        "video/webm;codecs=h264",
+        "video/webm"
+      ];
+      let selectedMimeType = "video/webm";
+      for (const type of mimeTypes) {
+        if (MediaRecorder.isTypeSupported(type)) {
+          selectedMimeType = type;
+          break;
+        }
+      }
+
+      mediaRecorder = new MediaRecorder(mediaStream, { mimeType: selectedMimeType });
 
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
@@ -160,7 +172,7 @@ async function startRecording() {
       };
 
       mediaRecorder.onstop = () => {
-        recordedBlob = new Blob(recordedChunks, { type: 'video/mp4' });
+        recordedBlob = new Blob(recordedChunks, { type: selectedMimeType });
         recordedChunks = [];
       };
 
@@ -183,7 +195,7 @@ async function startRecording() {
   }
 }
 
-function stopRecording() {
+async function stopRecording() {
   clearTimers();
 
   if (mediaRecorder) {
@@ -193,28 +205,29 @@ function stopRecording() {
 
   isFadingOut.value = true;
 
-  setTimeout(() => {
-    if (videoRef.value) {
-      videoRef.value.srcObject = null;
-    }
-    showRecording.value = false;
-    isFadingOut.value = false;
+  await new Promise(resolve => setTimeout(resolve, 500));
 
-    stopMediaTracks();
+  if (videoRef.value) {
+    videoRef.value.srcObject = null;
+  }
+  showRecording.value = false;
+  isFadingOut.value = false;
 
-    if (uploadUrl) {
-      uploadToS3();
-    }
+  stopMediaTracks();
 
-    visibleDialog.value = false;
-    
-    toast.add({
-      severity: 'success',
-      summary: 'Uspješno snimljeno!',
-      detail: 'Vaš DailySpeakUp je pohranjen! 🎉',
-      life: TOAST_DISPLAY_DURATION
-    });
-  }, 500);
+  if (uploadUrl) {
+    await uploadToS3();
+    emit('recording-finished');
+  }
+
+  visibleDialog.value = false;
+  
+  toast.add({
+    severity: 'success',
+    summary: 'Uspješno snimljeno!',
+    detail: 'Vaš DailySpeakUp je pohranjen! 🎉',
+    life: TOAST_DISPLAY_DURATION
+  });
 }
 
 function setSpeechTopic(interest, topic) {

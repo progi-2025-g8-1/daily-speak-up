@@ -41,7 +41,11 @@ async def get_upload_token(
     chosen_interest = random.choice([ui.interest for ui in user.user_interests])
 
     # Generate a topic based on the chosen interest
-    topic = await gemini_service.generate_topic(chosen_interest.name, user.preferred_lang)
+    try:
+        topic = await gemini_service.generate_topic(chosen_interest.name, user.preferred_lang)
+    except Exception as e:
+        print(f"Error generating topic: {e}")
+        topic = f"Talk about {chosen_interest.name} (Fallback Topic)"
 
     # Create a speech object - commit first to get the ID
     speech = Speech(

@@ -40,8 +40,15 @@
     }
   };
 
+  const refreshProfile = () => {
+    if (currentUsersProfileRef.value) {
+      currentUsersProfileRef.value.fetchVideos();
+    }
+  };
+
   defineExpose({
-    deleteVideo
+    deleteVideo,
+    refreshProfile
   });
 </script>
 
