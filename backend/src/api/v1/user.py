@@ -3,7 +3,7 @@ import datetime
 from uuid import UUID 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
-from sqlalchemy import extract, and_
+from sqlalchemy import extract, and_, or_
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -465,17 +465,17 @@ async def update_streak_reminders(
         }
     )
 
-@router.get("/profile/{user_id}", response_model=PublicUserProfile)
-async def get_user_profile(
-    user_id: UUID,
+@router.get("/profile/{handle}")
+async def get_user_profile_by_handle(
+    handle: str,
     db: Session = Depends(get_db),
     s3_service: S3SecureService = Depends(get_s3_service)
 ):
-    """Get public user profile by user_id"""
-    from sqlalchemy import and_, or_, func
+    """get public user profile by handle - returns user_id and basic info"""
+    from sqlalchemy import func
     
     target_user = db.query(User).filter(
-        User.id == user_id,  # ✅ Ispravljeno
+        User.handle == handle,
         User.deleted_at.is_(None),
         User.anonymized_at.is_(None)
     ).first()
@@ -495,7 +495,7 @@ async def get_user_profile(
         )
     ).scalar() or 0
     
-    # Streak - koristi istu logiku kao u /me
+    # Streak
     latest_streak = db.query(UserStreak).filter(
         UserStreak.user_id == target_user.id
     ).order_by(UserStreak.created_at.desc()).first()
@@ -520,13 +520,13 @@ async def get_user_profile(
         except Exception as e:
             logger.debug(f"Failed to get profile picture URL: {e}")
     
-    return PublicUserProfile(
-        id=target_user.id,
-        handle=target_user.handle,
-        profile_picture_url=profile_picture_url,
-        friend_count=friend_count,
-        current_streak=streak_days
-    )
+    return {
+        "id": str(target_user.id),  
+        "handle": target_user.handle,
+        "profile_picture_url": profile_picture_url,
+        "friend_count": friend_count,
+        "current_streak": streak_days
+    }
 
 @router.get("/{user_id}/videos", response_model=List[dict])
 async def get_friend_videos(
