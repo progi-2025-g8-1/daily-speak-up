@@ -15,7 +15,7 @@ class CloudflareR2Service(S3SecureService):
         """
         self.bucket = bucket_name
         self.account_id = account_id
-        self.region = "auto"
+        self.region = "us-east-1"
         
         if jurisdiction:
             endpoint_url = f"https://{account_id}.{jurisdiction}.r2.cloudflarestorage.com"
@@ -24,7 +24,8 @@ class CloudflareR2Service(S3SecureService):
         
         config = Config(
             signature_version='s3v4',
-            region_name=self.region
+            region_name=self.region,
+            s3={"addressing_style": "path"}
         )
         
         self.s3_client = boto3.client(
