@@ -3,14 +3,14 @@ import datetime
 import asyncio
 from typing import List
 from supertokens_python.recipe.session import SessionContainer
-from fastapi import APIRouter, Depends, HTTPException, status, Body, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Body
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_
 from ..deps import get_session, get_s3_service
-from ...schemas import FriendshipResponse, FriendRequestResponse, FriendshipStatusResponse,UserResponse,VideoInfo
+from ...schemas import FriendshipResponse, FriendRequestResponse, FriendshipStatusResponse
 from ...db import get_db
-from ...models import User, Friendship, RequestStatus, Speech, SpeechVisibility, UserStreak, UserInterest, Interest
+from ...models import User, Friendship, RequestStatus
 from ...services import S3SecureService
 
 router = APIRouter(prefix='/friend', tags=['friend'])
@@ -507,69 +507,3 @@ async def check_friendship_status(
         'status': status_value,
         'friendship_id': str(friendship.id) if friendship else None
     }
-
-@router.get('/{target_user_id}/speeches-with-profile')
-async def get_friends_speeches_and_profile(
-    target_user_id: uuid.UUID,
-    db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session),
-    s3_service: S3SecureService = Depends(get_s3_service),
-    limit: int = Query(20, ge=1, le=100),
-    offset: int = Query(0, ge=0),
-):
-    supertokens_user_id = session.get_user_id()
-    
-    current_user: User | None = db.query(User).filter(
-        User.supertokens_user_id == supertokens_user_id
-    ).first()
-    if not current_user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User not found')
-
-    target_user: User | None = db.query(User).filter(User.id == target_user_id).first()
-    if not target_user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Target user not found')
-
-    # Jesu li prijatelji?
-    user_id1 = min(current_user.id, target_user_id)
-    user_id2 = max(current_user.id, target_user_id)
-    
-    friendship = db.query(Friendship).filter(
-        and_(
-            Friendship.user_id1 == user_id1,
-            Friendship.user_id2 == user_id2,
-            Friendship.status == RequestStatus.ACCEPTED,
-            Friendship.deleted_at.is_(None)
-        )
-    ).first()
-    
-    if not friendship:
-        return {
-            'are_friends': False,
-            'friendship_id': None,
-            'speeches': [],
-            'current_user_profile': None  # ili vratiti osnovne podatke ako želiš
-        }
-    
-    # speeches friends visibility
-    speeches = db.query(Speech).filter(
-        Speech.user_id == target_user_id,
-        Speech.visibility == SpeechVisibility.FRIENDS
-    ).order_by(Speech.created_at.desc()).offset(offset).limit(limit).all()
-
-    # users profile
-    friends_count = db.query(Friendship).filter(
-        and_(
-            or_(Friendship.user_id1 == current_user.id, Friendship.user_id2 == current_user.id),
-            Friendship.status == RequestStatus.ACCEPTED,
-            Friendship.deleted_at.is_(None)
-        )
-    ).count()
-    
-    current_streak_obj = db.query(UserStreak).filter(UserStreak.user_id == current_user.id).first()
-    streak = current_streak_obj.current_streak if current_streak_obj else 0
-    
-    interests = db.query(UserInterest).filter(UserInterest.user_id == current_user.id).all()
-    interests_list = [i.interest.name for i in interests]
-    
-    photo_result = s3_service.get_photo_read_url(str(current_user.id))
-    profile_picture_url = photo_result.get('download_url') if photo_result else None

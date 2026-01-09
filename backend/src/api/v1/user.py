@@ -463,3 +463,53 @@ async def update_streak_reminders(
             'message': 'ok'
         }
     )
+
+@router.get("/{user_id}", response_model=dict)
+async def get_user_profile(
+    user_id: UUID,
+    db: Session = Depends(get_db)
+):
+    """Get public user profile by user_id"""
+    from sqlalchemy import and_, or_, func
+    from datetime import date
+    
+    # 1. Dohvati target usera
+    target_user = db.query(User).filter(
+        User.id == user_id,
+        User.deleted_at.is_(None),
+        User.anonymized_at.is_(None)
+    ).first()
+    
+    if not target_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # 2. Friend count (javno dostupno)
+    friend_count = db.query(func.count(Friendship.id)).filter(
+        and_(
+            or_(
+                Friendship.user_id1 == target_user.id,
+                Friendship.user_id2 == target_user.id
+            ),
+            Friendship.status == RequestStatus.ACCEPTED,
+            Friendship.deleted_at.is_(None)
+        )
+    ).scalar() or 0
+    
+    # 3. Streak calculation (javno dostupno)
+    latest_streak = db.query(UserStreak).filter(
+        UserStreak.user_id == target_user.id,
+        UserStreak.enddate.is_(None)
+    ).order_by(UserStreak.startdate.desc()).first()
+    
+    streak_days = 0
+    if latest_streak:
+        streak_days = (date.today() - latest_streak.startdate).days + 1
+    
+    # 4. Return public profile
+    return {
+        "id": str(target_user.id),
+        "handle": target_user.handle,
+        "profile_picture_url": target_user.profile_picture_url,
+        "friend_count": friend_count,
+        "current_streak": streak_days
+    }
