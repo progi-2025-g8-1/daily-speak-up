@@ -11,7 +11,7 @@ from sqlalchemy import or_, and_
 from ..deps import get_session, get_s3_service
 from ...schemas import FriendshipResponse, FriendRequestResponse, FriendshipStatusResponse
 from ...db import get_db
-from ...models import User, Friendship, RequestStatus
+from ...models import User, Friendship, RequestStatus,Speech, SpeechVisibility
 from ...services import S3SecureService
 
 router = APIRouter(prefix='/friend', tags=['friend'])

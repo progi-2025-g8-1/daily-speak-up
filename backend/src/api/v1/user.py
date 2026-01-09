@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from ..deps import get_session, get_s3_service
 from ...db import get_db
 from ...schemas import UserResponse, UserCreate, MonthlyUserVideosResponse, VideoInfo, FriendsListResponse, FriendInfo, UserInterestsResponse, NotificationSettingUpdate
-from ...models import User, Friendship, UserStreak, Speech, UserDevice, UserInterest, Interest, Rating, Ban, Report, UserRole
+from ...models import User, Friendship, UserStreak, Speech, UserDevice, UserInterest, Interest, Rating, Ban, Report, UserRole, RequestStatus
 from supertokens_python.recipe.session import SessionContainer
 from supertokens_python.asyncio import delete_user
 
@@ -464,17 +464,17 @@ async def update_streak_reminders(
         }
     )
 
-@router.get("/{user_id}", response_model=dict)
+@router.get("/profile/{user_id}", response_model=PublicUserProfile)
 async def get_user_profile(
     user_id: UUID,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    s3_service: S3SecureService = Depends(get_s3_service)
 ):
     """Get public user profile by user_id"""
     from sqlalchemy import and_, or_, func
-    from datetime import date
     
     target_user = db.query(User).filter(
-        User.id == user_id,
+        User.id == user_id,  # ✅ Ispravljeno
         User.deleted_at.is_(None),
         User.anonymized_at.is_(None)
     ).first()
@@ -494,21 +494,35 @@ async def get_user_profile(
         )
     ).scalar() or 0
     
-    # Streak 
+    # Streak - koristi istu logiku kao u /me
     latest_streak = db.query(UserStreak).filter(
-        UserStreak.user_id == target_user.id,
-        UserStreak.enddate.is_(None)
-    ).order_by(UserStreak.startdate.desc()).first()
+        UserStreak.user_id == target_user.id
+    ).order_by(UserStreak.created_at.desc()).first()
     
     streak_days = 0
-    if latest_streak:
-        streak_days = (date.today() - latest_streak.startdate).days + 1
+    if latest_streak and latest_streak.ends_at >= datetime.datetime.now(datetime.timezone.utc):
+        end_date = (
+            latest_streak.end_date 
+            if latest_streak.end_date is not None 
+            else datetime.datetime.now(datetime.timezone.utc).date()
+        )
+        start_date = latest_streak.start_date
+        days_delta = (end_date - start_date).days
+        streak_days = max(0, int(days_delta) + 1)
     
-    # Return public profile
-    return {
-        "id": str(target_user.id),
-        "handle": target_user.handle,
-        "profile_picture_url": target_user.profile_picture_url,
-        "friend_count": friend_count,
-        "current_streak": streak_days
-    }
+    # Get presigned profile picture URL
+    profile_picture_url = None
+    if target_user.profile_picture_url:
+        try:
+            photo_result = s3_service.get_photo_read_url(str(target_user.id))
+            profile_picture_url = photo_result.get('download_url')
+        except Exception as e:
+            logger.debug(f"Failed to get profile picture URL: {e}")
+    
+    return PublicUserProfile(
+        id=target_user.id,
+        handle=target_user.handle,
+        profile_picture_url=profile_picture_url,
+        friend_count=friend_count,
+        current_streak=streak_days
+    )

@@ -54,3 +54,10 @@ class UserInterestsResponse(BaseModel):
 
 class NotificationSettingUpdate(BaseModel):
     enabled: bool
+
+class PublicUserProfile(BaseModel):
+    id: UUID
+    handle: str
+    profile_picture_url: str | None
+    friend_count: int
+    current_streak: int
