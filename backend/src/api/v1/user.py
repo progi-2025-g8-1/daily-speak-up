@@ -531,6 +531,8 @@ async def get_user_profile_by_handle(
 @router.get("/{user_id}/videos", response_model=List[dict])
 async def get_friend_videos(
     user_id: UUID,
+    year:int  = None,
+    month:int = None,
     db: Session = Depends(get_db),
     session: SessionContainer = Depends(get_session),
     s3_service: S3SecureService = Depends(get_s3_service)
@@ -570,12 +572,20 @@ async def get_friend_videos(
         raise HTTPException(status_code=403, detail="Not friends with this user")
     
     # Get friends-only videos
-    videos = db.query(Speech).filter(
+    query = db.query(Speech).filter(
         Speech.user_id == target_user.id,
         Speech.visibility_level == SpeechVisibility.FRIENDS,
         Speech.is_cancelled == False,
         Speech.s3_url.isnot(None)
-    ).order_by(Speech.created_at.desc()).limit(20).all()
+    )
+    
+    if year and month:
+        query = query.filter(
+            extract('year', Speech.created_at) == year,
+            extract('month', Speech.created_at) == month
+        )
+    
+    videos = query.order_by(Speech.created_at.desc()).limit(20).all()
     
     # Generate presigned URLs and build response
     response = []
