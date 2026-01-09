@@ -473,7 +473,6 @@ async def get_user_profile(
     from sqlalchemy import and_, or_, func
     from datetime import date
     
-    # 1. Dohvati target usera
     target_user = db.query(User).filter(
         User.id == user_id,
         User.deleted_at.is_(None),
@@ -483,7 +482,7 @@ async def get_user_profile(
     if not target_user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    # 2. Friend count (javno dostupno)
+    # Friend count
     friend_count = db.query(func.count(Friendship.id)).filter(
         and_(
             or_(
@@ -495,7 +494,7 @@ async def get_user_profile(
         )
     ).scalar() or 0
     
-    # 3. Streak calculation (javno dostupno)
+    # Streak 
     latest_streak = db.query(UserStreak).filter(
         UserStreak.user_id == target_user.id,
         UserStreak.enddate.is_(None)
@@ -505,7 +504,7 @@ async def get_user_profile(
     if latest_streak:
         streak_days = (date.today() - latest_streak.startdate).days + 1
     
-    # 4. Return public profile
+    # Return public profile
     return {
         "id": str(target_user.id),
         "handle": target_user.handle,

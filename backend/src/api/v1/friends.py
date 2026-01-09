@@ -521,7 +521,7 @@ async def get_user_friends_list(
     from sqlalchemy import and_, or_
     import asyncio
     
-    # 1. Current user
+    # Current user
     supertokens_user_id = session.get_user_id()
     current_user = db.query(User).filter(
         User.supertokens_user_id == supertokens_user_id
@@ -530,7 +530,7 @@ async def get_user_friends_list(
     if not current_user:
         raise HTTPException(status_code=404, detail="Current user not found")
     
-    # 2. Target user
+    # Target user
     target_user = db.query(User).filter(
         User.id == user_id,
         User.deleted_at.is_(None)
@@ -539,7 +539,7 @@ async def get_user_friends_list(
     if not target_user:
         raise HTTPException(status_code=404, detail="Target user not found")
     
-    # 3. Verify friendship
+    # Verify friendship
     friendship = db.query(Friendship).filter(
         and_(
             or_(
@@ -554,7 +554,7 @@ async def get_user_friends_list(
     if not friendship:
         raise HTTPException(status_code=403, detail="Not friends with this user")
     
-    # 4. Get target user's friends
+    # Get target user's friends
     friendships = db.query(Friendship).filter(
         and_(
             or_(
@@ -566,7 +566,7 @@ async def get_user_friends_list(
         )
     ).limit(50).all()
     
-    # 5. Build friends list
+    # Build friends list
     friends_list = []
     friend_ids = []
     for f in friendships:
@@ -576,14 +576,14 @@ async def get_user_friends_list(
             friends_list.append(friend)
             friend_ids.append(str(friend.id))
     
-    # 6. Fetch profile pictures
+    # Fetch profile pictures
     async def get_photo_url(user_id: str):
         loop = asyncio.get_event_loop()
         return await loop.run_in_executor(None, s3_service.get_photo_read_url, user_id)
     
     photo_results = await asyncio.gather(*[get_photo_url(fid) for fid in friend_ids])
     
-    # 7. Build response
+    # Build response
     response = []
     for i, friend in enumerate(friends_list):
         response.append({
@@ -594,3 +594,63 @@ async def get_user_friends_list(
     
     return response
 
+@router.get("/{user_id}/videos", response_model=List[dict])
+async def get_friends_videos(
+    user_id: UUID,
+    db: Session = Depends(get_db),
+    session: SessionContainer = Depends(get_session)
+):
+    """Get target user's friends-only videos - requires friendship"""
+    from sqlalchemy import and_, or_
+    
+    # Current user
+    supertokens_user_id = session.get_user_id()
+    current_user = db.query(User).filter(
+        User.supertokens_user_id == supertokens_user_id
+    ).first()
+    
+    if not current_user:
+        raise HTTPException(status_code=404, detail="Current user not found")
+    
+    # Target user
+    target_user = db.query(User).filter(
+        User.id == user_id,
+        User.deleted_at.is_(None)
+    ).first()
+    
+    if not target_user:
+        raise HTTPException(status_code=404, detail="Target user not found")
+    
+    # Verify friendship
+    friendship = db.query(Friendship).filter(
+        and_(
+            or_(
+                and_(Friendship.user_id1 == current_user.id, Friendship.user_id2 == target_user.id),
+                and_(Friendship.user_id1 == target_user.id, Friendship.user_id2 == current_user.id)
+            ),
+            Friendship.status == RequestStatus.ACCEPTED,
+            Friendship.deleted_at.is_(None)
+        )
+    ).first()
+    
+    if not friendship:
+        raise HTTPException(status_code=403, detail="Not friends with this user")
+    
+    # Get friends-only videos
+    videos = db.query(Speech).filter(
+        Speech.user_id == target_user.id,
+        Speech.visibility == SpeechVisibility.FRIENDS,
+        Speech.deleted_at.is_(None)
+    ).order_by(Speech.created_at.desc()).limit(20).all()
+    
+    # Build response
+    response = []
+    for video in videos:
+        response.append({
+            "id": str(video.id),
+            "caption": video.caption,
+            "created_at": video.created_at.isoformat(),
+            "s3_url": video.s3_url
+        })
+    
+    return response
