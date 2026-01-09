@@ -16,11 +16,19 @@ const emit = defineEmits(["topic-generated", "start-recording", "upload-data"]);
 
 const progress = ref(0);
 const isCounting = ref(false);
+const isGeneratingTopic = ref(false);
 
 let intervalId = null;
-const DURATION = 10_000;
+let progressIntervalId = null;
+const DURATION = 5_000; // 5 sekundi
+const TOPIC_GENERATION_DURATION = 5_000; // 5 sekundi za generiranje
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || window.ENV?.VITE_API_BASE_URL || 'http://localhost:8123/api/v1'
+
+const getRandomTopic = (interest) => {
+  const topics = LOCAL_TOPICS[interest] || LOCAL_TOPICS.general;
+  return topics[Math.floor(Math.random() * topics.length)];
+};
 
 const startTimer = () => {
   if (isCounting.value) return;
@@ -53,96 +61,147 @@ const cancelTimer = () => {
     intervalId = null;
   }
   isCounting.value = false;
-  progress.value = 0;
+  // Ne resetuj progress - ostaje ring na mjestu gdje je stao
 };
 
 onBeforeUnmount(() => {
   if (intervalId !== null) clearInterval(intervalId);
+  if (progressIntervalId !== null) clearInterval(progressIntervalId);
 });
 
 const generateTopic = async () => {
-  console.log("[RecordButton] generateTopic START", {
-    interes: props.interes,
-    lang: props.lang,
-  });
+  console.log("[RecordButton] generateTopic START");
+
+  isGeneratingTopic.value = true;
+  // Ne resetuj progress - nastavi od gdje je ring stao
+  const start = Date.now();
+
+  // Pokreni progress ring za 5 sekundi tijekom generiranja
+  progressIntervalId = setInterval(() => {
+    const elapsed = Date.now() - start;
+    // Ring ide od 1 do 1 (već je na kraju od brojanja, ostaje na kraju)
+    progress.value = 1;
+
+    if (elapsed >= TOPIC_GENERATION_DURATION) {
+      clearInterval(progressIntervalId);
+      progress.value = 1;
+    }
+  }, 1000 / 60);
 
   try {
-    const response = await fetch(`${API_BASE_URL}/video/start`);
+    // Pokušaj preuzeti temu sa backend servisa
+    const response = await fetch(`${API_BASE_URL}/userdata/topic`, {
+      signal: AbortSignal.timeout(4000) // Timeout nakon 4 sekunde
+    });
 
-    console.log("[RecordButton] response status:", response);
+    if (response.ok) {
+      const data = await response.json();
+      console.log("[RecordButton] tema od backend-a:", data);
+      
+      // Čekaj da se progress ring završi
+      await new Promise(resolve => setTimeout(resolve, Math.max(0, TOPIC_GENERATION_DURATION - (Date.now() - start))));
+      clearInterval(progressIntervalId);
+      progress.value = 1; // Ostavi na kraju
+      isGeneratingTopic.value = false;
 
-    if (!response.ok) {
-      // i u slučaju greške emitiramo nešto
-      const msg = "🫣 Oops! Trenutni AI servis je preopterećen. Pokušaj ponovno za 1 minutu.";
-      console.error("[RecordButton]", msg);
-      emit("topic-generated", msg, props.lang);
+      emit("topic-generated", data.interest, data.topic, props.lang);
       emit("start-recording", true);
       return;
     }
-
-    const data = await response.json();
-    console.log("[RecordButton] data from backend:", data);
-
-    emit("topic-generated", data.interest ?? "Nije odabran interes", data.topic ?? "Nema teme u odgovoru", data.lang ?? props.lang);
-    emit("start-recording", true);
-    emit("upload-data", data.upload_method, data.upload_url, data.user_id, data.video_path);
   } catch (error) {
-    console.error("[RecordButton] fetch error:", error);
-    // čak i ako fetch pukne, prikaži poruku u Fieldsetu
-    emit("topic-generated", props.interes, "🫣 Oops! Trenutni AI servis je preopterećen. Pokušaj ponovno za 1 minutu.", props.lang);
+    console.log("[RecordButton] Backend nije dostupan, korištenje lokalne teme:", error);
   }
+
+  // Čekaj da se progress ring završi
+  await new Promise(resolve => setTimeout(resolve, Math.max(0, TOPIC_GENERATION_DURATION - (Date.now() - start))));
+  clearInterval(progressIntervalId);
+  progress.value = 1; // Ostavi na kraju
+  isGeneratingTopic.value = false;
+
+  // Koristi lokalnu nasumičnu temu kao fallback
+  const randomTopic = getRandomTopic(props.interes);
+  console.log("[RecordButton] korišćenje lokalne teme:", randomTopic);
+  
+  emit("topic-generated", props.interes, randomTopic, props.lang);
+  emit("start-recording", true);
 };
 </script>
 
 <template>
-  <div class="relative flex justify-center items-center mx-auto">
-    <!-- Krug sa hover efektom koji ga samo potamni -->
-    <div
-      class="w-[22vw] h-[22vw] 2xl:w-[16vw] 2xl:h-[16vw] rounded-full
-             bg-[radial-gradient(circle,_#c4eafe,_#38bdf8)]
-             shadow-lg flex items-center justify-center
-             hover:cursor-pointer transition-all duration-200
-             hover:brightness-90"
-      @click="isCounting ? cancelTimer() : startTimer()"
-    >
-      <!-- Mikrofon -->
-      <span
-        v-if="!isCounting"
-        class="pi pi-microphone text-white"
-        style="font-size: 9vw;"
-      ></span>
-
-      <!-- X za prekid -->
-      <span
-        v-else
-        class="text-white"
-        style="font-size: 9vw;"
-        @click.stop="cancelTimer"
-      >
-        ✖
-      </span>
-    </div>
-
-    <!-- Progress ring -->
+  <div class="relative flex justify-center items-center mx-auto" style="width: fit-content;">
+    <!-- Progress ring - IZVAN kruga, veći od kruga -->
     <svg
-      v-if="isCounting"
-      class="absolute w-full h-full -rotate-90 pointer-events-none"
+      v-if="isCounting || isGeneratingTopic"
+      class="absolute -rotate-90 pointer-events-none"
+      :style="{
+        width: 'calc(100% + 40px)',
+        height: 'calc(100% + 40px)',
+        top: '-20px',
+        left: '-20px'
+      }"
       viewBox="0 0 100 100"
     >
       <circle
         cx="50"
         cy="50"
         r="48"
-        stroke="#38bdf8"
-        stroke-width="4"
+        stroke="rgba(255, 255, 255, 0.6)"
+        stroke-width="3"
         fill="none"
         stroke-dasharray="301.59"
         :stroke-dashoffset="301.59 - 301.59 * progress"
         class="transition-all duration-100"
       />
     </svg>
+
+    <!-- Krug sa hover efektom koji ga samo potamni -->
+    <div
+      class="relative w-[22vw] h-[22vw] 2xl:w-[16vw] 2xl:h-[16vw] rounded-full
+             bg-[radial-gradient(circle,_#c4eafe,_#38bdf8)]
+             shadow-lg flex items-center justify-center
+             hover:cursor-pointer transition-all duration-200
+             hover:brightness-90"
+      @click="!isCounting ? startTimer() : null"
+    >
+      <!-- Mikrofon ikona - u sredini kada se ne broji -->
+      <span
+        v-if="!isCounting && !isGeneratingTopic"
+        class="pi pi-microphone text-white"
+        style="font-size: 9vw;"
+      ></span>
+
+      <!-- X za prekid tijekom brojanja - zamjena ikone -->
+      <span
+        v-else-if="isCounting"
+        class="text-white text-6xl hover:text-red-300 transition-colors cursor-pointer"
+        @click.stop="cancelTimer"
+      >
+        ✖
+      </span>
+
+      <!-- Animirani spinner tijekom generiranja tema -->
+      <span
+        v-else
+        class="text-white"
+        style="font-size: 9vw;"
+      >
+        <i class="pi pi-spin pi-spinner text-white"></i>
+      </span>
+    </div>
   </div>
 </template>
 
 <style scoped>
+.pi-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
 </style>
