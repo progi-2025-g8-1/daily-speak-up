@@ -56,7 +56,7 @@
             v-for="interest in interests" 
             :key="interest"
             :label="interest"
-            class="bg-blue-100 text-blue-700"
+            class="interest-chip"
           />
         </div>
         <p v-else class="text-sm text-gray-500 italic">

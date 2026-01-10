@@ -154,3 +154,12 @@ button:focus-visible {
   background: transparent !important;
   outline: none !important;
 }
+
+.interest-chip {
+  background-color: #93c5fd !important;
+  color: #1e40af !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 1rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+}
