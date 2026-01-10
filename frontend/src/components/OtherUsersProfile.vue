@@ -115,64 +115,66 @@
   };
   
   const loadProfile = async () => {
-    try {
-      loading.value = true;
-      error.value = null;
-      
-      const handle = route.params.handle;
-      
-      // 1. Get user profile by handle
-      const profileRes = await fetch(`${apiDomain}/api/v1/user/profile/${handle}`, {
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (!profileRes.ok) {
-        error.value = profileRes.status === 404 ? 'Korisnik nije pronađen' : 'Greška pri učitavanju profila';
-        return;
-      }
-      
-      profile.value = await profileRes.json();
-      
-      // 2. Check friendship status
-      await checkFriendshipStatus();
-      
-      // 3. Load current month's videos only if friends
-      if (areFriends.value) {
-        const current_year = new Date().getFullYear();
-        const current_month = new Date().getMonth() + 1;
-        
-        const videosRes = await fetch(
-          `${apiDomain}/api/v1/friend/${profile.value.id}/videos?year=${current_year}&month=${current_month}`,
-          {
-            credentials: 'include',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-        
-        if (videosRes.ok) {
-          const data = await videosRes.json();
-          eventDates.value = data.map(video => new Date(video.created_at).getDate());
-          videoInfoList.value = data.map(video => ({
-            video_id: video.id,
-            day: new Date(video.created_at).getDate(),
-            caption: video.caption,
-            url: video.url
-          }));
-        }
-      }
-      
-    } catch (err) {
-      console.error('Error loading profile:', err);
-      error.value = 'Došlo je do greške pri učitavanju profila';
-    } finally {
-      loading.value = false;
+  try {
+    loading.value = true;
+    error.value = null;
+    
+    const handle = route.params.handle;
+    
+    // 1. Get user profile by handle (sada vraća i interese)
+    const profileRes = await fetch(`${apiDomain}/api/v1/user/profile/${handle}`, {
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    if (!profileRes.ok) {
+      error.value = profileRes.status === 404 ? 'Korisnik nije pronađen' : 'Greška pri učitavanju profila';
+      return;
     }
-  };
+    
+    profile.value = await profileRes.json();
+    // profile.value sada sadrži i interests polje
+    
+    // 2. Check friendship status
+    await checkFriendshipStatus();
+    
+    // 3. Load current month's videos only if friends
+    if (areFriends.value) {
+      const current_year = new Date().getFullYear();
+      const current_month = new Date().getMonth() + 1;
+      
+      const videosRes = await fetch(
+        `${apiDomain}/api/v1/friend/${profile.value.id}/videos?year=${current_year}&month=${current_month}`,
+        {
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      
+      if (videosRes.ok) {
+        const data = await videosRes.json();
+        eventDates.value = data.map(video => new Date(video.created_at).getDate());
+        videoInfoList.value = data.map(video => ({
+          video_id: video.id,
+          day: new Date(video.created_at).getDate(),
+          caption: video.caption,
+          url: video.url
+        }));
+      }
+    }
+    
+  } catch (err) {
+    console.error('Error loading profile:', err);
+    error.value = 'Došlo je do greške pri učitavanju profila';
+  } finally {
+    loading.value = false;
+  }
+};
+
   
   onMounted(() => {
     loadProfile();
