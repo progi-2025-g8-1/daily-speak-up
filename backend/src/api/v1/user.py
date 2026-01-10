@@ -471,7 +471,7 @@ async def get_user_profile_by_handle(
     db: Session = Depends(get_db),
     s3_service: S3SecureService = Depends(get_s3_service)
 ):
-    """get public user profile by handle - returns user_id and basic info"""
+    """Get public user profile by handle - returns user_id and basic info"""
     from sqlalchemy import func
     
     target_user = db.query(User).filter(
@@ -520,12 +520,101 @@ async def get_user_profile_by_handle(
         except Exception as e:
             logger.debug(f"Failed to get profile picture URL: {e}")
     
+    # Get user interests - optimized with JOIN
+    user_interests = db.query(Interest.slug).join(
+        UserInterest, 
+        UserInterest.interest_id == Interest.id
+    ).filter(
+        UserInterest.user_id == target_user.id
+    ).all()
+    
+    # Extract slugs from query result
+    interests_list = [interest.slug for interest in user_interests]
+    
     return {
         "id": str(target_user.id),  
         "handle": target_user.handle,
         "profile_picture_url": profile_picture_url,
         "friend_count": friend_count,
-        "current_streak": streak_days
+        "current_streak": streak_days,
+        "interests": interests_list
+    }
+
+@router.get("/profile/{handle}")
+async def get_user_profile_by_handle(
+    handle: str,
+    db: Session = Depends(get_db),
+    s3_service: S3SecureService = Depends(get_s3_service)
+):
+    """Get public user profile by handle - returns user_id and basic info"""
+    from sqlalchemy import func
+    
+    target_user = db.query(User).filter(
+        User.handle == handle,
+        User.deleted_at.is_(None),
+        User.anonymized_at.is_(None)
+    ).first()
+    
+    if not target_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # friend count
+    friend_count = db.query(func.count(Friendship.id)).filter(
+        and_(
+            or_(
+                Friendship.user_id1 == target_user.id,
+                Friendship.user_id2 == target_user.id
+            ),
+            Friendship.status == RequestStatus.ACCEPTED,
+            Friendship.deleted_at.is_(None)
+        )
+    ).scalar() or 0
+    
+    # streak
+    latest_streak = db.query(UserStreak).filter(
+        UserStreak.user_id == target_user.id
+    ).order_by(UserStreak.created_at.desc()).first()
+    
+    streak_days = 0
+    if latest_streak and latest_streak.ends_at >= datetime.datetime.now(datetime.timezone.utc):
+        end_date = (
+            latest_streak.end_date 
+            if latest_streak.end_date is not None 
+            else datetime.datetime.now(datetime.timezone.utc).date()
+        )
+        start_date = latest_streak.start_date
+        days_delta = (end_date - start_date).days
+        streak_days = max(0, int(days_delta) + 1)
+    
+    # get presigned profile picture URL
+    profile_picture_url = None
+    if target_user.profile_picture_url:
+        try:
+            photo_result = s3_service.get_photo_read_url(str(target_user.id))
+            profile_picture_url = photo_result.get('download_url')
+        except Exception as e:
+            logger.debug(f"Failed to get profile picture URL: {e}")
+    
+    # get user interests
+    interests = db.query(Interest).all()
+    user_interests_db = db.query(UserInterest).filter(
+        UserInterest.user_id == target_user.id
+    ).all()
+
+    user_interests = []
+    for user_interest in user_interests_db:
+        for interest in interests:
+            if user_interest.interest_id == interest.id:
+                user_interests.append(interest.slug)
+                break
+    
+    return {
+        "id": str(target_user.id),  
+        "handle": target_user.handle,
+        "profile_picture_url": profile_picture_url,
+        "friend_count": friend_count,
+        "current_streak": streak_days,
+        "interests": user_interests  
     }
 
 @router.get("/{user_id}/videos", response_model=List[dict])
