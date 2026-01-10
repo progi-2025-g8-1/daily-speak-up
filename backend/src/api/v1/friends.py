@@ -1,6 +1,7 @@
 import uuid
 import datetime
 import asyncio
+from uuid import UUID
 from typing import List
 from supertokens_python.recipe.session import SessionContainer
 from fastapi import APIRouter, Depends, HTTPException, status, Body
@@ -10,7 +11,7 @@ from sqlalchemy import or_, and_
 from ..deps import get_session, get_s3_service
 from ...schemas import FriendshipResponse, FriendRequestResponse, FriendshipStatusResponse
 from ...db import get_db
-from ...models import User, Friendship, RequestStatus
+from ...models import User, Friendship, RequestStatus,Speech, SpeechVisibility
 from ...services import S3SecureService
 
 router = APIRouter(prefix='/friend', tags=['friend'])
@@ -507,3 +508,89 @@ async def check_friendship_status(
         'status': status_value,
         'friendship_id': str(friendship.id) if friendship else None
     }
+
+
+@router.get("/{user_id}/friends", response_model=List[dict])
+async def get_user_friends_list(
+    user_id: UUID,
+    limit: int = 50,
+    offset: int = 0,
+    db: Session = Depends(get_db),
+    session: SessionContainer = Depends(get_session),
+    s3_service: S3SecureService = Depends(get_s3_service)
+):
+    """Get target user's friends list - requires friendship"""
+    
+    # Current user
+    supertokens_user_id = session.get_user_id()
+    current_user = db.query(User).filter(
+        User.supertokens_user_id == supertokens_user_id
+    ).first()
+    
+    if not current_user:
+        raise HTTPException(status_code=404, detail="Current user not found")
+    
+    # Target user
+    target_user = db.query(User).filter(
+        User.id == user_id,
+        User.deleted_at.is_(None)
+    ).first()
+    
+    if not target_user:
+        raise HTTPException(status_code=404, detail="Target user not found")
+    
+    # Verify friendship
+    user_id1 = min(current_user.id, target_user.id)
+    user_id2 = max(current_user.id, target_user.id)
+    
+    friendship = db.query(Friendship).filter(
+        and_(
+            Friendship.user_id1 == user_id1,
+            Friendship.user_id2 == user_id2,
+            Friendship.status == RequestStatus.ACCEPTED,
+            Friendship.deleted_at.is_(None)
+        )
+    ).first()
+    
+    if not friendship:
+        raise HTTPException(status_code=403, detail="Not friends with this user")
+    
+    # Get target user's friends
+    friendships = db.query(Friendship).filter(
+        and_(
+            or_(
+                Friendship.user_id1 == target_user.id,
+                Friendship.user_id2 == target_user.id
+            ),
+            Friendship.status == RequestStatus.ACCEPTED,
+            Friendship.deleted_at.is_(None)
+        )
+    ).limit(limit).offset(offset).all()
+    
+    # Build friends list
+    friends_list = []
+    friend_ids = []
+    for f in friendships:
+        friend_id = f.user_id2 if f.user_id1 == target_user.id else f.user_id1
+        friend = db.query(User).filter(User.id == friend_id).first()
+        if friend:
+            friends_list.append(friend)
+            friend_ids.append(str(friend.id))
+    
+    # Fetch profile pictures
+    async def get_photo_url(user_id: str):
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, s3_service.get_photo_read_url, user_id)
+    
+    photo_results = await asyncio.gather(*[get_photo_url(fid) for fid in friend_ids])
+    
+    # Build response
+    response = []
+    for i, friend in enumerate(friends_list):
+        response.append({
+            "id": str(friend.id),
+            "handle": friend.handle,
+            "profile_picture_url": photo_results[i].get('download_url') if photo_results[i] else None
+        })
+    
+    return response

@@ -1,5 +1,6 @@
 <script setup>
     import SettingsDrawer from './SettingsDrawer.vue';
+    import SearchIcon from './SearchIcon.vue'
 </script>
 
 <template>
@@ -12,8 +13,10 @@
             <div class="text-sky-500 font-semibold text-[2.5vh]">DailySpeakUp</div>
         </div>
 
-        <SettingsDrawer />
-
+        <div class="flex flex-row items-center gap-2 mr-1">
+            <SearchIcon />
+            <SettingsDrawer />
+        </div>
     </div>
     
 </template>

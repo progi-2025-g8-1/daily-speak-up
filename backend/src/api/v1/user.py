@@ -3,13 +3,14 @@ import datetime
 from uuid import UUID 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
-from sqlalchemy import extract
+from sqlalchemy import extract, and_, or_
 from sqlalchemy.orm import Session
+from typing import List
 
 from ..deps import get_session, get_s3_service
 from ...db import get_db
-from ...schemas import UserResponse, UserCreate, MonthlyUserVideosResponse, VideoInfo, FriendsListResponse, FriendInfo, UserInterestsResponse, NotificationSettingUpdate
-from ...models import User, Friendship, UserStreak, Speech, UserDevice, UserInterest, Interest, Rating, Ban, Report, UserRole
+from ...schemas import UserResponse, UserCreate, MonthlyUserVideosResponse, VideoInfo, FriendsListResponse, FriendInfo, UserInterestsResponse, NotificationSettingUpdate, PublicUserProfile
+from ...models import User, Friendship, UserStreak, Speech, UserDevice, UserInterest, Interest, Rating, Ban, Report, UserRole, RequestStatus, SpeechVisibility
 from supertokens_python.recipe.session import SessionContainer
 from supertokens_python.asyncio import delete_user
 
@@ -463,3 +464,234 @@ async def update_streak_reminders(
             'message': 'ok'
         }
     )
+
+@router.get("/profile/{handle}")
+async def get_user_profile_by_handle(
+    handle: str,
+    db: Session = Depends(get_db),
+    s3_service: S3SecureService = Depends(get_s3_service)
+):
+    """Get public user profile by handle - returns user_id and basic info"""
+    from sqlalchemy import func
+    
+    target_user = db.query(User).filter(
+        User.handle == handle,
+        User.deleted_at.is_(None),
+        User.anonymized_at.is_(None)
+    ).first()
+    
+    if not target_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Friend count
+    friend_count = db.query(func.count(Friendship.id)).filter(
+        and_(
+            or_(
+                Friendship.user_id1 == target_user.id,
+                Friendship.user_id2 == target_user.id
+            ),
+            Friendship.status == RequestStatus.ACCEPTED,
+            Friendship.deleted_at.is_(None)
+        )
+    ).scalar() or 0
+    
+    # Streak
+    latest_streak = db.query(UserStreak).filter(
+        UserStreak.user_id == target_user.id
+    ).order_by(UserStreak.created_at.desc()).first()
+    
+    streak_days = 0
+    if latest_streak and latest_streak.ends_at >= datetime.datetime.now(datetime.timezone.utc):
+        end_date = (
+            latest_streak.end_date 
+            if latest_streak.end_date is not None 
+            else datetime.datetime.now(datetime.timezone.utc).date()
+        )
+        start_date = latest_streak.start_date
+        days_delta = (end_date - start_date).days
+        streak_days = max(0, int(days_delta) + 1)
+    
+    # Get presigned profile picture URL
+    profile_picture_url = None
+    if target_user.profile_picture_url:
+        try:
+            photo_result = s3_service.get_photo_read_url(str(target_user.id))
+            profile_picture_url = photo_result.get('download_url')
+        except Exception as e:
+            logger.debug(f"Failed to get profile picture URL: {e}")
+    
+    # Get user interests - optimized with JOIN
+    user_interests = db.query(Interest.slug).join(
+        UserInterest, 
+        UserInterest.interest_id == Interest.id
+    ).filter(
+        UserInterest.user_id == target_user.id
+    ).all()
+    
+    # Extract slugs from query result
+    interests_list = [interest.slug for interest in user_interests]
+    
+    return {
+        "id": str(target_user.id),  
+        "handle": target_user.handle,
+        "profile_picture_url": profile_picture_url,
+        "friend_count": friend_count,
+        "current_streak": streak_days,
+        "interests": interests_list
+    }
+
+@router.get("/profile/{handle}")
+async def get_user_profile_by_handle(
+    handle: str,
+    db: Session = Depends(get_db),
+    s3_service: S3SecureService = Depends(get_s3_service)
+):
+    """Get public user profile by handle - returns user_id and basic info"""
+    from sqlalchemy import func
+    
+    target_user = db.query(User).filter(
+        User.handle == handle,
+        User.deleted_at.is_(None),
+        User.anonymized_at.is_(None)
+    ).first()
+    
+    if not target_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # friend count
+    friend_count = db.query(func.count(Friendship.id)).filter(
+        and_(
+            or_(
+                Friendship.user_id1 == target_user.id,
+                Friendship.user_id2 == target_user.id
+            ),
+            Friendship.status == RequestStatus.ACCEPTED,
+            Friendship.deleted_at.is_(None)
+        )
+    ).scalar() or 0
+    
+    # streak
+    latest_streak = db.query(UserStreak).filter(
+        UserStreak.user_id == target_user.id
+    ).order_by(UserStreak.created_at.desc()).first()
+    
+    streak_days = 0
+    if latest_streak and latest_streak.ends_at >= datetime.datetime.now(datetime.timezone.utc):
+        end_date = (
+            latest_streak.end_date 
+            if latest_streak.end_date is not None 
+            else datetime.datetime.now(datetime.timezone.utc).date()
+        )
+        start_date = latest_streak.start_date
+        days_delta = (end_date - start_date).days
+        streak_days = max(0, int(days_delta) + 1)
+    
+    # get presigned profile picture URL
+    profile_picture_url = None
+    if target_user.profile_picture_url:
+        try:
+            photo_result = s3_service.get_photo_read_url(str(target_user.id))
+            profile_picture_url = photo_result.get('download_url')
+        except Exception as e:
+            logger.debug(f"Failed to get profile picture URL: {e}")
+    
+    # get user interests
+    interests = db.query(Interest).all()
+    user_interests_db = db.query(UserInterest).filter(
+        UserInterest.user_id == target_user.id
+    ).all()
+
+    user_interests = []
+    for user_interest in user_interests_db:
+        for interest in interests:
+            if user_interest.interest_id == interest.id:
+                user_interests.append(interest.slug)
+                break
+    
+    return {
+        "id": str(target_user.id),  
+        "handle": target_user.handle,
+        "profile_picture_url": profile_picture_url,
+        "friend_count": friend_count,
+        "current_streak": streak_days,
+        "interests": user_interests  
+    }
+
+@router.get("/{user_id}/videos", response_model=List[dict])
+async def get_friend_videos(
+    user_id: UUID,
+    year:int  = None,
+    month:int = None,
+    db: Session = Depends(get_db),
+    session: SessionContainer = Depends(get_session),
+    s3_service: S3SecureService = Depends(get_s3_service)
+):
+    """Get target user's friends-only videos - requires friendship"""
+    
+    supertokens_user_id = session.get_user_id()
+    current_user = db.query(User).filter(
+        User.supertokens_user_id == supertokens_user_id
+    ).first()
+    
+    if not current_user:
+        raise HTTPException(status_code=404, detail="Current user not found")
+    
+    target_user = db.query(User).filter(
+        User.id == user_id,
+        User.deleted_at.is_(None)
+    ).first()
+    
+    if not target_user:
+        raise HTTPException(status_code=404, detail="Target user not found")
+    
+    # Verify friendship
+    user_id1 = min(current_user.id, target_user.id)
+    user_id2 = max(current_user.id, target_user.id)
+    
+    friendship = db.query(Friendship).filter(
+        and_(
+            Friendship.user_id1 == user_id1,
+            Friendship.user_id2 == user_id2,
+            Friendship.status == RequestStatus.ACCEPTED,
+            Friendship.deleted_at.is_(None)
+        )
+    ).first()
+    
+    if not friendship:
+        raise HTTPException(status_code=403, detail="Not friends with this user")
+    
+    # Get friends-only videos
+    query = db.query(Speech).filter(
+        Speech.user_id == target_user.id,
+        Speech.visibility_level == SpeechVisibility.FRIENDS,
+        Speech.is_cancelled == False,
+        Speech.s3_url.isnot(None)
+    )
+    
+    if year and month:
+        query = query.filter(
+            extract('year', Speech.created_at) == year,
+            extract('month', Speech.created_at) == month
+        )
+    
+    videos = query.order_by(Speech.created_at.desc()).limit(20).all()
+    
+    # Generate presigned URLs and build response
+    response = []
+    for video in videos:
+        download_url = None
+        try:
+            rd = s3_service.get_read_url(str(target_user.id), str(video.id))
+            if isinstance(rd, dict):
+                download_url = rd.get('download_url')
+        except Exception as e:
+            logger.debug(f"Failed to generate presigned URL for video {video.id}: {e}")
+        
+        response.append({
+            "id": str(video.id),
+            "caption": video.caption,
+            "created_at": video.created_at.isoformat(),
+            "url": download_url or video.s3_url
+        })
+    
+    return response

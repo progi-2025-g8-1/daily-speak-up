@@ -2,7 +2,7 @@
     import { ref, onMounted } from 'vue';
     import ProfileHeader from './ProfileHeader.vue';  
     import Card from 'primevue/card';
-    import Calendar from './Calendar.vue';
+  
     import DatePicker from 'primevue/datepicker';
     import Message from 'primevue/message';
     import { getUserId } from'../auth';
