@@ -57,7 +57,12 @@ const handleUploadData = (uploadMethod: string, uploadUrl: string, userId: strin
       </div>
 
       <div>
-        <Fieldset legend="Tema za govor" :toggleable="true">
+        <Fieldset legend="Tema za govor" 
+        :toggleable="true"
+        :pt="{
+          legendLabel: { style: 'color: #000000 !important' }
+          }" 
+        >
           <p class="m-0 font-bold" v-if="interest">
             Interes: {{ interest }}
           </p>
