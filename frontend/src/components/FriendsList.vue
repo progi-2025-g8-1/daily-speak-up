@@ -53,11 +53,11 @@
 <template>
 
     <div class="flex flex-col items-center w-[93%]">
-        <Card class="w-full h-[8vh] mt-[2vh]">
+        <Card class="w-full mt-[2vh]">
             <template #content>
-                <div class="flex justify-center items-center gap-4">
-                    <span class="pi pi-chevron-circle-left cursor-pointer" style="font-size: 2.5vw;" v-on:click="handleBack"></span>
-                    <h2 class="font-semibold text-3xl">Popis prijatelja</h2>
+                <div class="relative py-4">
+                    <span class="pi pi-chevron-circle-left cursor-pointer absolute left-2 top-1/2 -translate-y-1/2 z-10" style="font-size: 2.2rem;" v-on:click="handleBack"></span>
+                    <h2 class="font-semibold text-3xl text-center w-full">Popis prijatelja</h2>
                 </div>
             </template>
         </Card>
