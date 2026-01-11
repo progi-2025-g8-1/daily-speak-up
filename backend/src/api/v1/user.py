@@ -76,8 +76,14 @@ async def me(
             detail='User not found'
         )
 
+    from sqlalchemy import and_, or_
+
     friends_count = db.query(Friendship).filter(
-        (Friendship.user_id1 == user.id) | (Friendship.user_id2 == user.id)
+        and_(
+            or_(Friendship.user_id1 == user.id, Friendship.user_id2 == user.id),
+            Friendship.status == RequestStatus.ACCEPTED,
+            Friendship.deleted_at.is_(None)
+        )
     ).count()
 
     streak = db.query(UserStreak).filter(
@@ -225,7 +231,11 @@ async def get_friends_list(
         )
     
     friendships = db.query(Friendship).filter(
-        (Friendship.user_id1 == target_user.id) | (Friendship.user_id2 == target_user.id)
+        and_(
+            or_(Friendship.user_id1 == target_user.id, Friendship.user_id2 == target_user.id),
+            Friendship.status == RequestStatus.ACCEPTED,
+            Friendship.deleted_at.is_(None)
+        )
     ).all()
 
     friend_infos = []
