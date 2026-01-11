@@ -32,12 +32,16 @@
             </div>
             <div class="flex flex-col items-start">
               <div 
-                class="flex flex-row items-center gap-2"
+                class="flex flex-row items-center gap-2 relative"
                 :class="{ 'cursor-pointer hover:opacity-70': canViewFriends }"
                 @click="canViewFriends ? handleShowFriends() : null"
               >
                 <span class="text-2xl font-bold text-dark">{{ displayUser.friends_count || displayUser.friend_count || 0 }}</span>
                 <span class="pi pi-users font-xl"></span>
+                <!-- Red badge for incoming requests (own profile only) -->
+                <span v-if="!isOtherUser && incomingRequestsCount > 0" class="absolute -top-2 -right-3 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                  {{ incomingRequestsCount }}
+                </span>
               </div>
               <span class="text-xs text-gray-600">prijatelji</span>
             </div>
@@ -106,6 +110,7 @@ export default {
     const loading = ref(true);
     const error = ref('');
     const interests = ref([]);
+    const incomingRequestsCount = ref(0);
 
     const displayUser = computed(() => {
       return props.otherUserData || user.value;
@@ -134,6 +139,26 @@ export default {
       emit('show-friends', idToEmit);
     };
 
+    const fetchIncomingRequestsCount = async () => {
+      try {
+        const apiDomain = import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123';
+        const res = await fetch(`${apiDomain}/api/v1/friend/requests/incoming`, {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          incomingRequestsCount.value = Array.isArray(data) ? data.length : 0;
+        }
+      } catch (e) {
+        console.error('Failed to fetch incoming requests count:', e);
+      }
+    };
+
     onMounted(async () => {
       if (props.isOtherUser) {
         // For other users, interests come from otherUserData
@@ -154,7 +179,7 @@ export default {
 
         const apiDomain = import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123';
 
-        // Fetch user data and interests in parallel
+        // Fetch user data, interests, and incoming requests in parallel
         const [userResponse, interestsResponse] = await Promise.all([
           fetch(`${apiDomain}/api/v1/user/me`, {
             method: 'GET',
@@ -182,6 +207,9 @@ export default {
           const interestsData = await interestsResponse.json();
           interests.value = interestsData.interests || [];
         }
+
+        // Fetch incoming requests count
+        await fetchIncomingRequestsCount();
       } catch (e) {
         error.value = 'An error occurred while fetching user data';
         console.error('User fetch error:', e);
@@ -196,6 +224,7 @@ export default {
       loading,
       error,
       interests,
+      incomingRequestsCount,
       canViewFriends,
       shouldShowInterests,
       handleShowFriends
