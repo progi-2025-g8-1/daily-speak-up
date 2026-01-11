@@ -27,8 +27,13 @@
         </template>
         
         <template #content>
-          <CurrentUsersProfile v-if="isOwnProfile" />
-          <OtherUsersProfile v-else />
+          <div v-if="showFriendsPanel">
+            <FriendsList ref="friendsListRef" @hide-friends="hideFriends" />
+          </div>
+          <div v-else>
+            <CurrentUsersProfile v-if="isOwnProfile" @show-friends="handleShowFriends" />
+            <OtherUsersProfile v-else @show-friends="handleShowFriends" />
+          </div>
         </template>
       </Card>
     </div>
@@ -36,16 +41,31 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 import NavBar from '../components/NavBar.vue';
 import CurrentUsersProfile from '../components/CurrentUsersProfile.vue';
 import OtherUsersProfile from '../components/OtherUsersProfile.vue';
+import FriendsList from '../components/FriendsList.vue';
 import Card from 'primevue/card';
 import { isAuthenticated } from '../auth';
 
 const route = useRoute();
 const isOwnProfile = ref(false);
+const showFriendsPanel = ref(false);
+const friendsListRef = ref(null);
+
+const handleShowFriends = async (userId) => {
+  showFriendsPanel.value = true;
+  await nextTick();
+  if (friendsListRef.value && typeof friendsListRef.value.showFriends === 'function') {
+    friendsListRef.value.showFriends(userId);
+  }
+};
+
+const hideFriends = () => {
+  showFriendsPanel.value = false;
+};
 
 const checkIfOwnProfile = async () => {
   try {

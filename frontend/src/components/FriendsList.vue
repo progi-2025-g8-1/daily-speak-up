@@ -8,20 +8,40 @@
     const emits = defineEmits(['hide-friends']);
 
     const friendsList = ref([]);
+    const loading = ref(false);
+    const error = ref('');
 
     const handleBack = () => {
         emits('hide-friends');
     };
 
-    const showFriends = (userId) => {
-        const response = fetch(`${import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123'}/api/v1/user/${userId}/friends`)
-        .then(res => res.json())
-        .then(data => {
-            friendsList.value = data.friends;
-        })
-        .catch(err => {
+    const showFriends = async (userId) => {
+        loading.value = true;
+        error.value = '';
+        try {
+            const apiDomain = import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123';
+            const res = await fetch(`${apiDomain}/api/v1/user/${userId}/friends`, {
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+            const data = await res.json();
+            if (Array.isArray(data)) {
+                friendsList.value = data;
+            } else if (data && Array.isArray(data.friends)) {
+                friendsList.value = data.friends;
+            } else {
+                friendsList.value = [];
+            }
+        } catch (err) {
             console.error('Failed to fetch friends list', err);
-        });
+            error.value = 'Neuspjelo učitavanje popisa prijatelja.';
+            friendsList.value = [];
+        } finally {
+            loading.value = false;
+        }
     };
 
     defineExpose({
@@ -41,10 +61,15 @@
                 </div>
             </template>
         </Card>
-        <Card v-if="friendsList.length === 0" class="w-full mt-[2vh]">
+        <Card v-if="loading" class="w-full mt-[2vh]">
             <template #content>
                 <ProgressSpinner style="width: 4rem; height: 4rem;" />
                 <div class="mt-4 text-gray-500">Učitavanje prijatelja...</div>
+            </template>
+        </Card>
+        <Card v-else-if="error" class="w-full mt-[2vh]">
+            <template #content>
+                <div class="text-red-600">{{ error }}</div>
             </template>
         </Card>
         <Card v-else-if="friendsList.length === 0" class="mt-[2vh]">
