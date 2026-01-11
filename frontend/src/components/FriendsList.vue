@@ -147,12 +147,12 @@
 
 <template>
 
-    <div class="flex flex-col items-center w-[93%]">
+    <div class="flex flex-col items-center w-[99%]">
         <Card class="w-full mt-[2vh]">
             <template #content>
                 <div class="relative py-4">
-                    <span class="pi pi-chevron-circle-left cursor-pointer absolute left-2 top-1/2 -translate-y-1/2 z-10" style="font-size: 2.2rem;" @click="handleBack"></span>
-                    <h2 class="font-semibold text-3xl text-center w-full">
+                    <span class="pi pi-chevron-circle-left cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 z-10" style="font-size: 2.2rem;" @click="handleBack"></span>
+                    <h2 class="font-semibold text-3xl text-sm w-full">
                         {{ viewMode === 'friends' ? 'Popis prijatelja' : 'Zahtjevi za prijateljstvo' }}
                     </h2>
                 </div>
