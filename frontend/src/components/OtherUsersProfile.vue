@@ -175,6 +175,33 @@
   }
 };
 
+const sendFriendRequest = async () => {
+  if (!profile.value || !profile.value.id) return;
+  sendingRequest.value = true;
+  try {
+    const res = await fetch(`${apiDomain}/api/v1/friend/request`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ target_user_id: profile.value.id })
+    });
+
+    if (res.ok) {
+      // Mark as outgoing pending from the frontend perspective
+      friendshipStatus.value = 'pending_outgoing';
+    } else {
+      const err = await res.json().catch(() => null);
+      console.error('Failed to send friend request', err);
+      showErrorMessage.value = true;
+    }
+  } catch (err) {
+    console.error('Error sending friend request:', err);
+    showErrorMessage.value = true;
+  } finally {
+    sendingRequest.value = false;
+  }
+};
+
   
   onMounted(() => {
     loadProfile();
@@ -243,8 +270,11 @@
             <template v-else>
               <p class="text-gray-600 mb-3">Povežite se s korisnikom da biste vidjeli njihove govore</p>
               <Button 
+                :disabled="sendingRequest"
+                :loading="sendingRequest"
                 label="Pošalji zahtjev za prijateljstvo" 
-                icon="pi pi-user-plus" 
+                icon="pi pi-user-plus"
+                @click="sendFriendRequest"
               />
             </template>
           </div>
