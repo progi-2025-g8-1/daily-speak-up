@@ -14,6 +14,7 @@
     const error = ref('');
     const viewMode = ref('friends'); // 'friends' or 'requests'
     const respondingId = ref(null);
+    const currentUserId = ref(null);
 
     const handleBack = () => {
         emits('hide-friends');
@@ -23,22 +24,37 @@
         loading.value = true;
         error.value = '';
         viewMode.value = 'friends';
+        currentUserId.value = userId;
         try {
             const apiDomain = import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123';
-            const res = await fetch(`${apiDomain}/api/v1/user/${userId}/friends`, {
-                credentials: 'include',
-                headers: { 'Content-Type': 'application/json' }
-            });
+            
+            // Fetch friends and requests in parallel
+            const [friendsRes, requestsRes] = await Promise.all([
+                fetch(`${apiDomain}/api/v1/user/${userId}/friends`, {
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' }
+                }),
+                fetch(`${apiDomain}/api/v1/friend/requests/incoming`, {
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+            ]);
 
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            if (!friendsRes.ok) throw new Error(`Friends HTTP ${friendsRes.status}`);
 
-            const data = await res.json();
-            if (Array.isArray(data)) {
-                friendsList.value = data;
-            } else if (data && Array.isArray(data.friends)) {
-                friendsList.value = data.friends;
+            const friendsData = await friendsRes.json();
+            if (Array.isArray(friendsData)) {
+                friendsList.value = friendsData;
+            } else if (friendsData && Array.isArray(friendsData.friends)) {
+                friendsList.value = friendsData.friends;
             } else {
                 friendsList.value = [];
+            }
+
+            // Fetch requests data
+            if (requestsRes.ok) {
+                const requestsData = await requestsRes.json();
+                requestsList.value = Array.isArray(requestsData) ? requestsData : [];
             }
         } catch (err) {
             console.error('Failed to fetch friends list', err);
@@ -91,6 +107,26 @@
             if (res.ok) {
                 // Remove from list
                 requestsList.value = requestsList.value.filter(r => r.friendship_id !== friendshipId);
+                
+                // If accepted, refetch friends list to include the new friend
+                if (accept && currentUserId.value) {
+                    try {
+                        const friendsRes = await fetch(`${apiDomain}/api/v1/user/${currentUserId.value}/friends`, {
+                            credentials: 'include',
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+                        if (friendsRes.ok) {
+                            const friendsData = await friendsRes.json();
+                            if (Array.isArray(friendsData)) {
+                                friendsList.value = friendsData;
+                            } else if (friendsData && Array.isArray(friendsData.friends)) {
+                                friendsList.value = friendsData.friends;
+                            }
+                        }
+                    } catch (err) {
+                        console.error('Failed to refetch friends list', err);
+                    }
+                }
             } else {
                 error.value = accept ? 'Neuspjelo prihvaćanje zahtjeva.' : 'Neuspjelo odbijanje zahtjeva.';
             }
