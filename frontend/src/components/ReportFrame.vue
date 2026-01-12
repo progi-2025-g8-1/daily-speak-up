@@ -167,7 +167,7 @@
 
             <div class="flex flex-col 
                         md:flex-row 
-                        justify-center items-center 
+                        justify-center items-center md:items-start 
                         gap-6 w-full">
                 <iframe
                     :src="props.reportInfo.video_url"
@@ -181,11 +181,11 @@
                 ></iframe>
 
                 <div class="flex flex-col 
-                            justify-jstart items-start 
+                            justify-start items-start
                             gap-3 w-full h-full">
 
                     <ScrollPanel class="bg-gray-100 shadow-inner rounded-md
-                                w-full lg:h-[100px] md:h-[200px] h-[100px] p-4 
+                                w-full xl:h-[150px] lg:h-[100px] md:h-[200px] h-[100px] p-4 
                                 text-left  
                                 lg:text-sm
                                 md:text-sm 

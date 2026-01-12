@@ -157,7 +157,7 @@ const handleDeleteVideo = (video_id: string) => {
                       v-model:showDialog="showBanConfirmDialog" />
     
     <div class="flex flex-col 
-                items-center 
+                justify-center items-center 
                 w-full min-h-full 
                 py-6 px-4 space-y-6">
 
@@ -189,7 +189,7 @@ const handleDeleteVideo = (video_id: string) => {
 
         </div>
 
-        <div v-else class="w-full max-w-7xl space-y-6">
+        <div v-else class="w-full  space-y-6">
             <div class="flex flex-col lg:flex-row gap-6 lg:gap-10">
                 <ReportFrame
                     class="w-full lg:w-1/2"
