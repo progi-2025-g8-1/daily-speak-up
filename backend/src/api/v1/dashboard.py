@@ -73,7 +73,7 @@ async def get_report_reasons(
             detail="User not found"
         )
 
-    if admin_user.role not in (UserRole.ADMIN, UserRole.MOD):
+    if admin_user.role not in (UserRole.ROOT, UserRole.ADMIN, UserRole.MOD):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, 
             detail="Not authorized to access this resource"
