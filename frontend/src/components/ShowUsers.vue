@@ -8,6 +8,7 @@ import AutoComplete from 'primevue/autocomplete';
 import Button from 'primevue/button';
 import Select from 'primevue/select';
 import { FilterMatchMode } from '@primevue/core/api';
+import UsersVideosDIalog from './UsersVideosDIalog.vue';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8123/api/v1'
 const users = ref([]);
@@ -18,6 +19,8 @@ const handles = ref<string[]>([]);
 const searchValue = ref(null)
 const banReasons = ref<any[] | undefined>(undefined);
 const showBanConfirmDialog = ref(false);
+const showUsersVideosDialog = ref(false);
+const userInfo = ref<any | null | undefined>(null);
 const banHandle = ref<string | null | undefined>(null);
 const banUserId = ref<string | null | undefined>(null);
 const userRoles = ref([
@@ -138,6 +141,11 @@ const handleUserRoleChange = async (role: any, item: any) => {
     });
 };
 
+const handleShowUsersVideosDialog = (user: any) => {
+    userInfo.value = user;
+    showUsersVideosDialog.value = true;
+};
+
 </script>
 
 <template>
@@ -145,6 +153,10 @@ const handleUserRoleChange = async (role: any, item: any) => {
                       :handle="banHandle"
                       :userId="banUserId"
                      v-model:showDialog="showBanConfirmDialog" />
+    
+    <UsersVideosDIalog 
+                    v-model:showDialog="showUsersVideosDialog"
+                    :user="userInfo" />
 
    <div class="flex flex-col justify-center items-center gap-2">
         <div class="w-full flex justify-center items-center">
@@ -170,7 +182,7 @@ const handleUserRoleChange = async (role: any, item: any) => {
 
                 <Column>
                     <template #body="slotProps">
-                        <Button icon="pi pi-video" rounded variant="outlined" aria-label="Videos" v-tooltip.top="{ value: 'Prikaži videozapise', showDelay: 500, hideDelay: 100 }" />
+                        <Button icon="pi pi-video" rounded variant="outlined" aria-label="Videos" v-tooltip.top="{ value: 'Prikaži videozapise', showDelay: 500, hideDelay: 100 }" :onClick="() => handleShowUsersVideosDialog(slotProps.data)" />
                     </template>
                 </Column>
 
