@@ -96,7 +96,7 @@ def insert_root_admin_into_db(email: str, user_supertokens_id: str):
                 supertokens_user_id=user_supertokens_id,
                 email=email,
                 handle=settings.ROOT_ADMIN_HANDLE,
-                role=UserRole.ADMIN,
+                role=UserRole.ROOT,
                 onboarding_status=OnboardingStatus.COMPLETED
             )
             db_session.add(admin_user)
