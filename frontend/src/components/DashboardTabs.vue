@@ -34,11 +34,11 @@
             if (response.ok) {
                 const userData = await response.json();
                 localStorage.setItem('userRole', userData.role);
-                showAdminTabs.value = userData.role === import.meta.env.VITE_ADMIN_ROLE;
+                showAdminTabs.value = userData.role === import.meta.env.VITE_ADMIN_ROLE || userData.role === import.meta.env.VITE_ROOT_ROLE;
                 activeTab.value = showAdminTabs.value ? '0' : '1';
             }
         } else {
-            showAdminTabs.value = userRole === import.meta.env.VITE_ADMIN_ROLE;
+            showAdminTabs.value = userRole === import.meta.env.VITE_ADMIN_ROLE || userRole === import.meta.env.VITE_ROOT_ROLE;
             activeTab.value = showAdminTabs.value ? '0' : '1';
         }
     });
