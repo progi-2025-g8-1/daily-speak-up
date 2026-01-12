@@ -642,8 +642,8 @@ async def get_user_profile_by_handle(
 @router.get("/{user_id}/videos", response_model=List[dict])
 async def get_friend_videos(
     user_id: UUID,
-    year:int  = None,
-    month:int = None,
+    year:int | None  = None,
+    month:int | None = None,
     db: Session = Depends(get_db),
     session: SessionContainer = Depends(get_session),
     s3_service: S3SecureService = Depends(get_s3_service)
@@ -717,3 +717,37 @@ async def get_friend_videos(
         })
     
     return response
+@router.get('/amibanned', response_model=dict)
+async def am_i_banned(
+    db: Session = Depends(get_db),
+    session: SessionContainer = Depends(get_session)
+):
+    supertokens_user_id = session.get_user_id()
+
+    user: User | None = db.query(User).filter(
+        User.supertokens_user_id == supertokens_user_id
+    ).first()
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='User not found'
+        )
+    
+    now = datetime.datetime.now(datetime.timezone.utc)
+    
+    active_ban: Ban | None = db.query(Ban).filter(
+        Ban.user_id == user.id,
+        or_(Ban.ends_at > now, Ban.ends_at.is_(None))
+    ).first()
+
+    if active_ban is None:
+        return {
+            'banned': False
+        }
+    
+    return {
+        'banned': True,
+        'reason': active_ban.reason,
+        'expires_at': active_ban.ends_at.isoformat() if active_ban.ends_at else None
+    }
