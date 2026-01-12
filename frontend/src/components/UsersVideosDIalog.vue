@@ -3,6 +3,7 @@
     import Dialog from 'primevue/dialog';
     import Button from 'primevue/button';
     import DatePicker from 'primevue/datepicker';
+    import Message from 'primevue/message';
     import Carousel from 'primevue/carousel';
 
     const props = defineProps<{
@@ -36,6 +37,7 @@
                 let data = await response.json();
                 videos.value = data.videos;
                 console.log('Dohvaćeni videozapisi korisnika:', videos.value);
+                console.log('Ukupno videozapisa:', videos.value.length);
             } else {
                 console.error('Greška pri dohvaćanju videozapisa korisnika');
             }
@@ -71,9 +73,37 @@
             </div>
         </template>
 
-        <div class="flex flex-row items-center gap-3">
-            <div class="text-lg font-semibold">Odaberite mjesec i godinu:</div>
-            <DatePicker v-model="chosenMonth" view="month" dateFormat="mm/yy" @update:modelValue="handleDateChange" />
+        <div class="flex flex-col justify-center gap-4 p-4">
+            <div class="flex flex-row items-center gap-3">
+                <div class="text-lg font-semibold">Odaberite mjesec i godinu:</div>
+                <DatePicker v-model="chosenMonth" view="month" dateFormat="mm/yy" @update:modelValue="handleDateChange" />
+            </div>
+
+            <div v-if="videos.length === 0">
+                <Message severity="error">Korisnik {{ props.user ? `@${props.user.handle}` : '' }} nema snimljenih videozapisa za odabrani mjesec.</Message>
+            </div>
+
+            <div v-else>
+                <Carousel :value="videos" :numVisible="3" :numScroll="1" class="mt-4" :circular="true" :autoplayInterval="5000">
+                    <template #item="slotProps">
+                        <div class="flex flex-col items-center p-2">
+                            <iframe 
+                                :src="slotProps.data.url" 
+                                class="w-[20vw] aspect-1/1"
+                                width="320" 
+                                height="180" 
+                                frameborder="0" 
+                                allow="autoplay; encrypted-media" 
+                                allowfullscreen>
+                            </iframe>
+                            <div class="mt-2 text-center">
+                                <div class="font-semibold">{{ new Date(year=slotProps.data.year, monthIndex=slotProps.data.month - 1, date=slotProps.data.day).toLocaleDateString() }}</div>
+                                <div class="text-sm text-gray-500">{{ slotProps.data.caption }}</div>
+                            </div>
+                        </div>
+                    </template>
+                </Carousel>
+            </div>
         </div>
 
     </Dialog>
