@@ -6,6 +6,7 @@
     import Message from 'primevue/message';
     import Carousel from 'primevue/carousel'; 
     import Card from 'primevue/card';
+    import { useConfirm } from "primevue/useconfirm";
 
     const props = defineProps<{
         showDialog: boolean,
@@ -15,6 +16,7 @@
     const emit = defineEmits(['update:showDialog']);
 
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8123/api/v1'
+    const confirm = useConfirm();
 
     const chosenMonth = ref<Date | null>(new Date());
     const month = ref<number>((new Date()).getMonth() + 1);
@@ -62,6 +64,34 @@
         }
     }, { immediate: true });
 
+    const handleDeleteVideo = (video_id: string) => {
+        confirm.require({
+            message: 'Jeste li sigurni da želite obrisati ovaj videozapis?',
+            header: 'Potvrda brisanja videozapisa',
+            icon: 'pi pi-exclamation-triangle',
+            acceptProps: { label: 'Obriši video', icon: 'pi pi-times', severity: 'danger' },
+            rejectProps: { label: 'Odustani', outlined: true, severity: 'secondary' },
+            accept: async () => {
+                const response = await fetch(`${API_BASE_URL}/video/${video_id}`, {
+                    method: 'DELETE',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (response.ok) {
+                    videos.value = videos.value.filter(video => video.video_id !== video_id);
+                } else {
+                    console.error('Failed to delete video:', response.statusText);
+                }
+            },
+            reject: () => {
+            }
+        });
+
+};
+
 </script>
 
 <template>
@@ -102,11 +132,13 @@
                                         <div class="font-semibold">{{ new Date(year=slotProps.data.year, monthIndex=slotProps.data.month - 1, date=slotProps.data.day).toLocaleDateString() }}</div>
                                         <div class="text-sm text-gray-500">{{ slotProps.data.caption }}</div>
                                         <Button 
-                                            label="Izbriši video" 
+                                            label="Obriši video"
+                                            icon="pi pi-delete-left" 
                                             class="mt-6"  
                                             severity="danger" 
                                             rounded
-                                            variant="outlined" />
+                                            variant="outlined"
+                                            @click="handleDeleteVideo(slotProps.data.video_id)" />
                                     </div>
                             </div>
                             </template>
