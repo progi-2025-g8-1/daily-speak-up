@@ -37,11 +37,6 @@ const router = createRouter({
       component: PasswordlessCallbackView
     },
     {
-      path: '/:pathMatch(.*)*',
-      name: 'not-found',
-      component: NotFoundView
-    },
-    {
       path: '/banned',
       name: 'banned',
       component: BannedView
@@ -87,15 +82,15 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
-      path: '/:pathMatch(.*)*',
-      name: 'not-found',
-      component: NotFoundView
-    },
-    {
       path: '/search',
       name: 'search',
       component: () => import('../views/SearchView.vue'),
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: NotFoundView
     }
   ]
 });
@@ -148,18 +143,18 @@ router.beforeEach(async (to, _from, next) => {
     return next('/');
   }
 
-  if (authenticated && to.meta.requiresAuth) {
-    // ADD BAN CHECK HERE - before onboarding checks
+  if (authenticated) {
     const banStatus = await isUserBanned();
     
     if (banStatus?.banned) {
       if (to.path !== '/banned') {
         return next('/banned');
       }
-      // If already going to /banned, let them through
       return next();
     }
+  }
 
+  if (authenticated && to.meta.requiresAuth) {
     const onboardingCompleted = await isOnboardingComplete();
     const isOnboardingRoute = to.path === '/onboarding';
 
