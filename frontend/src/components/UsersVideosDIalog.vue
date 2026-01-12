@@ -1,5 +1,5 @@
 <script setup lang="ts">  
-    import { onMounted, ref } from 'vue';
+    import { ref, watch } from 'vue';
     import Dialog from 'primevue/dialog';
     import Button from 'primevue/button';
     import DatePicker from 'primevue/datepicker';
@@ -44,9 +44,9 @@
         }
     };
 
-    onMounted(async () => {
-        if(props.user) {
-            const response = await fetch(`${API_BASE_URL}/users/${props.user.user_id}/${year.value}/${month.value}/videos`,
+    watch(() => props.user, async (newUser: any) => {
+        if(newUser) {
+            const response = await fetch(`${API_BASE_URL}/user/${props.user.user_id}/${year.value}/${month.value}/videos`,
             {
                 credentials: 'include'
             }
@@ -59,7 +59,7 @@
                 console.error('Greška pri dohvaćanju videozapisa korisnika');
             }
         }
-    });
+    }, { immediate: true });
 
 </script>
 
