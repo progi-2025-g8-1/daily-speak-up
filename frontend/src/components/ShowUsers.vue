@@ -5,7 +5,7 @@ import DataView from 'primevue/dataview';
 import Avatar from 'primevue/avatar';
 import AutoComplete from 'primevue/autocomplete';
 import Button from 'primevue/button';
-import ToggleButton from 'primevue/togglebutton';
+import Select from 'primevue/select';
 
 
 
@@ -20,7 +20,11 @@ const banReasons = ref<any[] | undefined>(undefined);
 const showBanConfirmDialog = ref(false);
 const banHandle = ref<string | null | undefined>(null);
 const banUserId = ref<string | null | undefined>(null);
-
+const userRoles = ref([
+    { name: 'Korisnik', code: import.meta.env.VITE_USER_ROLE },
+    { name: 'Moderator', code: import.meta.env.VITE_MODERATOR_ROLE },
+    { name: 'Administrator', code: import.meta.env.VITE_ADMIN_ROLE },
+])
 
 const rowsPerPage = computed(() => {
     if (rowHeight.value === 0 || containerHeight.value === 0) return 5;
@@ -110,31 +114,25 @@ const showConfirmBanDialog = async (user: any) => {
     showBanConfirmDialog.value = true;
 };
 
-const handleRoleToggle = async (item: any) => {
-    const newRole = item.onToggle ? 'mod' : 'user';
-    item.user_role = newRole;
-    
-    try {
-        const response = await fetch(`${API_BASE_URL}/dashboard/user-role`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                user_id: item.user_id
-            })
-        });
-        
-        if (!response.ok) {
-            item.onToggle = !item.onToggle;
-            item.user_role = item.onToggle ? 'mod' : 'user';
-            console.error('Failed to update user role');
-        }
-    } catch (error) {
-        item.onToggle = !item.onToggle;
-        item.user_role = item.onToggle ? 'mod' : 'user';
-        console.error('Failed to update user role:', error);
+const handleUserRoleChange = async (role: any, item: any) => {
+    if (role !== import.meta.env.VITE_USER_ROLE &&
+        role !== import.meta.env.VITE_MODERATOR_ROLE &&
+        role !== import.meta.env.VITE_ADMIN_ROLE) {
+        console.error('Invalid role selected:', role);
+        return;
     }
+
+    const response = await fetch(`${API_BASE_URL}/dashboard/user-role`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            user_id: item.user_id,
+            new_role: role
+        }),
+    });
 };
 
 </script>
@@ -168,14 +166,14 @@ const handleRoleToggle = async (item: any) => {
                                 <div class="flex flex-row gap-4 mr-8">
                                     <Button icon="pi pi-video" rounded variant="outlined" aria-label="Videos" v-tooltip.top="{ value: 'Prikaži videozapise', showDelay: 500, hideDelay: 100 }" />
                                     <Button icon="pi pi-times" severity="danger" rounded variant="outlined" aria-label="Ban" v-tooltip.top="{ value: 'Uruči zabranu', showDelay: 500, hideDelay: 100 }" :onClick="() => showConfirmBanDialog(item)" />
-                                    <ToggleButton onLabel="Moderator" 
-                                                  offLabel="Korisnik" 
-                                                  onIcon="pi pi-user-edit" 
-                                                  offIcon="pi pi-user" 
-                                                  class="w-36" 
-                                                  v-tooltip.top="{ value: 'Promijeni ulogu', showDelay: 500, hideDelay: 100 }"
-                                                  @change="handleRoleToggle(item)" 
-                                                  v-model="item.onToggle" />
+                                    <Select v-model="item.user_role"
+                                            :options="userRoles"
+                                            optionLabel="name"
+                                            optionValue="code"
+                                            placeholder="Korisnička uloga"
+                                            class="w-36"
+                                            v-tooltip.top="{ value: 'Promijeni ulogu', showDelay: 500, hideDelay: 100 }"
+                                            @update:modelValue="handleUserRoleChange($event, item)" />
                                 </div>
                             </div>
                         </div>
