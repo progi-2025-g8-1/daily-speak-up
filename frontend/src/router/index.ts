@@ -8,6 +8,7 @@ import PasswordlessCallbackView from '../views/PasswordlessCallbackView.vue'
 import OnboardingView from '../views/OnboardingView.vue'
 import Profile from '../views/Profile.vue'
 import DashboardView from '../views/DashboardView.vue'
+import BannedView from '../views/BannedView.vue'
 import { isAuthenticated } from '../auth'
 
 const router = createRouter({
@@ -39,6 +40,11 @@ const router = createRouter({
       path: '/:pathMatch(.*)*',
       name: 'not-found',
       component: NotFoundView
+    },
+    {
+      path: '/banned',
+      name: 'banned',
+      component: BannedView
     },
     {
       path: '/onboarding',
@@ -115,6 +121,26 @@ async function isOnboardingComplete(): Promise<boolean | null> {
   }
 }
 
+async function isUserBanned(): Promise<{ banned: boolean; reason?: string; expires_at?: string } | null> {
+  try {
+    const apiDomain = import.meta.env.VITE_API_DOMAIN || (window as any).ENV?.VITE_API_DOMAIN || 'http://localhost:8123';
+    const response = await fetch(`${apiDomain}/api/v1/user/amibanned`, {
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+
+    if (response.ok) {
+      return await response.json();
+    }
+    return null;
+  } catch (error) {
+    console.error('Error checking ban status:', error);
+    return null;
+  }
+}
+
 router.beforeEach(async (to, _from, next) => {
   const authenticated = await isAuthenticated();
 
@@ -123,6 +149,17 @@ router.beforeEach(async (to, _from, next) => {
   }
 
   if (authenticated && to.meta.requiresAuth) {
+    // ADD BAN CHECK HERE - before onboarding checks
+    const banStatus = await isUserBanned();
+    
+    if (banStatus?.banned) {
+      if (to.path !== '/banned') {
+        return next('/banned');
+      }
+      // If already going to /banned, let them through
+      return next();
+    }
+
     const onboardingCompleted = await isOnboardingComplete();
     const isOnboardingRoute = to.path === '/onboarding';
 
