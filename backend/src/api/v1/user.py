@@ -261,6 +261,12 @@ async def delete_account(
             detail='User not found'
         )
     
+    if user.role == UserRole.ROOT:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail='Root admin account cannot be deleted'
+        )
+    
     speeches = db.query(Speech).filter(Speech.user_id == user.id)
     speeches_ids = [speech.id for speech in speeches.all()]
     speech_ids_str = [str(sid) for sid in speeches_ids]
