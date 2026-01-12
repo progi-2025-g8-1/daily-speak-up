@@ -139,12 +139,12 @@ async def get_monthly_user_videos(
     # Ovdje će kasnije vjerojatno trebati proći po friendship pravilima,
     # Ako su prijatelji, vratiti listu videa koji imaju FRIENDS vidljivost (ili praznu listu ako takvih nema),
     # inače vratiti FORBIDDEN ako nisu prijatelji
-    elif str(requesting_user.supertokens_user_id) != str(user_id):
-        print(str(requesting_user.supertokens_user_id) != str(user_id))
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail='Access denied'
-        )
+    if str(requesting_user.supertokens_user_id) != str(user_id):
+        if(requesting_user.role not in [UserRole.ADMIN, UserRole.ROOT]):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail='Access denied'
+            )
     
     if month < 1 or month > 12:
         raise HTTPException(
