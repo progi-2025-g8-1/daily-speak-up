@@ -34,7 +34,7 @@ async def get_all_users(
             detail="User not found"
         )
 
-    if user.role != UserRole.ADMIN:
+    if user.role not in (UserRole.ROOT, UserRole.ADMIN):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, 
             detail="Not authorized to access this resource"
@@ -316,7 +316,7 @@ async def get_user_stats_by_month(
             detail="User not found"
         )
 
-    if admin_user.role != UserRole.ADMIN:
+    if admin_user.role not in (UserRole.ROOT, UserRole.ADMIN):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, 
             detail="Not authorized to access this resource"
@@ -367,7 +367,7 @@ async def get_speech_stats_by_month(
             detail="User not found"
         )
 
-    if admin_user.role != UserRole.ADMIN:
+    if admin_user.role not in (UserRole.ROOT, UserRole.ADMIN):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, 
             detail="Not authorized to access this resource"
@@ -404,7 +404,7 @@ async def get_speech_stats_by_day(
             detail="User not found"
         )
 
-    if admin_user.role != UserRole.ADMIN:
+    if admin_user.role not in (UserRole.ROOT, UserRole.ADMIN):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, 
             detail="Not authorized to access this resource"
@@ -447,7 +447,7 @@ async def get_user_count(
             detail="User not found"
         )
 
-    if admin_user.role != UserRole.ADMIN:
+    if admin_user.role not in (UserRole.ROOT, UserRole.ADMIN):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, 
             detail="Not authorized to access this resource"
