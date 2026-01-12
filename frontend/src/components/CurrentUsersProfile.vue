@@ -37,7 +37,7 @@
     const setUserRole = (role) => {
       userRole.value = role;
       console.log('User role set to:', role);
-      showDashboardButton.value = (role === import.meta.env.VITE_ADMIN_ROLE || role === import.meta.env.VITE_MODERATOR_ROLE);
+      showDashboardButton.value = (role === import.meta.env.VITE_ADMIN_ROLE || role === import.meta.env.VITE_MODERATOR_ROLE || role === import.meta.env.VITE_ROOT_ROLE);
     };
 
     const goToDashboard = () => {
