@@ -7,8 +7,7 @@ import Avatar from 'primevue/avatar';
 import AutoComplete from 'primevue/autocomplete';
 import Button from 'primevue/button';
 import Select from 'primevue/select';
-
-
+import { FilterMatchMode } from '@primevue/core/api';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8123/api/v1'
 const users = ref([]);
@@ -26,6 +25,9 @@ const userRoles = ref([
     { name: 'Moderator', code: import.meta.env.VITE_MODERATOR_ROLE },
     { name: 'Administrator', code: import.meta.env.VITE_ADMIN_ROLE },
 ])
+const filters = ref({
+    'user_role': { value: null, matchMode: FilterMatchMode.EQUALS }
+});
 
 const rowsPerPage = computed(() => {
     if (rowHeight.value === 0 || containerHeight.value === 0) return 5;
@@ -150,7 +152,7 @@ const handleUserRoleChange = async (role: any, item: any) => {
         </div>
 
         <div class="dataview-container w-[90%]" style="height: calc(100vh - 215px)">
-            <DataTable :value="showUsers" paginator :rows="rowsPerPage">
+            <DataTable :value="showUsers" paginator :rows="rowsPerPage" v-model:filters="filters" filterDisplay="row">
 
                 <Column header="Korisnik">
                     <template #body="slotProps">
@@ -178,7 +180,7 @@ const handleUserRoleChange = async (role: any, item: any) => {
                     </template>
                 </Column>
 
-                <Column>
+                <Column header="Korisnička uloga" filterField="user_role" :showFilterMenu="false">
                     <template #body="slotProps">
                         <Select v-model="slotProps.data.user_role"
                                 :options="userRoles"
@@ -188,6 +190,16 @@ const handleUserRoleChange = async (role: any, item: any) => {
                                 class="w-36"
                                 v-tooltip.top="{ value: 'Promijeni ulogu', showDelay: 500, hideDelay: 100 }"
                                 @update:modelValue="handleUserRoleChange($event, slotProps.data)" />
+                    </template>
+                    <template #filter="{ filterModel, filterCallback }">
+                        <Select v-model="filterModel.value"
+                                :options="userRoles"
+                                optionLabel="name"
+                                optionValue="code"
+                                placeholder="Filtriraj po ulozi"
+                                class="w-36"
+                                :showClear="true"
+                                @change="filterCallback()" />
                     </template>
                 </Column>
             </DataTable>
