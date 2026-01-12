@@ -206,7 +206,7 @@ def seed_friendships():
 
 def seed_friendships_for_non_mock_user():
     from .models import User, Friendship
-    from .models.enums import RequestStatus
+    from .models.enums import RequestStatus, UserRole
 
     fake = Faker()
     with Session(engine) as session:
