@@ -166,19 +166,19 @@ const handleUserRoleChange = async (role: any, item: any) => {
                     </template>
                 </Column>
 
-                <Column header="Videi">
+                <Column>
                     <template #body="slotProps">
                         <Button icon="pi pi-video" rounded variant="outlined" aria-label="Videos" v-tooltip.top="{ value: 'Prikaži videozapise', showDelay: 500, hideDelay: 100 }" />
                     </template>
                 </Column>
 
-                <Column header="Zabrani">
+                <Column>
                     <template #body="slotProps">
                         <Button icon="pi pi-times" severity="danger" rounded variant="outlined" aria-label="Ban" v-tooltip.top="{ value: 'Uruči zabranu', showDelay: 500, hideDelay: 100 }" :onClick="() => showConfirmBanDialog(slotProps.data)" />
                     </template>
                 </Column>
 
-                <Column header="Uloga">
+                <Column>
                     <template #body="slotProps">
                         <Select v-model="slotProps.data.user_role"
                                 :options="userRoles"
