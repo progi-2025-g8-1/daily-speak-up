@@ -218,7 +218,7 @@ async def delete_video(
             detail='Speech not found'
         )
 
-    if speech.user_id != user.id and user.role not in (UserRole.ADMIN, UserRole.MOD):
+    if speech.user_id != user.id and user.role not in (UserRole.ROOT, UserRole.ADMIN, UserRole.MOD):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail='Access denied'
