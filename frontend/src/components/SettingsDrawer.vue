@@ -155,7 +155,7 @@
             }
         }
 
-        console.log('Hide delete account button:', hideDeleteAccountBtn.value);
+        hideDeleteAccountBtn.value = userRole === import.meta.env.VITE_ROOT_ROLE;
     });
 
     const language = ref([
