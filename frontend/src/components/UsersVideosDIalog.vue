@@ -4,7 +4,8 @@
     import Button from 'primevue/button';
     import DatePicker from 'primevue/datepicker';
     import Message from 'primevue/message';
-    import Carousel from 'primevue/carousel';
+    import Carousel from 'primevue/carousel'; 
+    import Card from 'primevue/card';
 
     const props = defineProps<{
         showDialog: boolean,
@@ -86,21 +87,30 @@
             <div v-else>
                 <Carousel :value="videos" :numVisible="3" :numScroll="1" class="mt-4" :circular="true" :autoplayInterval="5000">
                     <template #item="slotProps">
-                        <div class="flex flex-col items-center p-2">
-                            <iframe 
-                                :src="slotProps.data.url" 
-                                class="w-[20vw] aspect-1/1"
-                                width="320" 
-                                height="180" 
-                                frameborder="0" 
-                                allow="autoplay; encrypted-media" 
-                                allowfullscreen>
-                            </iframe>
-                            <div class="mt-2 text-center">
-                                <div class="font-semibold">{{ new Date(year=slotProps.data.year, monthIndex=slotProps.data.month - 1, date=slotProps.data.day).toLocaleDateString() }}</div>
-                                <div class="text-sm text-gray-500">{{ slotProps.data.caption }}</div>
+                        <Card class="mx-2" :style="{ width: '300px' }">
+                            <template #content>
+                                <div class="flex flex-col items-center p-2">
+                                    <iframe 
+                                        :src="slotProps.data.url" 
+                                        class="w-full rounded-lg
+                                                w-[75%] aspect-square"
+                                        frameborder="0" 
+                                        allow="autoplay; encrypted-media" 
+                                        allowfullscreen>
+                                    </iframe>
+                                    <div class="mt-2 text-center">
+                                        <div class="font-semibold">{{ new Date(year=slotProps.data.year, monthIndex=slotProps.data.month - 1, date=slotProps.data.day).toLocaleDateString() }}</div>
+                                        <div class="text-sm text-gray-500">{{ slotProps.data.caption }}</div>
+                                        <Button 
+                                            label="Izbriši video" 
+                                            class="mt-6"  
+                                            severity="danger" 
+                                            rounded
+                                            variant="outlined" />
+                                    </div>
                             </div>
-                        </div>
+                            </template>
+                        </Card>
                     </template>
                 </Carousel>
             </div>
