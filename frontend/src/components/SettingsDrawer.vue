@@ -22,6 +22,7 @@
     const pushNotifs = ref(false);
     const streakNotifs = ref(false);
     const confirm = useConfirm();
+    const hideDeleteAccountBtn = ref(false);
 
     const confirm_account_deletion = () => {
         confirm.require({
@@ -136,6 +137,25 @@
         } catch(e) {
             console.error('Failed to fetch /user/me: ', e)
         }
+
+        let userRole = localStorage.getItem('userRole');
+        if(userRole === undefined || userRole === null) {
+            const response = await fetch(`${import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123'}/api/v1/user/me`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.ok) {
+                const userData = await response.json();
+                localStorage.setItem('userRole', userData.role);
+                userRole = userData.role;
+            }
+        }
+
+        console.log('Hide delete account button:', hideDeleteAccountBtn.value);
     });
 
     const language = ref([
@@ -221,7 +241,7 @@
                 
                 <div class="flex flex-row w-full justify-between mt-10">
                     <Logout class="mt-10 w-[45%]" />
-                    <Button @click="confirm_account_deletion()" label="Izbriši račun" severity="danger" icon="pi pi-trash" class="mt-10 w-[45%]" />
+                    <Button v-if="!hideDeleteAccountBtn" @click="confirm_account_deletion()" label="Izbriši račun" severity="danger" icon="pi pi-trash" class="mt-10 w-[45%]" />
                 </div>
             </div>
         </Drawer>
