@@ -349,7 +349,6 @@ async def get_user_stats_by_month(
 
     return StatsResponse(labels=labels, counts=user_counts)
 
-
 @router.get("/stats/counts-by-topic", response_model=StatsResponse, status_code=status.HTTP_200_OK)
 async def get_speech_stats_by_month(
     db: Session = Depends(get_db),
@@ -473,10 +472,10 @@ async def get_user_count(
         pending_reports=pending_report_count
     )
 
-
 @router.put("/user-role", status_code=status.HTTP_200_OK)
 async def change_user_role(
-    user_id: UUID = Body(..., embed=True),
+    user_id: UUID = Body(...),
+    new_role: UserRole = Body(...),
     db: Session = Depends(get_db),
     session: Session = Depends(get_session)
 ):
@@ -498,6 +497,12 @@ async def change_user_role(
             detail="Not authorized to access this resource"
         )
     
+    if new_role not in (UserRole.ADMIN, UserRole.MOD, UserRole.USER):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Can only change in ADMIN, MOD or USER roles"
+        )
+    
     user_to_update = db.scalar(select(User).where(User.id == user_id))
 
     if not user_to_update:
@@ -507,7 +512,7 @@ async def change_user_role(
         )
     
     try:
-        user_to_update.role = UserRole.MOD if user_to_update.role == UserRole.USER else UserRole.USER
+        user_to_update.role = new_role
         db.commit()
     except ValueError:
         raise HTTPException(
