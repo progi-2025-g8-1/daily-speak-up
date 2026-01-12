@@ -154,7 +154,7 @@ async def get_monthly_user_videos(
     
     # Fetch speeches and generate presigned read URLs for each available video
     speeches = db.query(Speech).filter(
-        Speech.user_id == requesting_user.id,
+        Speech.user_id == user_id,
         extract('year', Speech.created_at) == year,
         extract('month', Speech.created_at) == month
     ).all()
