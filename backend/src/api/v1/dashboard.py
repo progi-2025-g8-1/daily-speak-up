@@ -453,7 +453,7 @@ async def get_user_count(
             detail="Not authorized to access this resource"
         )
     
-    user_count = db.execute(select(func.count(User.id)).where(User.role != UserRole.ADMIN)).scalar_one()
+    user_count = db.execute(select(func.count(User.id)).where(User.role != UserRole.ROOT)).scalar_one()
     speech_count = db.execute(select(func.count(Speech.id))).scalar_one()
     ban_count = db.execute(
         select(func.count(Ban.id)).where(
