@@ -85,7 +85,7 @@
             </div>
 
             <div v-else>
-                <Carousel :value="videos" :numVisible="3" :numScroll="1" class="mt-4" :circular="true" :autoplayInterval="5000">
+                <Carousel :value="videos" :numVisible="3" :numScroll="1" class="mt-4" :circular="true" >
                     <template #item="slotProps">
                         <Card class="mx-2" :style="{ width: '300px' }">
                             <template #content>
