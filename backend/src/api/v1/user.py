@@ -163,6 +163,22 @@ async def get_monthly_user_videos(
 
     for speech in speeches:
 
+        # If the video is hosted on YouTube, use the existing URL directly
+        if 'youtube' in str(speech.s3_url):
+            videos.append(
+                VideoInfo(
+                    video_id=speech.id,
+                    year=speech.created_at.year,
+                    month=speech.created_at.month,
+                    day=speech.created_at.day,
+                    caption=speech.caption,
+                    url=speech.s3_url,
+                    owner_id=speech.user_id,
+                    visibility=speech.visibility_level
+                )
+            )
+            continue
+
         if speech.s3_url is None or speech.is_cancelled:
             continue
 
