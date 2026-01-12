@@ -170,7 +170,7 @@ async def ban_user(
             detail="User not found"
         )
 
-    if admin_user.role not in (UserRole.ADMIN, UserRole.MOD):
+    if admin_user.role not in (UserRole.ROOT, UserRole.ADMIN, UserRole.MOD):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, 
             detail="Not authorized to access this resource"
@@ -281,7 +281,7 @@ async def unban_user(
             detail="User not found"
         )
 
-    if admin_user.role not in (UserRole.ADMIN, UserRole.MOD):
+    if admin_user.role not in (UserRole.ROOT, UserRole.ADMIN, UserRole.MOD):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, 
             detail="Not authorized to access this resource"
@@ -535,7 +535,7 @@ async def dismiss_reports_for_speech(
             detail="User not found"
         )
 
-    if admin_user.role not in (UserRole.ADMIN, UserRole.MOD):
+    if admin_user.role not in (UserRole.ROOT, UserRole.ADMIN, UserRole.MOD):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, 
             detail="Not authorized to access this resource"
