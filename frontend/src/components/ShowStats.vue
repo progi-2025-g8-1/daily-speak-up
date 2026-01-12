@@ -60,14 +60,14 @@ defineExpose({
             <Card class="border-b-[0.2rem] border-blue-600 ">
                 <template #content>
                     <div class="flex flex-row items-center gap-4">
-                        <div v-if="stats.totalUsers" class="stat-icon bg-blue-100 text-blue-600">
+                        <div v-if="stats.totalUsers !== null" class="stat-icon bg-blue-100 text-blue-600">
                             <i class="pi pi-users text-2xl"></i>
                         </div>
                         <Skeleton v-else size="3.7rem""></Skeleton>
                         <div class="flex flex-col justify-center items-start">
-                            <div v-if="stats.totalUsers" class="text-3xl font-bold text-gray-800">{{ stats.totalUsers }}</div>
+                            <div v-if="stats.totalUsers !== null" class="text-3xl font-bold text-gray-800">{{ stats.totalUsers }}</div>
                             <Skeleton v-else size="2.5rem" class="mr-2"></Skeleton>
-                            <div v-if="stats.totalUsers" class="text-sm text-gray-500">Broj korisnika</div>
+                            <div v-if="stats.totalUsers !== null" class="text-sm text-gray-500">Broj korisnika</div>
                             <Skeleton v-else width="5rem" height="0.7rem" class="mt-2"></Skeleton>
                         </div>
                     </div>
@@ -77,14 +77,14 @@ defineExpose({
             <Card class="border-b-[0.2rem] border-purple-600">
                 <template #content>
                     <div class="flex flex-row items-center gap-4">
-                        <div v-if="stats.totalSpeeches" class="stat-icon bg-purple-100 text-purple-600">
+                        <div v-if="stats.totalSpeeches !== null" class="stat-icon bg-purple-100 text-purple-600">
                             <i class="pi pi-microphone text-2xl"></i>
                         </div>
                         <Skeleton v-else size="3.7rem""></Skeleton>
                         <div class="flex flex-col justify-center items-start">
-                            <div v-if="stats.totalSpeeches" class="text-3xl font-bold text-gray-800">{{ stats.totalSpeeches }}</div>
+                            <div v-if="stats.totalSpeeches !== null" class="text-3xl font-bold text-gray-800">{{ stats.totalSpeeches }}</div>
                             <Skeleton v-else size="2.5rem" class="mr-2"></Skeleton>
-                            <div v-if="stats.totalSpeeches" class="text-sm text-gray-500">Ukupno govora</div>
+                            <div v-if="stats.totalSpeeches !== null" class="text-sm text-gray-500">Ukupno govora</div>
                             <Skeleton v-else width="5rem" height="0.7rem" class="mt-2"></Skeleton>
                         </div>
                     </div>
@@ -94,14 +94,14 @@ defineExpose({
             <Card class="border-b-[0.2rem] border-amber-600">
                 <template #content>
                     <div class="flex flex-row items-center gap-4">
-                        <div v-if="stats.pendingReports" class="stat-icon bg-amber-100 text-amber-600">
+                        <div v-if="stats.pendingReports !== null" class="stat-icon bg-amber-100 text-amber-600">
                             <i class="pi pi-flag text-2xl"></i>
                         </div>
                         <Skeleton v-else size="3.7rem""></Skeleton>
                         <div class="flex flex-col justify-center items-start">
-                            <div v-if="stats.pendingReports" class="text-3xl font-bold text-gray-800">{{ stats.pendingReports }}</div>
+                            <div v-if="stats.pendingReports !== null" class="text-3xl font-bold text-gray-800">{{ stats.pendingReports }}</div>
                             <Skeleton v-else size="2.5rem" class="mr-2"></Skeleton>
-                            <div v-if="stats.pendingReports" class="text-sm text-gray-500">Postojeće prijave</div>
+                            <div v-if="stats.pendingReports !== null" class="text-sm text-gray-500">Postojeće prijave</div>
                             <Skeleton v-else width="5rem" height="0.7rem" class="mt-2"></Skeleton>
                         </div>
                     </div>
@@ -111,14 +111,14 @@ defineExpose({
             <Card class="border-b-[0.2rem] border-red-600">
                 <template #content>
                     <div class="flex flex-row items-center gap-4">
-                        <div v-if="stats.totalBans" class="stat-icon bg-red-100 text-red-600">
+                        <div v-if="stats.totalBans !== null" class="stat-icon bg-red-100 text-red-600">
                             <i class="pi pi-times text-2xl"></i>
                         </div>
                         <Skeleton v-else size="3.7rem""></Skeleton>
                         <div class="flex flex-col justify-center items-start">
-                            <div v-if="stats.totalBans" class="text-3xl font-bold text-gray-800">{{ stats.totalBans }}</div>
+                            <div v-if="stats.totalBans !== null" class="text-3xl font-bold text-gray-800">{{ stats.totalBans }}</div>
                             <Skeleton v-else size="2.5rem" class="mr-2"></Skeleton>
-                            <div v-if="stats.totalBans" class="text-sm text-gray-500">Uručene zabrane</div>
+                            <div v-if="stats.totalBans !== null" class="text-sm text-gray-500">Uručene zabrane</div>
                             <Skeleton v-else width="5rem" height="0.7rem" class="mt-2"></Skeleton>
                         </div>
                     </div>
