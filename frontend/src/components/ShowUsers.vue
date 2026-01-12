@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, onBeforeUnmount } from 'vue';
 import ConfirmBanDialog from './ConfirmBanDialog.vue';
-import DataView from 'primevue/dataview';
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
 import Avatar from 'primevue/avatar';
 import AutoComplete from 'primevue/autocomplete';
 import Button from 'primevue/button';
@@ -149,37 +150,47 @@ const handleUserRoleChange = async (role: any, item: any) => {
         </div>
 
         <div class="dataview-container w-[90%]" style="height: calc(100vh - 215px)">
-            <DataView :value="showUsers" paginator :rows="rowsPerPage">
-                <template #list="slotProps">
-                    <div class="flex flex-col">
-                        <div v-for="item in slotProps.items" :key="item.user_id" class="user-row">
-                            <div class="flex flex-row items-center justify-between py-3 border-b border-gray-400">
-                                <div class="flex flex-row justify-start items-center">
-                                    <div class="md:w-40 flex flex-col justify-center items-center">
-                                        <Avatar :image="item.profile_picture_url" shape="circle" />
-                                    </div>
-                                    <div class="flex flex-col justify-start items-start">
-                                        <div class="text-lg font-medium">{{ item.handle }}</div>
-                                        <div class="font-medium text-surface-500 dark:text-surface-400 text-sm">{{ item.email }}</div>
-                                    </div>
-                                </div>
-                                <div class="flex flex-row gap-4 mr-8">
-                                    <Button icon="pi pi-video" rounded variant="outlined" aria-label="Videos" v-tooltip.top="{ value: 'Prikaži videozapise', showDelay: 500, hideDelay: 100 }" />
-                                    <Button icon="pi pi-times" severity="danger" rounded variant="outlined" aria-label="Ban" v-tooltip.top="{ value: 'Uruči zabranu', showDelay: 500, hideDelay: 100 }" :onClick="() => showConfirmBanDialog(item)" />
-                                    <Select v-model="item.user_role"
-                                            :options="userRoles"
-                                            optionLabel="name"
-                                            optionValue="code"
-                                            placeholder="Korisnička uloga"
-                                            class="w-36"
-                                            v-tooltip.top="{ value: 'Promijeni ulogu', showDelay: 500, hideDelay: 100 }"
-                                            @update:modelValue="handleUserRoleChange($event, item)" />
-                                </div>
+            <DataTable :value="showUsers" paginator :rows="rowsPerPage">
+
+                <Column header="Korisnik">
+                    <template #body="slotProps">
+                        <div class="flex flex-row items-center">
+                            <div class="md:w-40 flex flex-col justify-center items-center">
+                                <Avatar :image="slotProps.data.profile_picture_url" shape="circle" />
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-semibold text-lg">{{ slotProps.data.handle }}</span>
+                                <span class="text-sm text-gray-500">{{ slotProps.data.email }}</span>
                             </div>
                         </div>
-                    </div>
-                </template>
-            </DataView>
+                    </template>
+                </Column>
+
+                <Column header="Videi">
+                    <template #body="slotProps">
+                        <Button icon="pi pi-video" rounded variant="outlined" aria-label="Videos" v-tooltip.top="{ value: 'Prikaži videozapise', showDelay: 500, hideDelay: 100 }" />
+                    </template>
+                </Column>
+
+                <Column header="Zabrani">
+                    <template #body="slotProps">
+                        <Button icon="pi pi-times" severity="danger" rounded variant="outlined" aria-label="Ban" v-tooltip.top="{ value: 'Uruči zabranu', showDelay: 500, hideDelay: 100 }" :onClick="() => showConfirmBanDialog(slotProps.data)" />
+                    </template>
+                </Column>
+
+                <Column header="Uloga">
+                    <template #body="slotProps">
+                        <Select v-model="slotProps.data.user_role"
+                                :options="userRoles"
+                                optionLabel="name"
+                                optionValue="code"
+                                placeholder="Korisnička uloga"
+                                class="w-36"
+                                v-tooltip.top="{ value: 'Promijeni ulogu', showDelay: 500, hideDelay: 100 }"
+                                @update:modelValue="handleUserRoleChange($event, slotProps.data)" />
+                    </template>
+                </Column>
+            </DataTable>
         </div>
     </div>
 </template>
