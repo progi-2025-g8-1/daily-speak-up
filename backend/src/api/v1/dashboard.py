@@ -49,7 +49,7 @@ async def get_all_users(
                 user_role=u.role
             ) 
             for u in users
-            if u.role != UserRole.ROOT
+            if u.role != UserRole.ROOT and u.id != user.id
            ]
 
 @router.get("/report-reasons/{user_id}", response_model=list[str], status_code=status.HTTP_200_OK)
