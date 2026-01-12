@@ -211,7 +211,11 @@ def seed_friendships_for_non_mock_user():
     fake = Faker()
     with Session(engine) as session:
         users = session.query(User).all()
-        non_mock_user = session.query(User).filter(~User.supertokens_user_id.like('mock-%'), ~User.supertokens_user_id.like('deleted_%')).first()
+        non_mock_user = session.query(User).filter(
+            ~User.supertokens_user_id.like('mock-%'), 
+            ~User.supertokens_user_id.like('deleted_%'),
+            User.role != UserRole.ROOT
+            ).first()
         existing_count = session.query(Friendship).filter(
             (Friendship.user_id1 == non_mock_user.id) | (Friendship.user_id2 == non_mock_user.id)
         ).count() if non_mock_user else 0
