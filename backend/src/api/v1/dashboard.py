@@ -492,7 +492,7 @@ async def change_user_role(
             detail="User not found"
         )
 
-    if admin_user.role != UserRole.ADMIN:
+    if admin_user.role not in (UserRole.ADMIN, UserRole.ROOT):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, 
             detail="Not authorized to access this resource"
