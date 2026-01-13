@@ -117,7 +117,7 @@ async def me(
 
 @router.get('/{user_id}/{year}/{month}/videos', response_model=MonthlyUserVideosResponse)
 async def get_monthly_user_videos(
-    user_id: UUID,
+    user_id: str,
     year: int,
     month: int,
     db: Session = Depends(get_db),
@@ -136,10 +136,26 @@ async def get_monthly_user_videos(
             detail='Requesting user not found'
         )
     
+    target_user: User | None = None
+    try:
+        target_user_uuid = UUID(user_id)
+        target_user = db.query(User).filter(User.id == target_user_uuid).first()
+    except ValueError:
+        pass
+    
+    if target_user is None:
+        target_user = db.query(User).filter(User.supertokens_user_id == user_id).first()
+    
+    if target_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f'User not found (searched for: {user_id})'
+        )
+    
     # Ovdje će kasnije vjerojatno trebati proći po friendship pravilima,
     # Ako su prijatelji, vratiti listu videa koji imaju FRIENDS vidljivost (ili praznu listu ako takvih nema),
     # inače vratiti FORBIDDEN ako nisu prijatelji
-    if str(requesting_user.supertokens_user_id) != str(user_id):
+    if requesting_user.id != target_user.id:
         if(requesting_user.role not in [UserRole.ADMIN, UserRole.ROOT]):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -154,7 +170,7 @@ async def get_monthly_user_videos(
     
     # Fetch speeches and generate presigned read URLs for each available video
     speeches = db.query(Speech).filter(
-        Speech.user_id == user_id,
+        Speech.user_id == target_user.id,
         extract('year', Speech.created_at) == year,
         extract('month', Speech.created_at) == month
     ).all()
