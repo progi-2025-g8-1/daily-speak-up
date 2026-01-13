@@ -13,3 +13,5 @@ email-validator
 boto3
 python-multipart
 Faker
+pytest
+pytest-asyncio
