@@ -1,6 +1,7 @@
 import datetime
 from fastapi import APIRouter, FastAPI, HTTPException, Depends, status
 from ..deps import get_session, get_s3_service, get_gemini_service, get_current_user
+from ..deps import get_session, get_s3_service, get_gemini_service, get_current_user
 from ...models import User, Speech, Report, SpeechVisibility, Rating, UserStreak
 from ...models.enums import UserRole
 from ...schemas import UploadRequestResponse, VideoReadResponse
@@ -9,6 +10,7 @@ from ...db import get_db
 from supertokens_python.recipe.session import SessionContainer 
 from ...services import S3SecureService, GeminiService
 import random
+from uuid import UUID
 
 router = APIRouter(prefix="/video", tags=["Video"])
 
@@ -102,7 +104,7 @@ async def get_upload_token(
 
 @router.get('/{target_user_id}/{video_id}/play-token', response_model=VideoReadResponse)
 async def get_video_play_token(
-    target_user_id: str,
+    target_user_id: UUID,
     video_id: str,
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
@@ -116,9 +118,9 @@ async def get_video_play_token(
         )
     
     try:
-        read_data = s3_service.get_read_url(target_user_id, video_id)
+        read_data = s3_service.get_read_url(str(target_user_id), video_id)
         return VideoReadResponse(
-            user_id=target_user_id,
+            user_id=str(target_user_id),
             video_path=read_data['key'],
             download_url=read_data['download_url']
         )

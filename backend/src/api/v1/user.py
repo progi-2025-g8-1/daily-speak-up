@@ -113,19 +113,11 @@ async def get_monthly_user_videos(
     s3_service: S3SecureService = Depends(get_s3_service),
     requesting_user: User = Depends(get_current_user)
 ):
-    target_user: User | None = db.query(User).filter(User.id == user_id).first()
-    
-    if target_user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f'User not found'
-        )
-    
     # Ovdje će kasnije vjerojatno trebati proći po friendship pravilima,
     # Ako su prijatelji, vratiti listu videa koji imaju FRIENDS vidljivost (ili praznu listu ako takvih nema),
     # inače vratiti FORBIDDEN ako nisu prijatelji
-    if requesting_user.id != target_user.id:
-        if(requesting_user.role not in [UserRole.ADMIN, UserRole.ROOT]):
+    if requesting_user.id != user_id:
+        if(requesting_user.role not in [UserRole.ADMIN, UserRole.ROOT, UserRole.MOD]):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail='Access denied'
@@ -139,7 +131,7 @@ async def get_monthly_user_videos(
     
     # Fetch speeches and generate presigned read URLs for each available video
     speeches = db.query(Speech).filter(
-        Speech.user_id == target_user.id,
+        Speech.user_id == user_id,
         extract('year', Speech.created_at) == year,
         extract('month', Speech.created_at) == month
     ).all()
@@ -171,7 +163,7 @@ async def get_monthly_user_videos(
 
         # Pre sign the S3 URL
         try:
-            rd = s3_service.get_read_url(str(requesting_user.id), str(speech.id))
+            rd = s3_service.get_read_url(str(requesting_user.id), str(speech.id), str(speech.user_id))
             if isinstance(rd, dict):
                 download_url = rd.get('download_url')
             elif hasattr(rd, 'get'):
@@ -357,7 +349,6 @@ async def update_email_notifications(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user)
 ):
-    print(data)
     user.email_notifications_enabled = data.enabled
     db.commit()
     db.refresh(user)

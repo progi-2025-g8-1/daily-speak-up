@@ -68,12 +68,12 @@ async def get_report_reasons(
 @router.get("/reported-videos", response_model=list[ReportedVideoResponse], status_code=status.HTTP_200_OK)
 async def get_reported_videos(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    user: User = Depends(get_current_user),
     s3_service: S3SecureService = Depends(get_s3_service)
 ):
     """Get reported videos for dashboard."""
     
-    if current_user.role not in (UserRole.ROOT, UserRole.ADMIN, UserRole.MOD):
+    if user.role not in (UserRole.ROOT, UserRole.ADMIN, UserRole.MOD):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, 
             detail="Not authorized to access this resource"
@@ -85,8 +85,9 @@ async def get_reported_videos(
 
     for video_id in reported_video_ids:
         speech = db.scalar(select(Speech).where(Speech.id == video_id))
-        user = db.scalar(select(User).where(User.id == speech.user_id)) if speech else None
-        if not speech or not user:
+        user_of_video = db.scalar(select(User).where(User.id == speech.user_id)) if speech else None
+        
+        if not speech or not user_of_video:
             continue
 
         report_reasons_query = db.scalars(select(Report.reason).where(Report.speech_id == video_id)).all()
@@ -96,6 +97,12 @@ async def get_reported_videos(
 
         if 'youtube' in str(speech.s3_url):
             video_url = speech.s3_url
+        if 'youtube' not in str(speech.s3_url):
+            try:
+                rd = s3_service.get_read_url(str(user.id), str(speech.id), str(user_of_video.id))
+                video_url = rd.get('download_url')
+            except Exception:
+                video_url = ''
         elif speech.s3_url:
             try:
                 rd = s3_service.get_read_url(str(user.id), str(speech.id))
@@ -112,11 +119,11 @@ async def get_reported_videos(
         response_list.append(ReportedVideoResponse(
             video_id=speech.id,
             user_info=UserDashboardResponse(
-                user_id=user.id,
-                email=user.email,
-                handle=user.handle,
-                profile_picture_url=user.profile_picture_url,
-                user_role=user.role
+                user_id=user_of_video.id,
+                email=user_of_video.email,
+                handle=user_of_video.handle,
+                profile_picture_url=user_of_video.profile_picture_url,
+                user_role=user_of_video.role
             ),
             year=speech.created_at.year,
             month=speech.created_at.month,

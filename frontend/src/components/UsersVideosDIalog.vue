@@ -92,6 +92,11 @@
 
 };
 
+    const isYoutube = (url: string) => {
+        if (!url) return false;
+        return url.includes('youtube.com') || url.includes('youtu.be');
+    };
+
 </script>
 
 <template>
@@ -120,14 +125,23 @@
                         <Card class="mx-2" :style="{ width: '300px' }">
                             <template #content>
                                 <div class="flex flex-col items-center p-2">
-                                    <iframe 
+                                    <iframe v-if="isYoutube(slotProps.data.url)"
                                         :src="slotProps.data.url" 
                                         class="w-full rounded-lg
                                                 w-[75%] aspect-square"
                                         frameborder="0" 
-                                        allow="autoplay; encrypted-media" 
+                                        allow="encrypted-media" 
                                         allowfullscreen>
                                     </iframe>
+                                    <video v-else
+                                        :src="slotProps.data.url"
+                                        class="w-full rounded-lg
+                                               w-[75%] aspect-square
+                                               object-cover bg-black"
+                                        controls
+                                        preload="metadata"
+                                        playsinline
+                                    ></video>
                                     <div class="mt-2 text-center">
                                         <div class="font-semibold">{{ new Date(year=slotProps.data.year, monthIndex=slotProps.data.month - 1, date=slotProps.data.day).toLocaleDateString() }}</div>
                                         <div class="text-sm text-gray-500">{{ slotProps.data.caption }}</div>

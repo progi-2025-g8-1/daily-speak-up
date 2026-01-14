@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { ref } from 'vue';
+    import { ref, computed } from 'vue';
     import Avatar from 'primevue/avatar';
     import Button from 'primevue/button';
     import SpeedDial from 'primevue/speeddial';
@@ -13,6 +13,11 @@
         (e: 'dismissReport', video_id:string): void,
         (e: 'deleteVideo', video_id:string): void
     }>();
+
+    const isYoutube = computed(() => {
+        const url = props.reportInfo.video_url || '';
+        return url.includes('youtube.com') || url.includes('youtu.be');
+    });
 
     const items = ref([
         {
@@ -91,11 +96,10 @@
 
                     <Avatar unstyled :image="props.reportInfo.user_info.profile_picture_url" 
                             shape="circle" 
-                            pt:root:class="lg:w-15 lg:h-15 lg:mr-2
-                                            md:w-12 md:h-12 md:mr-3
-                                            w-10 h-10 mr-4
-                                            rounded-full overflow-hidden"
-                            pt:image:class="w-full h-full" />
+                            :pt="{
+                                root: { class: 'lg:w-15 lg:h-15 lg:mr-2 md:w-12 md:h-12 md:mr-3 w-10 h-10 mr-4 rounded-full overflow-hidden' },
+                                image: { class: 'w-full h-full' }
+                            }" />
 
                     <div class="flex flex-col 
                                 justify-center items-start">
@@ -124,12 +128,10 @@
                             variant="outlined" 
                             severity="contrast" 
                             rounded
-                            pt:root:class="lg:!w-15 lg:!h-15
-                                        md:!w-12 md:!h-12
-                                        !w-10 !h-10"
-                            pt:icon:class="lg:!text-lg
-                                        md:!text-base
-                                        !text-sm"
+                            :pt="{
+                                root: { class: 'lg:!w-15 lg:!h-15 md:!w-12 md:!h-12 !w-10 !h-10' },
+                                icon: { class: 'lg:!text-lg md:!text-base !text-sm' }
+                            }"
                             @click="showInstructions" />
 
                 </div>
@@ -154,7 +156,7 @@
                                 variant="outlined"
                                 :severity="item.severity"
                                 :onClick="item.command"
-                                :pt:root:class="item.class"
+                                :pt="{ root: { class: item.class } }"
                                 v-tooltip.left="item.label" />
 
                         </template>
@@ -169,16 +171,30 @@
                         md:flex-row 
                         justify-center items-center md:items-start 
                         gap-6 w-full">
-                <iframe
+                
+                <iframe v-if="isYoutube"
                     :src="props.reportInfo.video_url"
                     class="@lg:w-[50%] 
                            @md:w-[50%]
                            lg:w-[50%]
                            w-[75%]
                            aspect-square rounded-2xl"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allow="encrypted-media; picture-in-picture; web-share"
                     allowfullscreen
                 ></iframe>
+
+                <video v-else
+                    :src="props.reportInfo.video_url"
+                    class="@lg:w-[50%] 
+                           @md:w-[50%]
+                           lg:w-[50%]
+                           w-[75%]
+                           aspect-square rounded-2xl
+                           object-cover bg-black"
+                    controls
+                    preload="metadata"
+                    playsinline
+                ></video>
 
                 <div class="flex flex-col 
                             justify-start items-start
@@ -219,21 +235,21 @@
                                     variant="outlined" 
                                     :onClick="showConfirmDismissReportDialog"
                                     class="w-full"
-                                    pt:label:class="text-sm"/>
+                                    :pt="{ label: { class: 'text-sm' } }" />
                             <Button label="Obriši video" 
                                     icon="pi pi-delete-left" 
                                     severity="warn" 
                                     variant="outlined" 
                                     :onClick="showConfirmDeleteVideoDialog"
                                     class="w-full" 
-                                    pt:label:class="text-sm" />
+                                    :pt="{ label: { class: 'text-sm' } }" />
                             <Button label="Uruči zabranu" 
                                     icon="pi pi-times" 
                                     severity="danger" 
                                     variant="outlined"
                                     :onClick="showConfirmBanDialog" 
                                     class="w-full shadow-inner-sm"
-                                    pt:label:class="text-sm" />
+                                    :pt="{ label: { class: 'text-sm' } }" />
                     </div>
 
                 </div>

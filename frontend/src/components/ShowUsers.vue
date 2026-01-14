@@ -101,7 +101,7 @@ const measureDimensions = () => {
 
 const showConfirmBanDialog = async (user: any) => {
 
-    const response = await fetch(`${API_BASE_URL}/dashboard/report-reasons/${user.user_id}`);
+    const response = await fetch(`${API_BASE_URL}/dashboard/report-reasons/${user.user_id}`, {credentials: 'include'});
     if(response.ok) {
         let data = await response.json();
         data.push('Prilagođeni razlog');
