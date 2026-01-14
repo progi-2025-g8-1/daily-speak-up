@@ -1,6 +1,6 @@
 import datetime
 from fastapi import APIRouter, FastAPI, HTTPException, Depends, status
-from ..deps import get_session, get_s3_service, get_gemini_service
+from ..deps import get_session, get_s3_service, get_gemini_service, get_current_user
 from ...models import User, Speech, Report, SpeechVisibility, Rating, UserStreak
 from ...models.enums import UserRole
 from ...schemas import UploadRequestResponse, VideoReadResponse
@@ -15,23 +15,10 @@ router = APIRouter(prefix="/video", tags=["Video"])
 @router.get('/start', response_model=UploadRequestResponse)
 async def get_upload_token(
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session),
+    user: User = Depends(get_current_user),
     s3_service: S3SecureService = Depends(get_s3_service),
     gemini_service: GeminiService = Depends(get_gemini_service)
 ):
-    supertokens_user_id = session.get_user_id()
-
-    # Get user who requested to start a speech
-    user: User | None = db.query(User).filter(
-        User.supertokens_user_id == supertokens_user_id
-    ).first()
-
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='User not found'
-        )
-
     # Ensure the user has at least a single interest and choose one
     if not user.user_interests:
         raise HTTPException(
@@ -118,20 +105,9 @@ async def get_video_play_token(
     target_user_id: str,
     video_id: str,
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session),
+    user: User = Depends(get_current_user),
     s3_service: S3SecureService = Depends(get_s3_service)
 ):
-    supertokens_user_id = session.get_user_id()
-
-    user: User | None = db.query(User).filter(
-        User.supertokens_user_id == supertokens_user_id
-    ).first()
-
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='User not found'
-        )
     
     if str(user.id) != target_user_id:
         raise HTTPException(
@@ -156,20 +132,8 @@ async def get_video_play_token(
 async def set_video_visibility(
     video_id: str,
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session)
+    user: User = Depends(get_current_user)
 ):
-    supertokens_user_id = session.get_user_id()
-
-    user: User | None = db.query(User).filter(
-        User.supertokens_user_id == supertokens_user_id
-    ).first()
-
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='User not found'
-        )
-    
     speech: Speech | None = db.query(Speech).filter(
         Speech.id == video_id,
         Speech.user_id == user.id
@@ -194,20 +158,8 @@ async def set_video_visibility(
 async def delete_video(
     video_id: str,
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session)
+    user: User = Depends(get_current_user)
 ):
-    supertokens_user_id = session.get_user_id()
-
-    user: User | None = db.query(User).filter(
-        User.supertokens_user_id == supertokens_user_id
-    ).first()
-
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='User not found'
-        )
-    
     speech: Speech | None = db.query(Speech).filter(
         Speech.id == video_id
     ).first()

@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import extract, func, select, or_, delete
 from sqlalchemy.orm import Session
 
-from ..deps import get_session, get_s3_service
+from ..deps import get_session, get_s3_service, get_current_user
 from ...db import get_db
 from ...schemas import UserDashboardResponse, ReportedVideoResponse, BanInfo, StatsResponse, StatsSummaryResponse
 from ...models import User, Friendship, UserStreak, Speech, UserDevice, UserInterest, Interest, Rating, Ban, Report, UserRole
@@ -20,21 +20,11 @@ router = APIRouter(tags=['dashboard'], prefix='/dashboard')
 @router.get("/users", response_model=list[UserDashboardResponse], status_code=status.HTTP_200_OK)
 async def get_all_users(
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session)
+    current_user: User = Depends(get_current_user)
 ):
     """Get all users for dashboard."""
     
-    supertokens_user_id = session.get_user_id()
-
-    user = db.query(User).filter(User.supertokens_user_id == supertokens_user_id).first()
-
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail="User not found"
-        )
-
-    if user.role not in (UserRole.ROOT, UserRole.ADMIN):
+    if current_user.role not in (UserRole.ROOT, UserRole.ADMIN):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, 
             detail="Not authorized to access this resource"
@@ -49,31 +39,19 @@ async def get_all_users(
                 user_role=u.role
             ) 
             for u in users
-            if u.role != UserRole.ROOT and u.id != user.id
+            if u.role != UserRole.ROOT and u.id != current_user.id
            ]
 
 @router.get("/report-reasons/{user_id}", response_model=list[str], status_code=status.HTTP_200_OK)
 async def get_report_reasons(
     user_id: UUID,
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session)
+    current_user: User = Depends(get_current_user)
 ):
     
     """Get report reasons for dashboard."""
     
-    supertokens_user_id = session.get_user_id()
-
-    print(user_id)
-
-    admin_user = db.scalar(select(User).where(User.supertokens_user_id == supertokens_user_id))
-
-    if not admin_user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail="User not found"
-        )
-
-    if admin_user.role not in (UserRole.ROOT, UserRole.ADMIN, UserRole.MOD):
+    if current_user.role not in (UserRole.ROOT, UserRole.ADMIN, UserRole.MOD):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, 
             detail="Not authorized to access this resource"
@@ -90,22 +68,12 @@ async def get_report_reasons(
 @router.get("/reported-videos", response_model=list[ReportedVideoResponse], status_code=status.HTTP_200_OK)
 async def get_reported_videos(
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session),
+    current_user: User = Depends(get_current_user),
     s3_service: S3SecureService = Depends(get_s3_service)
 ):
     """Get reported videos for dashboard."""
     
-    supertokens_user_id = session.get_user_id()
-
-    user = db.query(User).filter(User.supertokens_user_id == supertokens_user_id).first()
-
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail="User not found"
-        )
-
-    if user.role not in (UserRole.ROOT, UserRole.ADMIN, UserRole.MOD):
+    if current_user.role not in (UserRole.ROOT, UserRole.ADMIN, UserRole.MOD):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, 
             detail="Not authorized to access this resource"
@@ -126,11 +94,20 @@ async def get_reported_videos(
 
         video_url = ''
 
-        if 'youtube' not in str(speech.s3_url):
-            # Generate a presigned URL for the video
-            pass
-        elif speech.s3_url:
+        if 'youtube' in str(speech.s3_url):
             video_url = speech.s3_url
+        elif speech.s3_url:
+            try:
+                rd = s3_service.get_read_url(str(user.id), str(speech.id))
+                if isinstance(rd, dict):
+                    video_url = rd.get('download_url')
+                elif hasattr(rd, 'get'):
+                    video_url = rd.get('download_url')
+                else:
+                    video_url = getattr(rd, 'download_url', None)
+            except Exception as exc:
+                print(f"Failed to generate presigned URL for speech {speech.id}: {exc}")
+                video_url = speech.s3_url
 
         response_list.append(ReportedVideoResponse(
             video_id=speech.id,
@@ -156,21 +133,11 @@ async def ban_user(
     user_id: UUID = Body(...),
     reason: str = Body(...),
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session)
+    current_user: User = Depends(get_current_user)
 ):
     """Ban a user by admin/mod."""
     
-    supertokens_user_id = session.get_user_id()
-
-    admin_user = db.query(User).filter(User.supertokens_user_id == supertokens_user_id).first()
-
-    if not admin_user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail="User not found"
-        )
-
-    if admin_user.role not in (UserRole.ROOT, UserRole.ADMIN, UserRole.MOD):
+    if current_user.role not in (UserRole.ROOT, UserRole.ADMIN, UserRole.MOD):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, 
             detail="Not authorized to access this resource"
@@ -198,7 +165,7 @@ async def ban_user(
     
     ban_entry = Ban(
                     user_id=user_id,
-                    banned_by=admin_user.id,
+                    banned_by=current_user.id,
                     reason=reason if reason else None,
                 )
     db.add(ban_entry)
@@ -209,21 +176,11 @@ async def ban_user(
 @router.get("/bans", response_model=list[BanInfo], status_code=status.HTTP_200_OK)
 async def get_banned_users(
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session)
+    current_user: User = Depends(get_current_user)
 ):
     """Get all banned users for dashboard."""
     
-    supertokens_user_id = session.get_user_id()
-
-    admin_user = db.scalar(select(User).where(User.supertokens_user_id == supertokens_user_id))
-
-    if not admin_user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail="User not found"
-        )
-
-    if admin_user.role not in (UserRole.ROOT, UserRole.ADMIN, UserRole.MOD):
+    if current_user.role not in (UserRole.ROOT, UserRole.ADMIN, UserRole.MOD):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, 
             detail="Not authorized to access this resource"
@@ -267,21 +224,11 @@ async def get_banned_users(
 async def unban_user(
     user_id: UUID = Body(..., embed=True),
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session)
+    current_user: User = Depends(get_current_user)
 ):
     """Unban a user by admin/mod."""
     
-    supertokens_user_id = session.get_user_id()
-
-    admin_user = db.scalar(select(User).where(User.supertokens_user_id == supertokens_user_id))
-
-    if not admin_user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail="User not found"
-        )
-
-    if admin_user.role not in (UserRole.ROOT, UserRole.ADMIN, UserRole.MOD):
+    if current_user.role not in (UserRole.ROOT, UserRole.ADMIN, UserRole.MOD):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, 
             detail="Not authorized to access this resource"
@@ -302,21 +249,11 @@ async def unban_user(
 @router.get("/stats/users-by-month", response_model=StatsResponse, status_code=status.HTTP_200_OK)
 async def get_user_stats_by_month(
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session)
+    current_user: User = Depends(get_current_user)
 ):
     """Get user registration stats by month for dashboard."""
     
-    supertokens_user_id = session.get_user_id()
-
-    admin_user = db.scalar(select(User).where(User.supertokens_user_id == supertokens_user_id))
-
-    if not admin_user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail="User not found"
-        )
-
-    if admin_user.role not in (UserRole.ROOT, UserRole.ADMIN):
+    if current_user.role not in (UserRole.ROOT, UserRole.ADMIN):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, 
             detail="Not authorized to access this resource"
@@ -352,21 +289,11 @@ async def get_user_stats_by_month(
 @router.get("/stats/counts-by-topic", response_model=StatsResponse, status_code=status.HTTP_200_OK)
 async def get_speech_stats_by_month(
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session)
+    current_user: User = Depends(get_current_user)
 ):
     """Get speech counts by topic for dashboard."""
     
-    supertokens_user_id = session.get_user_id()
-
-    admin_user = db.scalar(select(User).where(User.supertokens_user_id == supertokens_user_id))
-
-    if not admin_user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail="User not found"
-        )
-
-    if admin_user.role not in (UserRole.ROOT, UserRole.ADMIN):
+    if current_user.role not in (UserRole.ROOT, UserRole.ADMIN):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, 
             detail="Not authorized to access this resource"
@@ -389,21 +316,11 @@ async def get_speech_stats_by_month(
 @router.get("/stats/speeches-this-week", response_model=StatsResponse, status_code=status.HTTP_200_OK)
 async def get_speech_stats_by_day(
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session)
+    current_user: User = Depends(get_current_user)
 ):
     """Get speech creation stats by day for the last week for dashboard."""
     
-    supertokens_user_id = session.get_user_id()
-
-    admin_user = db.scalar(select(User).where(User.supertokens_user_id == supertokens_user_id))
-
-    if not admin_user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail="User not found"
-        )
-
-    if admin_user.role not in (UserRole.ROOT, UserRole.ADMIN):
+    if current_user.role not in (UserRole.ROOT, UserRole.ADMIN):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, 
             detail="Not authorized to access this resource"
@@ -432,21 +349,11 @@ async def get_speech_stats_by_day(
 @router.get("/stats/summary", response_model=StatsSummaryResponse, status_code=status.HTTP_200_OK)
 async def get_user_count(
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session)
+    current_user: User = Depends(get_current_user)
 ):
     """Get total user count for dashboard."""
     
-    supertokens_user_id = session.get_user_id()
-
-    admin_user = db.scalar(select(User).where(User.supertokens_user_id == supertokens_user_id))
-
-    if not admin_user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail="User not found"
-        )
-
-    if admin_user.role not in (UserRole.ROOT, UserRole.ADMIN):
+    if current_user.role not in (UserRole.ROOT, UserRole.ADMIN):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, 
             detail="Not authorized to access this resource"
@@ -477,21 +384,11 @@ async def change_user_role(
     user_id: UUID = Body(...),
     new_role: UserRole = Body(...),
     db: Session = Depends(get_db),
-    session: Session = Depends(get_session)
+    current_user: User = Depends(get_current_user)
 ):
     """Update (toggle) user role to MOD/USER by admin."""
     
-    supertokens_user_id = session.get_user_id()
-
-    admin_user = db.scalar(select(User).where(User.supertokens_user_id == supertokens_user_id))
-
-    if not admin_user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail="User not found"
-        )
-
-    if admin_user.role not in (UserRole.ADMIN, UserRole.ROOT):
+    if current_user.role not in (UserRole.ADMIN, UserRole.ROOT):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, 
             detail="Not authorized to access this resource"
@@ -526,21 +423,11 @@ async def change_user_role(
 async def dismiss_reports_for_speech(
     speech_id: UUID,
     db: Session = Depends(get_db),
-    session: Session = Depends(get_session)
+    current_user: User = Depends(get_current_user)
 ):
     """Dismiss all reports for a specific speech by admin/mod."""
     
-    supertokens_user_id = session.get_user_id()
-
-    admin_user = db.scalar(select(User).where(User.supertokens_user_id == supertokens_user_id))
-
-    if not admin_user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail="User not found"
-        )
-
-    if admin_user.role not in (UserRole.ROOT, UserRole.ADMIN, UserRole.MOD):
+    if current_user.role not in (UserRole.ROOT, UserRole.ADMIN, UserRole.MOD):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, 
             detail="Not authorized to access this resource"

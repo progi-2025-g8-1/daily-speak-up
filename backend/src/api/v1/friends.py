@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Body
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_
-from ..deps import get_session, get_s3_service
+from ..deps import get_session, get_s3_service, get_current_user
 from ...schemas import FriendshipResponse, FriendRequestResponse, FriendshipStatusResponse
 from ...db import get_db
 from ...models import User, Friendship, RequestStatus,Speech, SpeechVisibility
@@ -20,20 +20,8 @@ router = APIRouter(prefix='/friend', tags=['friend'])
 async def send_friend_request(
     target_user_id: uuid.UUID = Body(..., embed=True),
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session)
+    user: User = Depends(get_current_user)
 ):
-    supertokens_user_id = session.get_user_id()
-    
-    user: User | None = db.query(User).filter(
-        User.supertokens_user_id == supertokens_user_id
-    ).first()
-
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='User not found'
-        )
-    
     # Check if target user exists
     target_user: User | None = db.query(User).filter(
         User.id == target_user_id
@@ -109,20 +97,8 @@ async def respond_to_friend_request(
     friendship_id: uuid.UUID,
     accept: bool = Body(..., embed=True),
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session)
+    user: User = Depends(get_current_user)
 ):
-    supertokens_user_id = session.get_user_id()
-    
-    user: User | None = db.query(User).filter(
-        User.supertokens_user_id == supertokens_user_id
-    ).first()
-
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='User not found'
-        )
-    
     # Find the friendship request
     friendship = db.query(Friendship).filter(
         Friendship.id == friendship_id
@@ -176,20 +152,8 @@ async def respond_to_friend_request(
 async def remove_friend(
     friend_user_id: uuid.UUID,
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session)
+    user: User = Depends(get_current_user)
 ):
-    supertokens_user_id = session.get_user_id()
-    
-    user: User | None = db.query(User).filter(
-        User.supertokens_user_id == supertokens_user_id
-    ).first()
-
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='User not found'
-        )
-    
     # Check if friend user exists
     friend_user: User | None = db.query(User).filter(
         User.id == friend_user_id
@@ -247,21 +211,9 @@ async def remove_friend(
 @router.get('/list', response_model=List[FriendshipResponse])
 async def get_friends_list(
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session),
+    user: User = Depends(get_current_user),
     s3_service: S3SecureService = Depends(get_s3_service)
 ):
-    supertokens_user_id = session.get_user_id()
-    
-    user: User | None = db.query(User).filter(
-        User.supertokens_user_id == supertokens_user_id
-    ).first()
-
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='User not found'
-        )
-    
     # Get all accepted friendships where user is either user1 or user2
     friendships = db.query(Friendship).filter(
         and_(
@@ -313,21 +265,9 @@ async def get_friends_list(
 @router.get('/requests/incoming', response_model=List[FriendRequestResponse])
 async def get_incoming_friend_requests(
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session),
+    user: User = Depends(get_current_user),
     s3_service: S3SecureService = Depends(get_s3_service)
 ):
-    supertokens_user_id = session.get_user_id()
-    
-    user: User | None = db.query(User).filter(
-        User.supertokens_user_id == supertokens_user_id
-    ).first()
-
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='User not found'
-        )
-    
     # Get pending friendships where user is NOT the requester
     friendships = db.query(Friendship).filter(
         and_(
@@ -377,21 +317,9 @@ async def get_incoming_friend_requests(
 @router.get('/requests/outgoing', response_model=List[FriendRequestResponse])
 async def get_outgoing_friend_requests(
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session),
+    user: User = Depends(get_current_user),
     s3_service: S3SecureService = Depends(get_s3_service)
 ):
-    supertokens_user_id = session.get_user_id()
-    
-    user: User | None = db.query(User).filter(
-        User.supertokens_user_id == supertokens_user_id
-    ).first()
-
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='User not found'
-        )
-    
     # Get pending friendships where user IS the requester
     friendships = db.query(Friendship).filter(
         and_(
@@ -440,20 +368,8 @@ async def get_outgoing_friend_requests(
 async def check_friendship_status(
     user_id: uuid.UUID,
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session)
+    user: User = Depends(get_current_user)
 ):
-    supertokens_user_id = session.get_user_id()
-    
-    user: User | None = db.query(User).filter(
-        User.supertokens_user_id == supertokens_user_id
-    ).first()
-
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='User not found'
-        )
-    
     # Check if target user exists
     target_user: User | None = db.query(User).filter(
         User.id == user_id
@@ -516,19 +432,10 @@ async def get_user_friends_list(
     limit: int = 50,
     offset: int = 0,
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session),
+    current_user: User = Depends(get_current_user),
     s3_service: S3SecureService = Depends(get_s3_service)
 ):
     """Get target user's friends list - requires friendship"""
-    
-    # Current user
-    supertokens_user_id = session.get_user_id()
-    current_user = db.query(User).filter(
-        User.supertokens_user_id == supertokens_user_id
-    ).first()
-    
-    if not current_user:
-        raise HTTPException(status_code=404, detail="Current user not found")
     
     # Target user
     target_user = db.query(User).filter(

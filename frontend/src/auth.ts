@@ -74,18 +74,28 @@ export async function signInWithEmailPassword(email: string, password: string) {
   }
 }
 
-export async function logout() {
-  await Session.signOut();
-  window.location.href = '/';
-}
-
 export async function isAuthenticated(): Promise<boolean> {
   return await Session.doesSessionExist();
 }
 
+let internalUserId: string | undefined = undefined;
+
 export async function getUserId(): Promise<string | undefined> {
+  if (internalUserId) {
+    return internalUserId;
+  }
+
   if (await Session.doesSessionExist()) {
-    return await Session.getUserId();
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123'}/api/v1/user/me`);
+      if (response.ok) {
+        const userData = await response.json();
+        internalUserId = userData.id;
+        return internalUserId;
+      }
+    } catch (error) {
+      console.error('Failed to fetch user ID:', error);
+    }
   }
   return undefined;
 }
@@ -98,8 +108,16 @@ export async function getAccessToken(): Promise<string | null> {
 
 export async function getUser(): Promise<any | null> {
   if (await Session.doesSessionExist()) {
-    const userId = await Session.getUserId();
-    return { id: userId };
+    const userId = await getUserId();
+    if (userId) {
+      return { id: userId };
+    }
   }
   return null;
+}
+
+export async function logout() {
+  await Session.signOut();
+  internalUserId = undefined;
+  window.location.href = '/';
 }
