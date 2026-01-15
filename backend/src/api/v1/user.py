@@ -7,7 +7,7 @@ from sqlalchemy import extract, and_, or_
 from sqlalchemy.orm import Session
 from typing import List
 
-from ..deps import get_session, get_s3_service
+from ..deps import get_session, get_s3_service, get_current_user
 from ...db import get_db
 from ...schemas import UserResponse, UserCreate, MonthlyUserVideosResponse, VideoInfo, FriendsListResponse, FriendInfo, UserInterestsResponse, NotificationSettingUpdate, PublicUserProfile
 from ...models import User, Friendship, UserStreak, Speech, UserDevice, UserInterest, Interest, Rating, Ban, Report, UserRole, RequestStatus, SpeechVisibility
@@ -62,22 +62,8 @@ async def register(
 @router.get('/me', response_model=UserResponse, status_code=status.HTTP_200_OK)
 async def me(
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session)
+    user: User = Depends(get_current_user)
 ):
-    supertokens_user_id = session.get_user_id()
-
-    user: User | None = db.query(User).filter(
-        User.supertokens_user_id == supertokens_user_id
-    ).first()
-
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='User not found'
-        )
-
-    from sqlalchemy import and_, or_
-
     friends_count = db.query(Friendship).filter(
         and_(
             or_(Friendship.user_id1 == user.id, Friendship.user_id2 == user.id),
