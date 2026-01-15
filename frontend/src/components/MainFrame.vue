@@ -39,12 +39,7 @@ const handleUploadData = (uploadMethod: string, uploadUrl: string, userId: strin
     <div
       class="w-full h-[53vh] lg:h-full flex flex-col justify-around items-center "
     >
-      <div
-        class="border-black justify-center
-                font-sans text-[1.5vw] font-semibold text-center"
-      >
-        <h1>Započnite vježbu!</h1>
-      </div>
+      <h1 class="font-sans text-4xl font-semibold text-center">Započnite vježbu!</h1>
 
       <div class="my-[5vh]">
         <RecordButton
