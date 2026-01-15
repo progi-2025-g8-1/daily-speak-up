@@ -87,6 +87,8 @@ kill:
 			echo "No process found on port $$port"; \
 		fi; \
 	done
+	docker stop $(docker ps -aq)
+	docker rm $(docker ps -aq)
 	@echo "Done!"
 
 .PHONY: setup install pip npm dev backend frontend compose down dev-rabbitmq dev-supertokens celery-worker stop-rabbitmq stop-supertokens clean-rabbitmq clean-supertokens test create-db reset-db reset-db-force drop-db kill

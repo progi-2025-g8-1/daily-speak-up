@@ -92,6 +92,7 @@ async def me(
         streak_days = max(0, int(days_delta) + 1)
 
     return UserResponse(
+        id=user.id,
         role=user.role,
         email=user.email,
         handle=user.handle,
@@ -114,29 +115,17 @@ async def get_monthly_user_videos(
     month: int,
     db: Session = Depends(get_db),
     s3_service: S3SecureService = Depends(get_s3_service),
-    session: SessionContainer = Depends(get_session)
+    requesting_user: User = Depends(get_current_user)
 ):
-    supertokens_user_id = session.get_user_id()
-
-    requesting_user: User | None = db.query(User).filter(
-        User.supertokens_user_id == supertokens_user_id
-    ).first()
-
-    if requesting_user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Requesting user not found'
-        )
-    
     # Ovdje će kasnije vjerojatno trebati proći po friendship pravilima,
     # Ako su prijatelji, vratiti listu videa koji imaju FRIENDS vidljivost (ili praznu listu ako takvih nema),
     # inače vratiti FORBIDDEN ako nisu prijatelji
-    elif str(requesting_user.supertokens_user_id) != str(user_id):
-        print(str(requesting_user.supertokens_user_id) != str(user_id))
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail='Access denied'
-        )
+    if requesting_user.id != user_id:
+        if(requesting_user.role not in [UserRole.ADMIN, UserRole.ROOT, UserRole.MOD]):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail='Access denied'
+            )
     
     if month < 1 or month > 12:
         raise HTTPException(
@@ -146,7 +135,7 @@ async def get_monthly_user_videos(
     
     # Fetch speeches and generate presigned read URLs for each available video
     speeches = db.query(Speech).filter(
-        Speech.user_id == requesting_user.id,
+        Speech.user_id == user_id,
         extract('year', Speech.created_at) == year,
         extract('month', Speech.created_at) == month
     ).all()
@@ -155,6 +144,22 @@ async def get_monthly_user_videos(
 
     for speech in speeches:
 
+        # If the video is hosted on YouTube, use the existing URL directly
+        if 'youtube' in str(speech.s3_url):
+            videos.append(
+                VideoInfo(
+                    video_id=speech.id,
+                    year=speech.created_at.year,
+                    month=speech.created_at.month,
+                    day=speech.created_at.day,
+                    caption=speech.caption,
+                    url=speech.s3_url,
+                    owner_id=speech.user_id,
+                    visibility=speech.visibility_level
+                )
+            )
+            continue
+
         if speech.s3_url is None or speech.is_cancelled:
             continue
 
@@ -162,7 +167,7 @@ async def get_monthly_user_videos(
 
         # Pre sign the S3 URL
         try:
-            rd = s3_service.get_read_url(str(requesting_user.id), str(speech.id))
+            rd = s3_service.get_read_url(str(requesting_user.id), str(speech.id), str(speech.user_id))
             if isinstance(rd, dict):
                 download_url = rd.get('download_url')
             elif hasattr(rd, 'get'):
@@ -192,22 +197,10 @@ async def get_monthly_user_videos(
 async def get_friends_list(
     user_id: UUID,
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session)
+    requesting_user: User = Depends(get_current_user)
 ):
-    supertokens_user_id = session.get_user_id()
-
-    requesting_user: User | None = db.query(User).filter(
-        User.supertokens_user_id == supertokens_user_id
-    ).first()
-
-    if requesting_user is None:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail='You must be logged in to view friends list'
-        )
-
     target_user: User | None = db.query(User).filter(
-        User.supertokens_user_id == str(user_id)
+        User.id == user_id
     ).first()
 
     if target_user is None:
@@ -242,19 +235,16 @@ async def get_friends_list(
 @router.delete('/delete', response_class=JSONResponse)
 async def delete_account(
     db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
     session: SessionContainer = Depends(get_session),
     s3_service: S3SecureService = Depends(get_s3_service)
 ):
-    supertokens_user_id = session.get_user_id()
-
-    user: User | None = db.query(User).filter(
-        User.supertokens_user_id == supertokens_user_id
-    ).first()
-
-    if user is None:
+    supertokens_user_id = user.supertokens_user_id
+    
+    if user.role == UserRole.ROOT:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='User not found'
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail='Root admin account cannot be deleted'
         )
     
     speeches = db.query(Speech).filter(Speech.user_id == user.id)
@@ -346,20 +336,8 @@ async def delete_account(
 @router.get('/interests', response_model=UserInterestsResponse)
 async def get_user_interests(
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session)
+    user: User = Depends(get_current_user)
 ):
-    supertokens_user_id = session.get_user_id()
-
-    user: User | None = db.query(User).filter(
-        User.supertokens_user_id == supertokens_user_id
-    ).first()
-
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='User not found'
-        )
-    
     interests = db.query(Interest).all()
     user_interests_db = db.query(UserInterest).filter(UserInterest.user_id == user.id).all()
 
@@ -377,21 +355,8 @@ async def get_user_interests(
 async def update_email_notifications(
     data: NotificationSettingUpdate,
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session)
+    user: User = Depends(get_current_user)
 ):
-    print(data)
-    supertokens_user_id = session.get_user_id()
-
-    user: User | None = db.query(User).filter(
-        User.supertokens_user_id == supertokens_user_id
-    ).first()
-
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='User not found'
-        )
-    
     user.email_notifications_enabled = data.enabled
     db.commit()
     db.refresh(user)
@@ -407,20 +372,8 @@ async def update_email_notifications(
 async def update_push_notifications(
     data: NotificationSettingUpdate,
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session)
+    user: User = Depends(get_current_user)
 ):
-    supertokens_user_id = session.get_user_id()
-
-    user: User | None = db.query(User).filter(
-        User.supertokens_user_id == supertokens_user_id
-    ).first()
-
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='User not found'
-        )
-    
     user.push_notifications_enabled = data.enabled
     db.commit()
     db.refresh(user)
@@ -436,20 +389,8 @@ async def update_push_notifications(
 async def update_streak_reminders(
     data: NotificationSettingUpdate,
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session)
+    user: User = Depends(get_current_user)
 ):
-    supertokens_user_id = session.get_user_id()
-
-    user: User | None = db.query(User).filter(
-        User.supertokens_user_id == supertokens_user_id
-    ).first()
-
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='User not found'
-        )
-    
     user.streak_reminders_enabled = data.enabled
     db.commit()
     db.refresh(user)
@@ -460,81 +401,6 @@ async def update_streak_reminders(
             'message': 'ok'
         }
     )
-
-@router.get("/profile/{handle}")
-async def get_user_profile_by_handle(
-    handle: str,
-    db: Session = Depends(get_db),
-    s3_service: S3SecureService = Depends(get_s3_service)
-):
-    """Get public user profile by handle - returns user_id and basic info"""
-    from sqlalchemy import func
-    
-    target_user = db.query(User).filter(
-        User.handle == handle,
-        User.deleted_at.is_(None),
-        User.anonymized_at.is_(None)
-    ).first()
-    
-    if not target_user:
-        raise HTTPException(status_code=404, detail="User not found")
-    
-    # Friend count
-    friend_count = db.query(func.count(Friendship.id)).filter(
-        and_(
-            or_(
-                Friendship.user_id1 == target_user.id,
-                Friendship.user_id2 == target_user.id
-            ),
-            Friendship.status == RequestStatus.ACCEPTED,
-            Friendship.deleted_at.is_(None)
-        )
-    ).scalar() or 0
-    
-    # Streak
-    latest_streak = db.query(UserStreak).filter(
-        UserStreak.user_id == target_user.id
-    ).order_by(UserStreak.created_at.desc()).first()
-    
-    streak_days = 0
-    if latest_streak and latest_streak.ends_at >= datetime.datetime.now(datetime.timezone.utc):
-        end_date = (
-            latest_streak.end_date 
-            if latest_streak.end_date is not None 
-            else datetime.datetime.now(datetime.timezone.utc).date()
-        )
-        start_date = latest_streak.start_date
-        days_delta = (end_date - start_date).days
-        streak_days = max(0, int(days_delta) + 1)
-    
-    # Get presigned profile picture URL
-    profile_picture_url = None
-    if target_user.profile_picture_url:
-        try:
-            photo_result = s3_service.get_photo_read_url(str(target_user.id))
-            profile_picture_url = photo_result.get('download_url')
-        except Exception as e:
-            logger.debug(f"Failed to get profile picture URL: {e}")
-    
-    # Get user interests - optimized with JOIN
-    user_interests = db.query(Interest.slug).join(
-        UserInterest, 
-        UserInterest.interest_id == Interest.id
-    ).filter(
-        UserInterest.user_id == target_user.id
-    ).all()
-    
-    # Extract slugs from query result
-    interests_list = [interest.slug for interest in user_interests]
-    
-    return {
-        "id": str(target_user.id),  
-        "handle": target_user.handle,
-        "profile_picture_url": profile_picture_url,
-        "friend_count": friend_count,
-        "current_streak": streak_days,
-        "interests": interests_list
-    }
 
 @router.get("/profile/{handle}")
 async def get_user_profile_by_handle(
@@ -616,21 +482,13 @@ async def get_user_profile_by_handle(
 @router.get("/{user_id}/videos", response_model=List[dict])
 async def get_friend_videos(
     user_id: UUID,
-    year:int  = None,
-    month:int = None,
+    year:int | None  = None,
+    month:int | None = None,
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session),
+    current_user: User = Depends(get_current_user),
     s3_service: S3SecureService = Depends(get_s3_service)
 ):
     """Get target user's friends-only videos - requires friendship"""
-    
-    supertokens_user_id = session.get_user_id()
-    current_user = db.query(User).filter(
-        User.supertokens_user_id == supertokens_user_id
-    ).first()
-    
-    if not current_user:
-        raise HTTPException(status_code=404, detail="Current user not found")
     
     target_user = db.query(User).filter(
         User.id == user_id,
@@ -691,3 +549,26 @@ async def get_friend_videos(
         })
     
     return response
+
+@router.get('/amibanned', response_model=dict)
+async def am_i_banned(
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user)
+):
+    now = datetime.datetime.now(datetime.timezone.utc)
+    
+    active_ban: Ban | None = db.query(Ban).filter(
+        Ban.user_id == user.id,
+        or_(Ban.ends_at > now, Ban.ends_at.is_(None))
+    ).first()
+
+    if active_ban is None:
+        return {
+            'banned': False
+        }
+    
+    return {
+        'banned': True,
+        'reason': active_ban.reason,
+        'expires_at': active_ban.ends_at.isoformat() if active_ban.ends_at else None
+    }

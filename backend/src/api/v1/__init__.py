@@ -9,6 +9,7 @@ from .friends import router as friends_router
 from .search import router as search_router
 from .video import router as video_router
 from .photo import router as photo_router
+from .dashboard import router as dashboard_router
 
 __all__ = [
     'health_router',
@@ -22,4 +23,5 @@ __all__ = [
     'search_router',
     'video_router',
     'photo_router',
+    'dashboard_router',
 ]

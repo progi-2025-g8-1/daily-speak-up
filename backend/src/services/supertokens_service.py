@@ -1,5 +1,5 @@
 from supertokens_python import init, InputAppInfo, SupertokensConfig
-from supertokens_python.recipe import thirdparty, passwordless, session
+from supertokens_python.recipe import thirdparty, passwordless, emailpassword, session
 from supertokens_python.recipe.thirdparty.provider import ProviderInput, ProviderConfig, ProviderClientConfig
 from supertokens_python.recipe.passwordless import ContactEmailOnlyConfig, CreateAndSendCustomEmailParameters
 from supertokens_python.ingredients.emaildelivery.types import EmailDeliveryInterface, EmailDeliveryConfig
@@ -76,6 +76,7 @@ def init_supertokens():
                     override=custom_email_deliver
                 ),
             ),
+            emailpassword.init(),
             session.init(
                 cookie_same_site="none" if settings.environment == "production" else "lax",
                 cookie_secure=True if settings.environment == "production" else False,

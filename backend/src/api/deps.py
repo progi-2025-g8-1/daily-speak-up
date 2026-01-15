@@ -13,6 +13,11 @@ from ..services.email_impl.sender import ResendEmailSender
 from ..db import get_db
 from ..models import User
 from .config import get_settings
+from fastapi import Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from ..db import get_db
+from ..models import User
+from supertokens_python.recipe.session import SessionContainer
 
 _auth_service: AuthService | None = None
 _email_service: EmailService | None = None

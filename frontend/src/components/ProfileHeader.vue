@@ -199,6 +199,8 @@ export default {
 
         if (userResponse.ok) {
           user.value = await userResponse.json();
+          localStorage.setItem('userRole', user.value.role);
+          emit('user-role', user.value.role);
         } else {
           error.value = 'Failed to fetch user data';
         }
@@ -211,11 +213,11 @@ export default {
         // Fetch incoming requests count
         await fetchIncomingRequestsCount();
       } catch (e) {
-        error.value = 'An error occurred while fetching user data';
-        console.error('User fetch error:', e);
-      } finally {
-        loading.value = false;
-      }
+          error.value = 'An error occurred while fetching user data';
+          console.error('User fetch error:', e);
+        } finally {
+          loading.value = false;
+        }
     });
 
     return {

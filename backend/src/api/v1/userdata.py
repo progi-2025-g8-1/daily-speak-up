@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends, status
-from ..deps import get_session, get_gemini_service
+from ..deps import get_session, get_gemini_service, get_current_user
 from ...models import User, Interest, UserInterest
 from ...schemas import UsernameData, EmailData, InterestData
 from sqlalchemy.orm import Session
@@ -15,20 +15,8 @@ router = APIRouter(prefix="/userdata", tags=["UserData"])
 async def set_username(
    username_data: UsernameData,
    db: Session = Depends(get_db),
-   session: SessionContainer = Depends(get_session)
+   user: User = Depends(get_current_user)
 ):
-   supertokens_user_id = session.get_user_id()
-   
-   user: User | None = db.query(User).filter(
-      User.supertokens_user_id == supertokens_user_id
-   ).first()
-
-   if user is None:
-      raise HTTPException(
-         status_code=status.HTTP_404_NOT_FOUND, 
-         detail="User not found"
-      ) 
-   
    existing_user: User | None = db.query(User).filter(
       User.handle == username_data.username, 
       User.id != user.id
@@ -56,20 +44,8 @@ async def set_username(
 async def set_email(
    email_data: EmailData,
    db: Session = Depends(get_db),
-   session: SessionContainer = Depends(get_session)
+   user: User = Depends(get_current_user)
 ):
-   supertokens_user_id = session.get_user_id()
-
-   user: User | None = db.query(User).filter(
-      User.supertokens_user_id == supertokens_user_id
-   ).first()
-
-   if user is None:
-      raise HTTPException(
-         status_code=status.HTTP_404_NOT_FOUND, 
-         detail="User not found"
-      ) 
-   
    user.email = email_data.email
 
    db.commit()
@@ -87,20 +63,8 @@ async def set_email(
 async def set_interests(
    interest_data: InterestData,
    db: Session = Depends(get_db),
-   session: SessionContainer = Depends(get_session)
+   user: User = Depends(get_current_user)
 ):
-   supertokens_user_id = session.get_user_id()
-
-   user: User | None = db.query(User).filter(
-      User.supertokens_user_id == supertokens_user_id
-   ).first()
-
-   if user is None:
-      raise HTTPException(
-         status_code=status.HTTP_404_NOT_FOUND, 
-         detail="User not found"
-      ) 
-   
    unadded_interests : list[str] = []
    added_interests : list[UserInterest] = []
    
@@ -171,21 +135,9 @@ async def set_interests(
 @router.get("/topic", response_class=JSONResponse)
 async def get_speaking_topic(
    db: Session = Depends(get_db),
-   session: SessionContainer = Depends(get_session),
+   user: User = Depends(get_current_user),
    gemini_service: GeminiService = Depends(get_gemini_service)
 ):
-   supertokens_user_id = session.get_user_id()
-
-   user: User | None = db.query(User).filter(
-      User.supertokens_user_id == supertokens_user_id
-   ).first()
-
-   if user is None:
-      raise HTTPException(
-         status_code=status.HTTP_404_NOT_FOUND, 
-         detail="User not found"
-      ) 
-   
    user_interests: list[UserInterest] = db.query(UserInterest).filter(
       UserInterest.user_id == user.id
    ).all()
