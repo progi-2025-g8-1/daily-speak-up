@@ -6,7 +6,7 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "types": ["vite/client"],
+    "types": ["vite/client", "vue-i18n"],
     
     /* Module Resolution */
     "moduleResolution": "bundler",

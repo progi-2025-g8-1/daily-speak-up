@@ -2,7 +2,9 @@
 import { ref, onMounted } from 'vue';
 import Chart from 'primevue/chart';
 import ProgressSpinner from 'primevue/progressspinner';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8123/api/v1';
 
 const chartData = ref();
@@ -62,7 +64,7 @@ const refreshStats = async () => {
                 labels: response_data.labels,
                 datasets: [
                     {
-                        label: 'Ukupno korisnika',
+                        label: t('stats.user_growth.total_users_label'),
                         data: response_data.counts,
                         fill: true,
                         backgroundColor: 'rgba(16, 185, 129, 0.1)',
@@ -91,8 +93,8 @@ defineExpose({
         <div class="flex items-center justify-between mb-4">
             <div class="flex flex-col
                         justify-center items-start">
-                <h3 class="text-lg font-semibold text-gray-800">Broj korisnika</h3>
-                <p class="text-sm text-gray-500">Mjesečne registracije korisnika</p>
+                <h3 class="text-lg font-semibold text-gray-800">{{ t('stats.user_growth.title') }}</h3>
+                <p class="text-sm text-gray-500">{{ t('stats.user_growth.subtitle') }}</p>
             </div>
         </div>
         <Chart v-if="chartData" type="line" :data="chartData" :options="chartOptions" class="h-72" />

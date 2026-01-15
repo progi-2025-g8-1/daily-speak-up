@@ -37,16 +37,16 @@ const teamSet = ref([
         <!-- Naslov + opis -->
         <div class="text-center max-w-2xl">
           <h1 class="text-3xl sm:text-4xl font-semibold tracking-tight text-dark">
-            DailySpeakUp
+            {{ $t('landing.hero_title') }}
           </h1>
           <p class="mt-8 text-base sm:text-lg text-secondary leading-relaxed">
-            U današnjem akademskom i poslovnom okruženju, mnogi se i dalje suočavaju s izazovima javnog nastupa i jasne, samouvjerene komunikacije – ključne vještine za osobni i profesionalni uspjeh.
+            {{ $t('landing.hero_subtitle_1') }}
           </p>
           <p class="mt-3 text-base text-secondary leading-relaxed">
-            DailySpeakUp nudi jednostavno i pristupačno rješenje — svakodnevne govorne izazove od jedne minute koji ti pomažu da s vremenom postaneš sigurniji i tečniji govornik.
+            {{ $t('landing.hero_subtitle_2') }}
           </p>
           <p class="mt-3 text-sm text-light leading-relaxed">
-            Bez potrebe za skupim tečajevima ili mentorima, možeš svakodnevno vježbati, pratiti vlastiti napredak i dobivati povratne informacije od zajednice koja uči i napreduje zajedno s tobom.
+            {{ $t('landing.hero_subtitle_3') }}
           </p>
         </div>
       </div>
@@ -54,51 +54,51 @@ const teamSet = ref([
 
     <!-- KAKO RADI -->
     <section class="max-w-6xl mx-auto px-6 py-14 sm:py-16">
-      <h2 class="text-2xl sm:text-3xl font-semibold text-center text-primary">Kako to izgleda u praksi</h2>
-      <p class="text-secondary text-center mt-2">Tri jednostavna koraka</p>
+      <h2 class="text-2xl sm:text-3xl font-semibold text-center text-primary">{{ $t('landing.how_it_works_title') }}</h2>
+      <p class="text-secondary text-center mt-2">{{ $t('landing.how_it_works_subtitle') }}</p>
 
       <div class="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-6">
         <div class="rounded-xl border border-light bg-card p-6 text-center">
           <div class="text-4xl">🎯</div>
-          <h3 class="mt-3 font-semibold text-lg text-dark">Odabir teme</h3>
-          <p class="mt-2 text-secondary leading-relaxed">Označi svoje interese i odaberi temu od ponuđenih opcija.</p>
+          <h3 class="mt-3 font-semibold text-lg text-dark">{{ $t('landing.step_1_title') }}</h3>
+          <p class="mt-2 text-secondary leading-relaxed">{{ $t('landing.step_1_desc') }}</p>
         </div>
         <div class="rounded-xl border border-light bg-card p-6 text-center">
           <div class="text-4xl">🎤</div>
-          <h3 class="mt-3 font-semibold text-lg text-dark">Kratko snimanje</h3>
-          <p class="mt-2 text-secondary leading-relaxed">1 minuta govora na webu ili mobitelu.</p>
+          <h3 class="mt-3 font-semibold text-lg text-dark">{{ $t('landing.step_2_title') }}</h3>
+          <p class="mt-2 text-secondary leading-relaxed">{{ $t('landing.step_2_desc') }}</p>
         </div>
         <div class="rounded-xl border border-light bg-card p-6 text-center">
           <div class="text-4xl">💬</div>
-          <h3 class="mt-3 font-semibold text-lg text-dark">Povratna informacija</h3>
-          <p class="mt-2 text-secondary leading-relaxed">Dobivaš detaljne komentare od zajednice.</p>
+          <h3 class="mt-3 font-semibold text-lg text-dark">{{ $t('landing.step_3_title') }}</h3>
+          <p class="mt-2 text-secondary leading-relaxed">{{ $t('landing.step_3_desc') }}</p>
         </div>
       </div>
     </section>
 
     <!-- BENEFITI -->
     <section class="max-w-6xl mx-auto px-6 py-14 sm:py-16">
-      <h2 class="text-2xl sm:text-3xl font-semibold text-center text-primary">Što dobiješ</h2>
+      <h2 class="text-2xl sm:text-3xl font-semibold text-center text-primary">{{ $t('landing.benefits_title') }}</h2>
       <div class="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div class="rounded-xl border border-light bg-card p-6">
           <div class="text-2xl">🗣️</div>
-          <h3 class="mt-3 font-semibold text-dark">Redovitu praksu</h3>
-          <p class="mt-2 text-secondary leading-relaxed">Svakodnevne vježbe koje stanu u jedan dan.</p>
+          <h3 class="mt-3 font-semibold text-dark">{{ $t('landing.benefit_1_title') }}</h3>
+          <p class="mt-2 text-secondary leading-relaxed">{{ $t('landing.benefit_1_desc') }}</p>
         </div>
         <div class="rounded-xl border border-light bg-card p-6">
           <div class="text-2xl">⏰</div>
-          <h3 class="mt-3 font-semibold text-dark">Mali koraci</h3>
-          <p class="mt-2 text-secondary leading-relaxed">Dovoljno je pet minuta.</p>
+          <h3 class="mt-3 font-semibold text-dark">{{ $t('landing.benefit_2_title') }}</h3>
+          <p class="mt-2 text-secondary leading-relaxed">{{ $t('landing.benefit_2_desc') }}</p>
         </div>
         <div class="rounded-xl border border-light bg-card p-6">
           <div class="text-2xl">🤖</div>
-          <h3 class="mt-3 font-semibold text-dark">Jasan feedback</h3>
-          <p class="mt-2 text-secondary leading-relaxed">Jasan i konkretan feedback za tvoj napredak.</p>
+          <h3 class="mt-3 font-semibold text-dark">{{ $t('landing.benefit_3_title') }}</h3>
+          <p class="mt-2 text-secondary leading-relaxed">{{ $t('landing.benefit_3_desc') }}</p>
         </div>
         <div class="rounded-xl border border-light bg-card p-6">
           <div class="text-2xl">🔒</div>
-          <h3 class="mt-3 font-semibold text-dark">Privatnost</h3>
-          <p class="mt-2 text-secondary leading-relaxed">Tvoje snimke i podaci su zaštićeni i neće biti dijeljeni bez tvog pristanka.</p>
+          <h3 class="mt-3 font-semibold text-dark">{{ $t('landing.benefit_4_title') }}</h3>
+          <p class="mt-2 text-secondary leading-relaxed">{{ $t('landing.benefit_4_desc') }}</p>
         </div>
       </div>
     </section>
@@ -114,7 +114,7 @@ const teamSet = ref([
           </div>
         </div>
         <div class="mt-10 text-center text-xs text-muted">
-          © {{ new Date().getFullYear() }} DailySpeakUp — Privacy • Contact • About
+          © {{ new Date().getFullYear() }} {{ $t('landing.footer_rights') }}
         </div>
       </div>
     </footer>

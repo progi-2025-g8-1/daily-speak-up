@@ -9,7 +9,7 @@ from typing import List
 
 from ..deps import get_session, get_s3_service, get_current_user
 from ...db import get_db
-from ...schemas import UserResponse, UserCreate, MonthlyUserVideosResponse, VideoInfo, FriendsListResponse, FriendInfo, UserInterestsResponse, NotificationSettingUpdate, PublicUserProfile
+from ...schemas import UserResponse, UserCreate, MonthlyUserVideosResponse, VideoInfo, FriendsListResponse, FriendInfo, UserInterestsResponse, NotificationSettingUpdate, LanguageUpdate, PublicUserProfile
 from ...models import User, Friendship, UserStreak, Speech, UserDevice, UserInterest, Interest, Rating, Ban, Report, UserRole, RequestStatus, SpeechVisibility
 from supertokens_python.recipe.session import SessionContainer
 from supertokens_python.asyncio import delete_user
@@ -393,6 +393,24 @@ async def update_streak_reminders(
             'message': 'ok'
         }
     )
+
+    @router.put('/preferred-language', response_class=JSONResponse)
+    async def update_preferred_language(
+        data: LanguageUpdate,
+        db: Session = Depends(get_db),
+        user: User = Depends(get_current_user)
+    ):
+        """Update the user's preferred application language."""
+        user.preferred_lang = data.lang
+        db.commit()
+        db.refresh(user)
+
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                'message': 'ok'
+            }
+        )
 
 @router.get("/profile/{handle}")
 async def get_user_profile_by_handle(

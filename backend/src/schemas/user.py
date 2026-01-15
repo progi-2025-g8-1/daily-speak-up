@@ -56,6 +56,9 @@ class UserInterestsResponse(BaseModel):
 class NotificationSettingUpdate(BaseModel):
     enabled: bool
 
+class LanguageUpdate(BaseModel):
+    lang: AppLang
+
 class PublicUserProfile(BaseModel):
     id: UUID
     handle: str

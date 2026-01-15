@@ -120,7 +120,7 @@
             </template>
         </Card>
 
-        <Button v-if="showDashboardButton" icon="pi pi-sliders-h" label="Kontrolna ploča" class="w-full mt-[2vh]" :onClick="goToDashboard"  />
+        <Button v-if="showDashboardButton" icon="pi pi-sliders-h" :label="$t('profile.dashboard_button')" class="w-full mt-[2vh]" :onClick="goToDashboard"  />
 
         <DatePicker inline class="mt-[2vh] w-full" @date-select="handleSelectedDate" @month-change="handleMonthChange" :key="calendarKey">
           <template #date="{ date }">
@@ -135,12 +135,12 @@
 
            <template #footer>
                 <div class="p-3 text-sm text-gray-500">
-                    Odaberite datum za pregled Vaših snimljenih govora.
+                    {{ $t('profile.select_date_me') }}
                 </div>
             </template>
         </DatePicker>
 
-        <Message severity="error" class="mt-[2vh]" v-if="showErrorMessage">Ne postoje snimljeni govori za odabrani datum.</Message>
+        <Message severity="error" class="mt-[2vh]" v-if="showErrorMessage">{{ $t('profile.no_speeches') }}</Message>
     </div>
 </template>
 

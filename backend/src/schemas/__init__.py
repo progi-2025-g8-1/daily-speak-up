@@ -3,7 +3,7 @@ from .friendship import FriendshipResponse, FriendRequestResponse, FriendshipSta
 from .search import UserSearchFilters, UserSearchResult
 from .topic import TopicRequest, TopicResponse
 from .upload import UploadRequestResponse, VideoReadResponse
-from .user import UserCreate, UserResponse, MonthlyUserVideosResponse, VideoInfo, FriendsListResponse, FriendInfo, UserInterestsResponse, NotificationSettingUpdate, PublicUserProfile
+from .user import UserCreate, UserResponse, MonthlyUserVideosResponse, VideoInfo, FriendsListResponse, FriendInfo, UserInterestsResponse, NotificationSettingUpdate, LanguageUpdate, PublicUserProfile
 from .userdata import UsernameData, EmailData, InterestData
 from .dashboard import UserDashboardResponse, ReportedVideoResponse, BanInfo, StatsResponse, StatsSummaryResponse
 
@@ -29,6 +29,7 @@ __all__ = [
     'FriendInfo',
     'UserInterestsResponse',
     'NotificationSettingUpdate',
+    'LanguageUpdate',
     'PublicUserProfile',
     'UserDashboardResponse',
     'BanInfo',

@@ -1,7 +1,7 @@
 <template>
   <div>
     <Button 
-      label="Sign in with Google" 
+      :label="$t('login.continue_google')" 
       icon="pi pi-google" 
       @click="handleGoogleLogin"
       :loading="loading"

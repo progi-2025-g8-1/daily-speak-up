@@ -37,19 +37,19 @@
             <template #content>
                 <div class="flex justify-center items-center gap-4">
                     <span class="pi pi-chevron-circle-left cursor-pointer" style="font-size: 2.5vw;" v-on:click="handleBack"></span>
-                    <h2 class="font-semibold text-3xl">Popis prijatelja</h2>
+                    <h2 class="font-semibold text-3xl">{{ $t('friends.title') }}</h2>
                 </div>
             </template>
         </Card>
         <Card v-if="friendsList.length === 0" class="w-full mt-[2vh]">
             <template #content>
                 <ProgressSpinner style="width: 4rem; height: 4rem;" />
-                <div class="mt-4 text-gray-500">Učitavanje prijatelja...</div>
+                <div class="mt-4 text-gray-500">{{ $t('friends.loading') }}</div>
             </template>
         </Card>
         <Card v-else-if="friendsList.length === 0" class="mt-[2vh]">
             <template #content>
-                Nema prijatelja za prikazati.
+                {{ $t('friends.empty') }}
             </template>
         </Card>
         <Card v-else class="w-full h-[86vh] mt-[2vh]">

@@ -1,5 +1,8 @@
 <script setup>
 import { ref, onBeforeUnmount } from "vue";
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n(); 
 
 const props = defineProps({
   interes: {
@@ -113,7 +116,7 @@ const generateTopic = async () => {
     }
   } catch (error) {
     console.error("[RecordButton] Error starting video session:", error);
-    alert("Greška pri pokretanju sesije snimanja. Provjerite vezu ili pokušajte ponovno.");
+    alert(t('recorder.error_start'));
   } finally {
     clearInterval(progressIntervalId);
     isGeneratingTopic.value = false;

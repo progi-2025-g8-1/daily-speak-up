@@ -5,7 +5,9 @@ import { useToast } from 'primevue/usetoast';
 import ProgressSpinner from 'primevue/progressspinner';
 import { VideoConstraints } from "../AV_settings/video_constraints";
 import { AudioConstraints } from "../AV_settings/audio_constraints";
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const toast = useToast();
 const emit = defineEmits(['recording-finished']);
 const RECORDING_DURATION = 60000;
@@ -224,8 +226,8 @@ async function stopRecording() {
   
   toast.add({
     severity: 'success',
-    summary: 'Uspješno snimljeno!',
-    detail: 'Vaš DailySpeakUp je pohranjen! 🎉',
+    summary: t('recorder.success_title'),
+    detail: t('recorder.success_msg'),
     life: TOAST_DISPLAY_DURATION
   });
 }
@@ -253,17 +255,17 @@ defineExpose({
     :pt="{ mask: { class: isFadingOut ? 'fade-out' : '' } }"
   >
     <div v-if="isLoadingCamera" class="w-full text-center py-8 px-8">
-      <h2 class="pb-2 mb-8 text-2xl font-bold">📖 Vaša tema:</h2>
+      <h2 class="pb-2 mb-8 text-2xl font-bold">{{ $t('recorder.topic') }}</h2>
       <h2 class="mb-4 text-lg font-bold">{{ speechTopic }} ({{ speechInterest }})</h2>
       <br />
       <ProgressSpinner />
       <br />
-      <p class="text-lg font-bold">Dohvaćanje kamere... </p>
+      <p class="text-lg font-bold">{{ $t('recorder.camera_loading') }} </p>
     </div>
 
     <div v-if="isPreCountdown || showRecording" class="w-full">
-      <h1 class="pb-2 mb-1">🎥 {{ isPreCountdown ? 'Snimanje za...' : 'SpeakUp!' }}</h1>
-      <p class="mb-4 text-lg font-bold">📖 Vaša tema: {{ speechTopic }} ({{ speechInterest }})</p>
+      <h1 class="pb-2 mb-1">🎥 {{ isPreCountdown ? $t('recorder.recording_in') : $t('recorder.speakup') }}</h1>
+      <p class="mb-4 text-lg font-bold">{{ $t('recorder.topic') }} {{ speechTopic }} ({{ speechInterest }})</p>
       <div class="!flex flex-col justify-center items-center relative inline-block w-full">
         <div class="rounded-2xl overflow-hidden w-[70vw] lg:w-[65vh]">
           <video

@@ -28,7 +28,7 @@
                 <span class="text-2xl font-bold text-dark">{{ displayUser.streak || displayUser.current_streak || 0 }}</span>
                 <span class="pi pi-sparkles font-xl"></span>
               </div>
-              <span class="text-xs text-gray-600">streak</span>
+              <span class="text-xs text-gray-600">{{ $t('profile.header.streak') }}</span>
             </div>
             <div class="flex flex-col items-start">
               <div 
@@ -39,7 +39,7 @@
                 <span class="text-2xl font-bold text-dark">{{ displayUser.friends_count || displayUser.friend_count || 0 }}</span>
                 <span class="pi pi-users font-xl"></span>
               </div>
-              <span class="text-xs text-gray-600">prijatelji</span>
+              <span class="text-xs text-gray-600">{{ $t('profile.header.friends') }}</span>
             </div>
           </div>
         </div>
@@ -49,7 +49,7 @@
       <div v-if="shouldShowInterests" class="w-full">
         <h3 class="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
           <i class="pi pi-heart"></i>
-          Interesi
+          {{ $t('profile.header.interests') }}
         </h3>
         <div v-if="interests.length > 0" class="flex flex-wrap gap-2">
           <Chip 
@@ -60,7 +60,7 @@
           />
         </div>
         <p v-else class="text-sm text-gray-500 italic">
-          Nema dodanih interesa
+          {{ $t('profile.header.no_interests') }}
         </p>
       </div>
     </div>
@@ -78,6 +78,7 @@ import Avatar from 'primevue/avatar';
 import Chip from 'primevue/chip';
 import ProgressSpinner from 'primevue/progressspinner';
 import Message from 'primevue/message';
+import { useI18n } from 'vue-i18n';
 
 export default {
   components: {
@@ -101,6 +102,7 @@ export default {
     }
   },
   setup(props, { emit }) {
+    const { t } = useI18n();
     const user = ref(null);
     const userId = ref('');
     const loading = ref(true);
@@ -177,7 +179,7 @@ export default {
           localStorage.setItem('userRole', user.value.role);
           emit('user-role', user.value.role);
         } else {
-          error.value = 'Failed to fetch user data';
+          error.value = t('profile.error_fetch');
         }
 
         if (interestsResponse.ok) {
@@ -186,7 +188,7 @@ export default {
         }
 
       } catch (e) {
-          error.value = 'An error occurred while fetching user data';
+          error.value = t('profile.error_generic');
           console.error('User fetch error:', e);
         } finally {
           loading.value = false;

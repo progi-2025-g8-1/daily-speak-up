@@ -7,7 +7,9 @@
     import Popover from 'primevue/popover';
     import { useConfirm } from "primevue/useconfirm";
     import Skeleton from 'primevue/skeleton';
+    import { useI18n } from 'vue-i18n';
 
+    const { t } = useI18n();
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8123/api/v1';
     const confirm = useConfirm();
 
@@ -78,11 +80,11 @@
     const confirmUnban = (userId: string, userHandle: string) => {
         console.log('Attempting to unban user with ID:', userId);
         confirm.require({
-            message: `Jeste li sigurni da želite poništiti zabranu korisnika @${userHandle}?`,
-            header: 'Potvrda poništavanja zabrane',
+            message: `${t('admin_dashboard.bans.confirm_unban.message')} @${userHandle}?`,
+            header: t('admin_dashboard.bans.confirm_unban.header'),
             icon: 'pi pi-exclamation-triangle',
-            acceptProps: { label: 'Poništi zabranu', icon: 'pi pi-check' },
-            rejectProps: { label: 'Odustani', icon: 'pi pi-times' },
+            acceptProps: { label: t('admin_dashboard.bans.confirm_unban.accept'), icon: 'pi pi-check' },
+            rejectProps: { label: t('admin_dashboard.bans.confirm_unban.reject'), icon: 'pi pi-times' },
             accept: async () => {
                 const response = await fetch(`${API_BASE_URL}/dashboard/unban-user`, {
                     method: 'POST',
@@ -124,8 +126,11 @@
     <div class="datatable-container h-full" >
         <DataTable :value="bans"         
                     paginator :rows="rowsPerPage"
+                    :pt="{
+                        headerRow: { class: 'text-sm md:text-base lg:text-lg' }
+                    }"
                     paginatorTemplate="FirstPageLink PageLinks LastPageLink JumpToPageInput CurrentPageReport">
-            <Column field="banned_user.handle" header="Korisnik">
+            <Column field="banned_user.handle" :header="t('admin_dashboard.bans.table.user')">
                 <template #body="slotProps">
                     <Skeleton v-if="isLoading" height="2rem" />
                     <div v-else class="flex flex-row
@@ -149,7 +154,7 @@
                 </template>
             </Column>
             <Column field="banned_by.handle" 
-                    header="Uručitelj zabrane"
+                    :header="t('admin_dashboard.bans.table.banned_by')"
                     class="max-lg:hidden">
                 <template #body="slotProps">
                     <Skeleton v-if="isLoading" height="2rem" />
@@ -171,14 +176,14 @@
                 </template>
             </Column>
             <Column field="ban_reason" 
-                    header="Razlog zabrane"
+                    :header="t('admin_dashboard.bans.table.reason')"
                     class="max-lg:hidden">
                 <template #body="slotProps">
                     <Skeleton v-if="isLoading" height="2rem" />
                     <span v-else>{{ slotProps.data.ban_reason }}</span>
                 </template>
             </Column>
-            <Column header="Detalji"
+            <Column :header="t('admin_dashboard.bans.table.details')"
                     class="lg:hidden">
                 <template #body="slotProps">
                     <Skeleton v-if="isLoading" shape="circle" size="2rem" />
@@ -198,7 +203,7 @@
                     </div>
                 </template>
             </Column>
-            <Column header="Poništi zabranu">
+            <Column :header="t('admin_dashboard.bans.table.unban')">
                 <template #body="slotProps">
                     <Skeleton v-if="isLoading" shape="circle" size="2rem" />
                     <div v-else class="flex flex-row 
@@ -225,7 +230,7 @@
 
                 <div class="font-semibold
                             mb-2">
-                    Zabranu je uručio:
+                    {{ t('admin_dashboard.bans.popover.banned_by') }}
                 </div>
 
                 <div class="flex flex-row 
@@ -251,7 +256,7 @@
                 </div>
 
                 <div>
-                    <span class="font-semibold">Razlog zabrane:</span>
+                    <span class="font-semibold">{{ t('admin_dashboard.bans.popover.reason') }}</span>
                     <p>{{ banReason }}</p>
                 </div>
             </div>

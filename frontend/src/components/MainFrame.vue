@@ -43,7 +43,7 @@ const handleUploadData = (uploadMethod: string, uploadUrl: string, userId: strin
         class="border-black justify-center
                 font-sans text-[1.5vw] font-semibold text-center"
       >
-        <h1>Započnite vježbu!</h1>
+        <h1>{{ $t('main.start_exercise') }}</h1>
       </div>
 
       <div class="my-[5vh]">
@@ -57,21 +57,20 @@ const handleUploadData = (uploadMethod: string, uploadUrl: string, userId: strin
       </div>
 
       <div>
-        <Fieldset legend="Tema za govor" 
+        <Fieldset :legend="$t('main.speech_topic_title')" 
         :toggleable="true"
         :pt="{
           legendLabel: { style: 'color: #000000 !important' }
           }" 
         >
           <p class="m-0 font-bold" v-if="interest">
-            Interes: {{ interest }}
+            {{ $t('main.interest_label') }} {{ interest }}
           </p>
           <p class="m-0" v-if="topic">
             {{ topic }}
           </p>
           <p class="m-0" v-else>
-            Vaša će se tema za govor pojaviti ovdje nakon što pritisnete gumb
-            za snimanje.
+            {{ $t('main.topic_placeholder') }}
           </p>
         </Fieldset>
       </div>

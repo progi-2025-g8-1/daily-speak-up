@@ -5,6 +5,9 @@
     import SpeedDial from 'primevue/speeddial';
     import type { ReportInfo } from '../types/report-info';
     import ScrollPanel from 'primevue/scrollpanel';
+    import { useI18n } from 'vue-i18n';
+
+    const { t } = useI18n();
     
     const props = defineProps<{ reportInfo: ReportInfo }>();
     const emit = defineEmits<{
@@ -19,9 +22,9 @@
         return url.includes('youtube.com') || url.includes('youtu.be');
     });
 
-    const items = ref([
+    const items = computed(() => [
         {
-            label: 'Upute',
+            label: t('report_frame.menu.instructions'),
             icon: 'pi pi-question',
             severity: 'contrast',
             class: '!bg-gray-200/50',
@@ -30,7 +33,7 @@
             }
         },
         {
-            label: 'Obriši prijavu',
+            label: t('report_frame.menu.dismiss'),
             icon: 'pi pi-angle-double-left',
             class: '!bg-purple-200/50',
             severity: 'help',
@@ -39,7 +42,7 @@
             }
         },
         {
-            label: 'Obriši video',
+            label: t('report_frame.menu.delete'),
             icon: 'pi pi-delete-left',
             class: '!bg-orange-200/50',
             severity: 'warn',
@@ -48,7 +51,7 @@
             }
         },
         {
-            label: 'Uruči zabranu',
+            label: t('report_frame.menu.ban'),
             icon: 'pi pi-times',
             severity: 'danger',
             class: '!bg-red-200/50',
@@ -155,7 +158,7 @@
                                 rounded
                                 variant="outlined"
                                 :severity="item.severity"
-                                :onClick="item.command"
+                                @click="item.command && item.command({ originalEvent: $event, item: item })"
                                 :pt="{ root: { class: item.class } }"
                                 v-tooltip.left="item.label" />
 
@@ -207,14 +210,14 @@
                                 md:text-sm 
                                 text-xs">
                         <p>
-                            <span class="font-semibold">Opis videa:</span>
+                            <span class="font-semibold">{{ t('report_frame.video_description') }}</span>
                             {{ props.reportInfo.caption }}
                         </p>
 
                         <hr class="my-2" />
 
                         <div>
-                            <span class="font-semibold">Razlozi prijave:</span>
+                            <span class="font-semibold">{{ t('report_frame.report_reasons') }}</span>
                             <br />
                             <ul class="list-disc pl-5">
                                 <li v-for="(reason, index) in props.reportInfo.report_reasons" :key="index">
@@ -229,25 +232,25 @@
                                 md:flex md:flex-col 
                                 justify-start items-start 
                                 gap-3 w-full">
-                            <Button label="Obriši prijavu" 
+                            <Button :label="t('report_frame.menu.dismiss')" 
                                     icon="pi pi-angle-double-left" 
                                     severity="help" 
                                     variant="outlined" 
-                                    :onClick="showConfirmDismissReportDialog"
+                                    @click="showConfirmDismissReportDialog"
                                     class="w-full"
                                     :pt="{ label: { class: 'text-sm' } }" />
-                            <Button label="Obriši video" 
+                            <Button :label="t('report_frame.menu.delete')" 
                                     icon="pi pi-delete-left" 
                                     severity="warn" 
                                     variant="outlined" 
-                                    :onClick="showConfirmDeleteVideoDialog"
+                                    @click="showConfirmDeleteVideoDialog"
                                     class="w-full" 
                                     :pt="{ label: { class: 'text-sm' } }" />
-                            <Button label="Uruči zabranu" 
+                            <Button :label="t('report_frame.menu.ban')" 
                                     icon="pi pi-times" 
                                     severity="danger" 
                                     variant="outlined"
-                                    :onClick="showConfirmBanDialog" 
+                                    @click="showConfirmBanDialog" 
                                     class="w-full shadow-inner-sm"
                                     :pt="{ label: { class: 'text-sm' } }" />
                     </div>

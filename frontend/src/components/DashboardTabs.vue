@@ -60,28 +60,28 @@
             <Tab v-if="showAdminTabs" value="0">
                 <div :class="['hover:text-blue-600 transition-colors', activeTab === '0' ? 'text-blue-600 font-semibold' : '']">
                     <span class="pi pi-users mr-3"></span>
-                    <span>Korisnici</span>
+                    <span>{{ $t('dashboard.tabs.users') }}</span>
                 </div>
             </Tab>
             
             <Tab value="1">
                 <div :class="['hover:text-amber-600 transition-colors', activeTab === '1' ? 'text-amber-600 font-semibold' : '']">
                     <span class="pi pi-flag mr-3"></span>
-                    <span>Prijavljeni videozapisi</span>
+                    <span>{{ $t('dashboard.tabs.reported_videos') }}</span>
                 </div>
             </Tab>
             
             <Tab value="2">
                 <div :class="['hover:text-red-600 transition-colors', activeTab === '2' ? 'text-red-600 font-semibold' : '']">
                     <span class="pi pi-ban mr-3"></span>
-                    <span>Uručene zabrane</span>
+                    <span>{{ $t('dashboard.tabs.bans') }}</span>
                 </div>
             </Tab>
             
             <Tab v-if="showAdminTabs" value="3">
                 <div :class="['hover:text-purple-600 transition-colors', activeTab === '3' ? 'text-purple-600 font-semibold' : '']">
                     <span class="pi pi-chart-pie mr-3"></span>
-                    <span>Statistika</span>
+                    <span>{{ $t('dashboard.tabs.stats') }}</span>
                 </div>
             </Tab>
         </TabList>

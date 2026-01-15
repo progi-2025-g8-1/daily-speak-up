@@ -4,7 +4,9 @@ import { api } from '../api'
 import InputText from 'primevue/inputtext'
 import Button from 'primevue/button'
 import InlineMessage from 'primevue/inlinemessage'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const emit = defineEmits<{(e:'done'): void}>()
 const name = ref('')
 const handle = ref('')
@@ -56,36 +58,36 @@ async function submit() {
 <template>
   <form class="space-y-6" @submit.prevent="submit">
     <div class="mb-6">
-      <h2 class="text-2xl font-bold mb-2 text-primary">Postavite svoj profil</h2>
-      <p class="text-secondary">Recite nam nešto o sebi</p>
+      <h2 class="text-2xl font-bold mb-2 text-primary">{{ t('onboarding.phase1.title') }}</h2>
+      <p class="text-secondary">{{ t('onboarding.phase1.subtitle') }}</p>
     </div>
 
     <!-- Name Field -->
     <div class="space-y-2">
       <label for="name" class="block text-sm font-semibold text-dark">
-        Ime <span style="color: var(--color-error);">*</span>
+        {{ t('onboarding.phase1.name_label') }} <span style="color: var(--color-error);">*</span>
       </label>
       <InputText 
         id="name"
         v-model="name" 
-        placeholder="Unesite svoje ime"
+        :placeholder="t('onboarding.phase1.name_placeholder')"
         class="w-full"
         required
         :disabled="submitting"
       />
-      <small class="text-light">Vaše puno ime ili ime koje želite koristiti</small>
+      <small class="text-light">{{ t('onboarding.phase1.name_hint') }}</small>
     </div>
 
     <!-- Handle Field -->
     <div class="space-y-2">
       <label for="handle" class="block text-sm font-semibold text-dark">
-        Korisničko ime (handle) <span style="color: var(--color-error);">*</span>
+        {{ t('onboarding.phase1.handle_label') }} <span style="color: var(--color-error);">*</span>
       </label>
       <div class="relative">
         <InputText 
           id="handle"
           v-model="handle" 
-          placeholder="npr. john_doe123"
+          :placeholder="t('onboarding.phase1.handle_placeholder')"
           class="w-full"
           required
           pattern="^[a-z0-9_]{3,20}$"

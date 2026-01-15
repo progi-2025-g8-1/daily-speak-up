@@ -57,8 +57,8 @@ async function save() {
 <template>
   <div class="space-y-6">
     <div class="mb-6">
-      <h2 class="text-2xl font-bold mb-2 text-primary">Odaberite svoje interese</h2>
-      <p class="text-secondary">Izaberite teme koje vas zanimaju (odaberite najmanje 1)</p>
+      <h2 class="text-2xl font-bold mb-2 text-primary">{{ $t('onboarding.phase2.title') }}</h2>
+      <p class="text-secondary">{{ $t('onboarding.phase2.subtitle') }}</p>
     </div>
 
     <!-- Loading State -->
@@ -70,7 +70,7 @@ async function save() {
     <div v-else class="space-y-4">
       <!-- Selected Count -->
       <div v-if="selectedCount > 0" class="flex items-center gap-2">
-        <Chip :label="`${selectedCount} odabrano`" class="bg-accent text-primary" />
+        <Chip :label="`${selectedCount} ${$t('onboarding.phase2.selected')}`" class="bg-accent text-primary" />
       </div>
 
       <!-- Interest Buttons -->
