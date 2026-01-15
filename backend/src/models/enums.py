@@ -16,6 +16,7 @@ class UserRole(str, Enum):
     USER = 'user'
     MOD = 'mod'
     ADMIN = 'admin'
+    ROOT = 'root'
 
 class OnboardingStatus(str, Enum):
     """Onboarding status options."""

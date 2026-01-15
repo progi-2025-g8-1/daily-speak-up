@@ -15,6 +15,7 @@ class UserCreate(BaseModel):
     name: str | None = None
 
 class UserResponse(BaseModel):
+    id: UUID
     role: UserRole
     email: str
     handle: str

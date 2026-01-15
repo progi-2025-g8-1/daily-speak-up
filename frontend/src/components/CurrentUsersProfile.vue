@@ -3,16 +3,22 @@
     import ProfileHeader from './ProfileHeader.vue';  
     import Card from 'primevue/card';
   
+    import Button from 'primevue/button';
     import DatePicker from 'primevue/datepicker';
     import Message from 'primevue/message';
     import { getUserId } from'../auth';
+    import { useRouter } from 'vue-router';
 
     const emits = defineEmits(['date-selected', 'show-friends']);
+
+    const router = useRouter();
 
     const showErrorMessage = ref(false)
     const eventDates = ref([]); 
     const calendarKey = ref(0);
     let videoInfoList = ref([]);
+    const showDashboardButton = ref(false);
+    const userRole = ref(null);
 
     const hasEvent = (day) => {
       return eventDates.value.includes(day);
@@ -26,6 +32,16 @@
 
     const handleShowFriends = (userId) => {
       emits('show-friends', userId);
+    };
+
+    const setUserRole = (role) => {
+      userRole.value = role;
+      console.log('User role set to:', role);
+      showDashboardButton.value = (role === import.meta.env.VITE_ADMIN_ROLE || role === import.meta.env.VITE_MODERATOR_ROLE || role === import.meta.env.VITE_ROOT_ROLE);
+    };
+
+    const goToDashboard = () => {
+      router.push('/dashboard');
     };
 
     const handleSelectedDate = (date) => {
@@ -100,9 +116,11 @@
     <div class="flex flex-col items-center w-[93%]">
         <Card class="w-full mt-[2vh]">
             <template #content>
-                <ProfileHeader @show-friends="handleShowFriends" />
+                <ProfileHeader @show-friends="handleShowFriends" @user-role="setUserRole"/>
             </template>
         </Card>
+
+        <Button v-if="showDashboardButton" icon="pi pi-sliders-h" label="Kontrolna ploča" class="w-full mt-[2vh]" :onClick="goToDashboard"  />
 
         <DatePicker inline class="mt-[2vh] w-full" @date-select="handleSelectedDate" @month-change="handleMonthChange" :key="calendarKey">
           <template #date="{ date }">
@@ -122,7 +140,7 @@
             </template>
         </DatePicker>
 
-        <Message severity="error" class="mt-[4vh]" v-if="showErrorMessage">Ne postoje snimljeni govori za odabrani datum.</Message>
+        <Message severity="error" class="mt-[2vh]" v-if="showErrorMessage">Ne postoje snimljeni govori za odabrani datum.</Message>
     </div>
 </template>
 

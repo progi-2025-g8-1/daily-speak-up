@@ -58,11 +58,15 @@ class CloudflareR2Service(S3SecureService):
             "method": "PUT"
         }
 
-    def get_read_url(self, user_id: str, video_id: str) -> Dict[str, Any]:
+    def get_read_url(self, user_id: str, video_id: str, video_owner_id: str | None = None) -> Dict[str, Any]:
         """
         Generates a presigned GET URL for reading/downloading a video from R2.
+        :param user_id: The ID of the user requesting the video (not used for key construction if owner is specified, but kept for interface consistency)
+        :param video_id: The ID of the video
+        :param video_owner_id: The ID of the user who owns the video. If None, assumes user_id is the owner.
         """
-        key = f"video/{user_id}/{video_id}.mp4"
+        target_user_id = video_owner_id if video_owner_id else user_id
+        key = f"video/{target_user_id}/{video_id}.mp4"
         
         presigned_url = self.s3_client.generate_presigned_url(
             ClientMethod='get_object',

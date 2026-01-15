@@ -1,6 +1,7 @@
 import Session from 'supertokens-web-js/recipe/session';
 import ThirdParty from 'supertokens-web-js/recipe/thirdparty';
 import Passwordless from 'supertokens-web-js/recipe/passwordless';
+import EmailPassword from 'supertokens-web-js/recipe/emailpassword';
 
 export async function signInWithGoogle() {
   try {
@@ -51,18 +52,50 @@ export async function resendPasswordlessCode() {
   }
 }
 
-export async function logout() {
-  await Session.signOut();
-  window.location.href = '/';
+export async function signInWithEmailPassword(email: string, password: string) {
+  try {
+    const response = await EmailPassword.signIn({
+      formFields: [
+        { id: 'email', value: email },
+        { id: 'password', value: password }
+      ]
+    });
+    
+    if (response.status === 'OK') {
+      return response;
+    } else if (response.status === 'WRONG_CREDENTIALS_ERROR') {
+      throw new Error('Invalid email or password');
+    } else {
+      throw new Error('Sign in failed');
+    }
+  } catch (err) {
+    console.error('Error signing in with email/password:', err);
+    throw err;
+  }
 }
 
 export async function isAuthenticated(): Promise<boolean> {
   return await Session.doesSessionExist();
 }
 
+let internalUserId: string | undefined = undefined;
+
 export async function getUserId(): Promise<string | undefined> {
+  if (internalUserId) {
+    return internalUserId;
+  }
+
   if (await Session.doesSessionExist()) {
-    return await Session.getUserId();
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123'}/api/v1/user/me`);
+      if (response.ok) {
+        const userData = await response.json();
+        internalUserId = userData.id;
+        return internalUserId;
+      }
+    } catch (error) {
+      console.error('Failed to fetch user ID:', error);
+    }
   }
   return undefined;
 }
@@ -75,8 +108,16 @@ export async function getAccessToken(): Promise<string | null> {
 
 export async function getUser(): Promise<any | null> {
   if (await Session.doesSessionExist()) {
-    const userId = await Session.getUserId();
-    return { id: userId };
+    const userId = await getUserId();
+    if (userId) {
+      return { id: userId };
+    }
   }
   return null;
+}
+
+export async function logout() {
+  await Session.signOut();
+  internalUserId = undefined;
+  window.location.href = '/';
 }

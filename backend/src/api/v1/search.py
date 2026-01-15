@@ -5,7 +5,7 @@ from supertokens_python.recipe.session import SessionContainer
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_, func
-from ..deps import get_session, get_s3_service
+from ..deps import get_session, get_s3_service, get_current_user
 from ...schemas import UserSearchResult
 from ...db import get_db
 from ...models import User, Friendship, RequestStatus, UserRole
@@ -24,7 +24,7 @@ async def search_users(
     only_users: bool | None = Query(default=None, description="Filter by regular user role"),
     limit: int = Query(default=20, ge=1, le=100, description="Maximum number of results"),
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session),
+    current_user: User = Depends(get_current_user),
     s3_service: S3SecureService = Depends(get_s3_service)
 ):
     """
@@ -39,18 +39,6 @@ async def search_users(
     
     Admins will see additional fields: email, role, created_at
     """
-    supertokens_user_id = session.get_user_id()
-    
-    current_user: User | None = db.query(User).filter(
-        User.supertokens_user_id == supertokens_user_id
-    ).first()
-
-    if current_user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='User not found'
-        )
-    
     is_admin = current_user.role == UserRole.ADMIN
     
     # Build base query - search by handle or email (case-insensitive)

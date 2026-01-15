@@ -3,7 +3,8 @@ from supertokens_python.recipe.session import SessionContainer
 
 from ...schemas import TopicRequest, TopicResponse
 from ...services.gemini_service import GeminiService
-from ..deps import get_gemini_service, get_session
+from ..deps import get_gemini_service, get_session, get_current_user
+from ...models import User
 
 router = APIRouter(prefix='/topics', tags=['Topics'])
 
@@ -16,7 +17,7 @@ router = APIRouter(prefix='/topics', tags=['Topics'])
 async def generate_topic(
     request: TopicRequest,
     gemini_service: GeminiService = Depends(get_gemini_service),
-    session: SessionContainer = Depends(get_session)
+    user: User = Depends(get_current_user)
 ):
     try:
         tema = await gemini_service.generate_topic(request.interes, request.lang)

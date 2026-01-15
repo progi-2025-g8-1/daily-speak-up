@@ -67,6 +67,18 @@ class Settings(BaseSettings):
     @property
     def CELERY_RESULT_BACKEND(self) -> str:
         return getenv('CELERY_RESULT_BACKEND', 'rpc://')
+    
+    @property
+    def ROOT_ADMIN_EMAIL(self) -> str:
+        return getenv('ROOT_ADMIN_EMAIL', 'admin@dailyspeak.app')
+    
+    @property
+    def ROOT_ADMIN_PASSWORD(self) -> str:
+        return getenv('ROOT_ADMIN_PASSWORD', '')
+    
+    @property
+    def ROOT_ADMIN_HANDLE(self) -> str:
+        return getenv('ROOT_ADMIN_HANDLE', 'DSU_root_admin')
         
     @property
     def RESEND_API_KEY(self) -> str:
