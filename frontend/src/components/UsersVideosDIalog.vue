@@ -23,7 +23,7 @@
     const year = ref<number>(new Date().getFullYear());
     const videos = ref<any[]>([]);
 
-    const handleDateChange = async (date: Date | null) => {
+    const handleDateChange = async (date: any) => {
         chosenMonth.value = date;
         month.value = date ? date.getMonth() + 1 : month.value;
         year.value = date ? date.getFullYear() : year.value;
@@ -142,11 +142,10 @@
                                         preload="metadata"
                                         playsinline
                                     ></video>
-                                    <div class="mt-2 text-center">
-                                        <div class="font-semibold">{{ new Date(year=slotProps.data.year, monthIndex=slotProps.data.month - 1, date=slotProps.data.day).toLocaleDateString() }}</div>
-                                        <div class="text-sm text-gray-500">{{ slotProps.data.caption }}</div>
-                                        <Button 
-                                            label="Obriši video"
+                                                                        <div class="mt-2 text-center">
+                                                                            <div class="font-semibold">{{ new Date(slotProps.data.year, slotProps.data.month - 1, slotProps.data.day).toLocaleDateString() }}</div>
+                                                                            <div class="text-sm text-gray-500">{{ slotProps.data.caption }}</div>
+                                                                            <Button                                              label="Obriši video"
                                             icon="pi pi-delete-left" 
                                             class="mt-6"  
                                             severity="danger" 

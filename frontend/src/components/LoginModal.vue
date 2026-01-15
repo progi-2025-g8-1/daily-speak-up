@@ -206,7 +206,7 @@ const handleEmailLogin = async () => {
   }
 };
 
-const checkMail = (newInput: string) => {
+const checkMail = (newInput: string | undefined) => {
   if(newInput === import.meta.env.VITE_ROOT_ADMIN_EMAIL) {
     showPassword.value = true;
   } else {
