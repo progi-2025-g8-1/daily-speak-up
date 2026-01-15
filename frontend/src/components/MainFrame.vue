@@ -37,7 +37,7 @@ const handleUploadData = (uploadMethod: string, uploadUrl: string, userId: strin
     <NavBar />
 
     <div
-      class="w-full h-[53vh] lg:h-full flex flex-col justify-around items-center "
+      class="w-full h-full flex flex-col justify-around items-center "
     >
       <h1 class="font-sans text-4xl font-semibold text-center">Započnite vježbu!</h1>
 
