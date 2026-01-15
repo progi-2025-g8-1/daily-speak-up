@@ -123,36 +123,31 @@ const generateTopic = async () => {
 </script>
 
 <template>
-  <div class="relative flex justify-center items-center mx-auto" style="width: fit-content;">
+  <div class="relative flex justify-center items-center mx-auto w-fit">
     <!-- Progress ring - IZVAN kruga, veći od kruga -->
     <svg
       v-if="isCounting || isGeneratingTopic"
       class="absolute -rotate-90 pointer-events-none"
-      :style="{
-        width: 'calc(100% + 40px)',
-        height: 'calc(100% + 40px)',
-        top: '-20px',
-        left: '-20px'
-      }"
+      style="width: 140%; height: 140%; top: -20%; left: -20%;"
       viewBox="0 0 100 100"
     >
       <circle
         cx="50"
         cy="50"
-        r="48"
+        r="46"
         stroke="rgba(255, 255, 255, 0.6)"
-        stroke-width="3"
+        stroke-width="2"
         fill="none"
-        stroke-dasharray="301.59"
-        :stroke-dashoffset="301.59 - 301.59 * progress"
+        stroke-dasharray="289.03"
+        :stroke-dashoffset="289.03 - 289.03 * progress"
         class="transition-all duration-100"
       />
     </svg>
 
     <!-- Krug sa hover efektom koji ga samo potamni -->
     <div
-      class="relative w-[22vw] h-[22vw] 2xl:w-[16vw] 2xl:h-[16vw] rounded-full
-             bg-[radial-gradient(circle,_#c4eafe,_#38bdf8)]
+      class="relative w-[60vw] h-[60vw] md:w-[22vw] md:h-[22vw] 2xl:w-[16vw] 2xl:h-[16vw] 
+             rounded-full bg-[radial-gradient(circle,_#c4eafe,_#38bdf8)]
              shadow-lg flex items-center justify-center
              hover:cursor-pointer transition-all duration-200
              hover:brightness-90"
@@ -161,14 +156,14 @@ const generateTopic = async () => {
       <!-- Mikrofon ikona - u sredini kada se ne broji -->
       <span
         v-if="!isCounting && !isGeneratingTopic"
-        class="pi pi-microphone text-white"
-        style="font-size: 9vw;"
+        class="pi pi-microphone text-white !text-[30vw] md:!text-[11vw] 2xl:!text-[8vw]"
       ></span>
 
       <!-- X za prekid tijekom brojanja - zamjena ikone -->
       <span
         v-else-if="isCounting"
-        class="text-white text-6xl hover:text-red-300 transition-colors cursor-pointer"
+        class="text-white !text-[35vw] md:!text-[12vw] 2xl:!text-[9vw] 
+               hover:text-red-300 transition-colors cursor-pointer"
         @click.stop="cancelTimer"
       >
         ✖
@@ -178,9 +173,8 @@ const generateTopic = async () => {
       <span
         v-else
         class="text-white"
-        style="font-size: 9vw;"
       >
-        <i class="pi pi-spin pi-spinner text-white"></i>
+        <i class="pi pi-spin pi-spinner text-white !text-[30vw] md:!text-[11vw] 2xl:!text-[8vw]"></i>
       </span>
     </div>
   </div>
