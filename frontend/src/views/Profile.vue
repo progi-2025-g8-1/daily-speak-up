@@ -3,12 +3,12 @@
 
     <NavBar />
     
-    <div class="max-w-md mx-auto" id="i1">
+    <div class="max-w-2xl mx-auto w-full" id="i1">
       
-      <Card class="shadow-lg mt-6 mx-4">
+      <Card class="shadow-lg mt-4 w-full">
         <template #header>
-          <div class="px-6 pt-6 pb-2">
-            <div class="flex items-center justify-between mb-2">
+          <div class="px-6 pt-4 pb-0">
+            <div class="flex items-center justify-between mb-0">
               <router-link 
                 to="/home" 
                 class="inline-flex items-center gap-2 px-3 py-1.5 font-medium transition-colors duration-200"
@@ -27,12 +27,14 @@
         </template>
         
         <template #content>
-          <div v-if="showFriendsPanel">
-            <FriendsList ref="friendsListRef" @hide-friends="hideFriends" />
-          </div>
-          <div v-else>
-            <CurrentUsersProfile v-if="isOwnProfile" @show-friends="handleShowFriends" />
-            <OtherUsersProfile v-else @show-friends="handleShowFriends" />
+          <div class="w-full">
+            <div v-if="showFriendsPanel">
+              <FriendsList ref="friendsListRef" @hide-friends="hideFriends" />
+            </div>
+            <div v-else>
+              <CurrentUsersProfile v-if="isOwnProfile" @show-friends="handleShowFriends" />
+              <OtherUsersProfile v-else @show-friends="handleShowFriends" />
+            </div>
           </div>
         </template>
       </Card>
@@ -109,6 +111,7 @@ onMounted(async () => {
 
 // Watch for route changes (if user navigates to different profile)
 watch(() => route.params.handle, async () => {
+  showFriendsPanel.value = false;
   await checkIfOwnProfile();
 });
 </script>
@@ -177,5 +180,10 @@ watch(() => route.params.handle, async () => {
     #i1 :deep(.p-datepicker table th) {
       padding: 0.15rem;
     }
+  }
+
+  /* Reduce padding in Profile card content */
+  #i1 :deep(.p-card-content) {
+    padding-top: 0 !important;
   }
 </style>

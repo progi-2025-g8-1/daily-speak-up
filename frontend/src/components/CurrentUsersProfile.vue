@@ -113,8 +113,8 @@
 
 
 <template>
-    <div class="flex flex-col items-center w-[93%]">
-        <Card class="w-full mt-[2vh]">
+    <div class="flex flex-col items-center w-full">
+        <Card class="w-full">
             <template #content>
                 <ProfileHeader @show-friends="handleShowFriends" @user-role="setUserRole"/>
             </template>

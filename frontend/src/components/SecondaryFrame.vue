@@ -46,7 +46,7 @@
 </script>
 
 <template>
-  <div class="flex flex-col items-center lg:w-[40vw] lg:h-full">
+  <div class="flex flex-col items-center lg:w-[40vw] lg:h-full p-4">
     <CurrentUsersProfile v-if="showCurrentUsersProfile"
                          ref="currentUsersProfileRef"
                          @date-selected="handleDateSelected"

@@ -18,7 +18,7 @@
             {{ displayUser.handle || displayUser.email }}
           </h2>
           
-          <h3 v-if="!isOtherUser" class="text-sm text-gray-500 m-0 mb-3">
+          <h3 v-if="!isOtherUser" class="text-lg text-gray-500 m-0 mb-3">
             {{ displayUser.email }}
           </h3>
 
@@ -219,6 +219,8 @@ export default {
           loading.value = false;
         }
     });
+
+    console.log(displayUser)
 
     return {
       displayUser,

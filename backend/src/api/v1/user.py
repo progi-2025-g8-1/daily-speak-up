@@ -1,5 +1,6 @@
 import logging
 import datetime
+import asyncio
 from uuid import UUID 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
@@ -197,18 +198,13 @@ async def get_monthly_user_videos(
 async def get_friends_list(
     user_id: UUID,
     db: Session = Depends(get_db),
-    requesting_user: User = Depends(get_current_user)
+    requesting_user: User = Depends(get_current_user),
 ):
-    target_user: User | None = db.query(User).filter(
-        User.id == user_id
-    ).first()
+    target_user: User | None = db.query(User).filter(User.id == user_id).first()
 
     if target_user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Target user not found'
-        )
-    
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Target user not found')
+
     friendships = db.query(Friendship).filter(
         and_(
             or_(Friendship.user_id1 == target_user.id, Friendship.user_id2 == target_user.id),

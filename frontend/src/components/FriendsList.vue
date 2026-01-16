@@ -1,5 +1,6 @@
 <script setup>
     import { ref } from 'vue';
+    import { useRouter } from 'vue-router';
     import Card from 'primevue/card';
     import ScrollPanel from 'primevue/scrollpanel';
     import ProgressSpinner from 'primevue/progressspinner';
@@ -7,6 +8,7 @@
     import Button from 'primevue/button';
 
     const emits = defineEmits(['hide-friends']);
+    const router = useRouter();
 
     const friendsList = ref([]);
     const requestsList = ref([]);
@@ -18,6 +20,13 @@
 
     const handleBack = () => {
         emits('hide-friends');
+    };
+
+    const goToProfile = (handle) => {
+        if (handle) {
+            emits('hide-friends');
+            router.push(`/${handle}`);
+        }
     };
 
     const showFriends = async (userId) => {
@@ -43,6 +52,7 @@
             if (!friendsRes.ok) throw new Error(`Friends HTTP ${friendsRes.status}`);
 
             const friendsData = await friendsRes.json();
+
             if (Array.isArray(friendsData)) {
                 friendsList.value = friendsData;
             } else if (friendsData && Array.isArray(friendsData.friends)) {
@@ -147,12 +157,12 @@
 
 <template>
 
-    <div class="flex flex-col items-center w-[99%]">
-        <Card class="w-full mt-[2vh]">
+    <div class="flex flex-col items-center w-full px-0">
+        <Card class="w-full mt-0">
             <template #content>
                 <div class="relative py-4">
                     <span class="pi pi-chevron-circle-left cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 z-10" style="font-size: 2.2rem;" @click="handleBack"></span>
-                    <h2 class="font-semibold text-3xl text-sm w-full">
+                    <h2 class="font-semibold text-xl w-full text-center">
                         {{ viewMode === 'friends' ? 'Popis prijatelja' : 'Zahtjevi za prijateljstvo' }}
                     </h2>
                 </div>
@@ -201,19 +211,27 @@
                     Nema prijatelja za prikazati.
                 </template>
             </Card>
-            <Card v-else class="w-full h-[86vh] mt-[2vh]">
-                <template #content class="flex justify-center items-center">
-                    <ScrollPanel  class="w-full h-[82vh]">
-                        <div class="flex flex-col gap-4 p-4">
-                            <div v-for="friend in friendsList" :key="friend.handle" class="flex flex-row items-center gap-4 p-2 border-b border-gray-200">
-                                <Avatar :image="friend.profile_picture_url" class="mr-2" size="xlarge" shape="circle" />
+            <Card v-else class="w-full min-h-[500px] mt-[2vh]">
+                <template #content>
+                    <div class="flex flex-col gap-4 p-4">
+                            <div 
+                                v-for="friend in friendsList" 
+                                :key="friend.handle" 
+                                class="flex flex-row items-center gap-4 p-2 border-b border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors"
+                                @click="goToProfile(friend.handle)"
+                            >
+                                <Avatar 
+                                    :image="friend.profile_picture_url" 
+                                    :label="!friend.profile_picture_url ? (friend.handle?.[0]?.toUpperCase() || 'U') : undefined"
+                                    class="mr-2 bg-sky-400 text-white" 
+                                    size="xlarge" 
+                                    shape="circle" 
+                                />
                                 <div class="flex flex-col">
-                                    <span class="font-medium text-lg">{{ friend.name }}</span>
-                                    <span class="text-gray-500 text-sm">@{{ friend.handle }}</span>
+                                    <span class="font-medium text-lg">{{ friend.handle }}</span>
                                 </div>
                             </div>
                         </div>
-                    </ScrollPanel>
                 </template>
             </Card>
         </template>
@@ -225,17 +243,27 @@
                     Nema zahtjeva za prijateljstvo.
                 </template>
             </Card>
-            <Card v-else class="w-full h-[86vh] mt-[2vh]">
-                <template #content class="flex justify-center items-center">
-                    <ScrollPanel  class="w-full h-[82vh]">
-                        <div class="flex flex-col gap-4 p-4">
-                            <div v-for="request in requestsList" :key="request.friendship_id" class="flex flex-row items-center gap-4 p-2 border-b border-gray-200">
-                                <Avatar :image="request.profile_picture_url" class="mr-2" size="xlarge" shape="circle" />
+            <Card v-else class="w-full min-h-[500px] mt-[2vh]">
+                <template #content>
+                    <div class="flex flex-col gap-4 p-4">
+                            <div 
+                                v-for="request in requestsList" 
+                                :key="request.friendship_id" 
+                                class="flex flex-row items-center gap-4 p-2 border-b border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors"
+                                @click="goToProfile(request.handle)"
+                            >
+                                <Avatar 
+                                    :image="request.profile_picture_url" 
+                                    :label="!request.profile_picture_url ? (request.handle?.[0]?.toUpperCase() || 'U') : undefined"
+                                    class="mr-2 bg-sky-400 text-white" 
+                                    size="xlarge" 
+                                    shape="circle" 
+                                />
                                 <div class="flex flex-col flex-1">
                                     <span class="font-medium text-lg">{{ request.handle }}</span>
                                     <span class="text-gray-500 text-sm">{{ new Date(request.created_at).toLocaleDateString() }}</span>
                                 </div>
-                                <div class="flex gap-2">
+                                <div class="flex gap-2" @click.stop>
                                     <Button 
                                         label="Prihvati" 
                                         icon="pi pi-check"
@@ -256,7 +284,6 @@
                                 </div>
                             </div>
                         </div>
-                    </ScrollPanel>
                 </template>
             </Card>
         </template>
