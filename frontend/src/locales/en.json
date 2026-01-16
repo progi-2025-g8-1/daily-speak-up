@@ -22,18 +22,13 @@
         }
     },
     "settings": {
-        "theme": {
-            "light": "Light",
-            "dark": "Dark",
-            "system": "System Theme"
-        },
         "lang": {
             "croatian": "Croatian",
             "english": "English"
         },
         "title": "Account Settings",
         "upload_photo": "Upload new profile photo",
-        "select_theme": "Select theme",
+        
         "select_language": "Select language",
         "change_interests": "Change your interests",
         "notifications": {
@@ -217,6 +212,7 @@
         "camera_loading": "Accessing camera...",
         "recording_in": "Recording in...",
         "speakup": "SpeakUp!",
+        "stop_btn": "Stop Recording",
         "success_title": "Successfully recorded!",
         "success_msg": "Your DailySpeakUp has been saved! 🎉",
         "error_start": "Error starting recording session. Check your connection or try again."

@@ -22,18 +22,13 @@
         }
     },
     "settings": {
-        "theme": {
-            "light": "Svijetla",
-            "dark": "Tamna",
-            "system": "Tema sustava"
-        },
         "lang": {
             "croatian": "Hrvatski",
             "english": "Engleski"
         },
         "title": "Postavke računa",
         "upload_photo": "Prenesite novu profilnu fotografiju",
-        "select_theme": "Odaberite temu",
+        
         "select_language": "Odaberite jezik",
         "change_interests": "Promijenite svoje interese",
         "notifications": {
@@ -217,6 +212,7 @@
         "camera_loading": "Dohvaćanje kamere...",
         "recording_in": "Snimanje za...",
         "speakup": "SpeakUp!",
+        "stop_btn": "Zaustavi snimanje",
         "success_title": "Uspješno snimljeno!",
         "success_msg": "Vaš DailySpeakUp je pohranjen! 🎉",
         "error_start": "Greška pri pokretanju sesije snimanja. Provjerite vezu ili pokušajte ponovno."

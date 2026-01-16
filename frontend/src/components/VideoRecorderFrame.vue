@@ -294,6 +294,15 @@ defineExpose({
         >
           00:{{ String(countdown).padStart(2, '0') }}
         </div>
+
+        <!-- Stop button during recording -->
+        <button
+          v-if="showRecording && !isPreCountdown"
+          class="absolute bottom-2 right-2 bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-lg shadow-md"
+          @click="stopRecording"
+        >
+          {{ $t('recorder.stop_btn') }}
+        </button>
       </div>
     </div>
   </Dialog>

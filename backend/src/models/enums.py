@@ -1,11 +1,5 @@
 from enum import Enum
 
-class AppTheme(str, Enum):
-    """Application theme options."""
-    SYSTEM = 'system'
-    LIGHT = 'light'
-    DARK = 'dark'
-
 class AppLang(str, Enum):
     """Application language options."""
     EN = 'en'

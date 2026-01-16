@@ -16,7 +16,6 @@
 
     const { t, locale } = useI18n();
     const visible = ref(false);
-    const selectedTheme = ref('light');
     const selectedLanguage = ref('hr');
     const selectedInterests = ref([]);
     const interests = ref([]);
@@ -104,13 +103,7 @@
             if (response.ok) {
                 const data = await response.json()
                 
-                if(data.preferred_theme === 'system') {
-                    selectedTheme.value = 'system';
-                } else if (data.preferred_theme === 'light') {
-                    selectedTheme.value = 'light';
-                } else {
-                    selectedTheme.value = 'dark';
-                }
+                // Theme selection removed; force language handling only
                 
                 if(data.preferred_lang === 'hr') {
                     selectedLanguage.value = 'hr';
@@ -167,11 +160,7 @@
         { name: t('settings.lang.english'), code: 'en' },
     ]);
 
-    const themes = computed(() => [
-        { name: t('settings.theme.light'), code: 'light' },
-        { name: t('settings.theme.dark'), code: 'dark' },
-        { name: t('settings.theme.system'), code: 'system' },
-    ]);
+    // Theme options removed
 
     const updateEmailNotifs = async () => {
         const response = await fetch(`${import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123'}/api/v1/user/email-notifications`, {
@@ -242,7 +231,7 @@
 
             <div class="flex flex-col justify-start items-stretch w-full">
                 
-                <Select v-model="selectedTheme" :options="themes" optionLabel="name" optionValue="code" :placeholder="$t('settings.select_theme')" class="w-full mt-10" />
+                <!-- Theme selection removed -->
                 <Select v-model="selectedLanguage" :options="language" optionLabel="name" optionValue="code" :placeholder="$t('settings.select_language')" class="w-full mt-10" @update:modelValue="updateLanguage" />
                 <MultiSelect v-model="selectedInterests" :options="interests" optionLabel="name" optionValue="code" filter :placeholder="$t('settings.change_interests')"  class="w-full mt-10" />
                 

@@ -95,7 +95,6 @@ async def me(
         profile_picture_url=user.profile_picture_url,
         onboarding_status=user.onboarding_status,
         preferred_lang=user.preferred_lang,
-        preferred_theme=user.preferred_theme,
         preferred_tz_offset=user.preferred_tz_offset,
         email_notifications_enabled=user.email_notifications_enabled,
         push_notifications_enabled=user.push_notifications_enabled,
