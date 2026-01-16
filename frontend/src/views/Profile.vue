@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-main">
+  <div class="min-h-screen bg-main overflow-x-hidden">
 
     <NavBar />
     
