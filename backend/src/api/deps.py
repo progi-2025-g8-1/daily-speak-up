@@ -1,3 +1,7 @@
+from fastapi import Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from supertokens_python.recipe.session import SessionContainer
+
 from ..services import (
     AuthService,
     EmailService,
@@ -6,6 +10,8 @@ from ..services import (
 )
 from ..services.auth_service import get_session
 from ..services.email_impl.sender import ResendEmailSender
+from ..db import get_db
+from ..models import User
 from .config import get_settings
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
