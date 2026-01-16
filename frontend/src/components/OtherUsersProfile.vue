@@ -260,12 +260,6 @@ const sendFriendRequest = async () => {
               <p class="text-gray-600 mb-3">
                 {{ friendshipStatus === 'pending_outgoing' ? 'Zahtjev za prijateljstvo poslan' : 'Imate pristigli zahtjev za prijateljstvo' }}
               </p>
-              <Button 
-                label="Zahtjevi" 
-                icon="pi pi-users" 
-                @click="router.push('/friends')" 
-                outlined
-              />
             </template>
             <template v-else>
               <p class="text-gray-600 mb-3">Povežite se s korisnikom da biste vidjeli njihove govore</p>

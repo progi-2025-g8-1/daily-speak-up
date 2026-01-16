@@ -29,7 +29,7 @@
         <template #content>
           <div class="w-full">
             <div v-if="showFriendsPanel">
-              <FriendsList ref="friendsListRef" @hide-friends="hideFriends" />
+              <FriendsList ref="friendsListRef" :is-own-profile="isOwnProfile" @hide-friends="hideFriends" />
             </div>
             <div v-else>
               <CurrentUsersProfile v-if="isOwnProfile" @show-friends="handleShowFriends" />

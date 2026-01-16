@@ -53,6 +53,7 @@
                          @show-friends="handleShowFriends" />
 
     <FriendsList v-else-if="showFriendsList" ref="friendsListRef"
+                                             :is-own-profile="true"
                                              @hide-friends="hideFriends"/>
   </div>
 </template>

@@ -7,6 +7,13 @@
     import Avatar from 'primevue/avatar';
     import Button from 'primevue/button';
 
+    const props = defineProps({
+        isOwnProfile: {
+            type: Boolean,
+            default: false
+        }
+    });
+
     const emits = defineEmits(['hide-friends']);
     const router = useRouter();
 
@@ -37,17 +44,26 @@
         try {
             const apiDomain = import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123';
             
-            // Fetch friends and requests in parallel
-            const [friendsRes, requestsRes] = await Promise.all([
+            // Fetch friends and requests in parallel if own profile
+            const promises = [
                 fetch(`${apiDomain}/api/v1/user/${userId}/friends`, {
                     credentials: 'include',
                     headers: { 'Content-Type': 'application/json' }
-                }),
-                fetch(`${apiDomain}/api/v1/friend/requests/incoming`, {
-                    credentials: 'include',
-                    headers: { 'Content-Type': 'application/json' }
                 })
-            ]);
+            ];
+
+            if (props.isOwnProfile) {
+                promises.push(
+                    fetch(`${apiDomain}/api/v1/friend/requests/incoming`, {
+                        credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' }
+                    })
+                );
+            }
+
+            const results = await Promise.all(promises);
+            const friendsRes = results[0];
+            const requestsRes = props.isOwnProfile ? results[1] : null;
 
             if (!friendsRes.ok) throw new Error(`Friends HTTP ${friendsRes.status}`);
 
@@ -62,7 +78,7 @@
             }
 
             // Fetch requests data
-            if (requestsRes.ok) {
+            if (requestsRes && requestsRes.ok) {
                 const requestsData = await requestsRes.json();
                 requestsList.value = Array.isArray(requestsData) ? requestsData : [];
             }
@@ -163,14 +179,14 @@
                 <div class="relative py-4">
                     <span class="pi pi-chevron-circle-left cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 z-10" style="font-size: 2.2rem;" @click="handleBack"></span>
                     <h2 class="font-semibold text-xl w-full text-center">
-                        {{ viewMode === 'friends' ? 'Popis prijatelja' : 'Zahtjevi za prijateljstvo' }}
+                        {{ !props.isOwnProfile || viewMode === 'friends' ? 'Popis prijatelja' : 'Zahtjevi za prijateljstvo' }}
                     </h2>
                 </div>
             </template>
         </Card>
 
         <!-- Tabs/Toggle -->
-        <Card class="w-full mt-[2vh]">
+        <Card v-if="props.isOwnProfile" class="w-full mt-[2vh]">
             <template #content>
                 <div class="flex gap-2 justify-center">
                     <Button 
