@@ -83,7 +83,7 @@
         "email_label": "Email adresa",
         "email_placeholder": "vi@primjer.com",
         "admin_password_label": "Admin lozinka",
-        "sending": "Šlanje...",
+        "sending": "Slanje...",
         "send_magic_link": "Pošalji Magic Link",
         "login_root_admin": "Prijavi se kao root Admin",
         "magic_link_sent": "Magic link poslan!",
@@ -267,5 +267,10 @@
             "delete": "Obriši video",
             "ban": "Uruči zabranu"
         }
+    },
+    "user_search": {
+        "search_placeholder": "Pretraži korisnike pomoću handlea ili emaila...",
+        "no_users_found": "Nijedan korisnik nije pronađen",
+        "search_prompt": "Pretražite korisnike s kojima se možete povezati"
     }
 }

@@ -267,5 +267,10 @@
             "delete": "Delete video",
             "ban": "Ban user"
         }
+    },
+    "user_search": {
+        "search_placeholder": "Search users by handle or email...",
+        "no_users_found": "No users found",
+        "search_prompt": "Search for users you can connect with"
     }
 }
