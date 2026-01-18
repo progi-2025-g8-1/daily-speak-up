@@ -6,7 +6,7 @@
 <template>
 
     <div class="flex flex-row justify-between items-center w-[95%] border border-gray-100
-                mx-2 mt-[2vh] rounded-full p-[0.5vh] shadow-lg bg-blue-50">
+                mx-auto mt-[2vh] rounded-full p-[0.5vh] shadow-lg bg-blue-50 overflow-hidden">
 
         <div class="flex flex-row items-center justify-center ml-1">
             <img src="../assets/DSU_logo_circle.svg" alt="Daily Speak Up Logo" class="h-[4vh] mr-3"/>
