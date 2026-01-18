@@ -32,6 +32,12 @@ const filters = ref({
     'user_role': { value: null, matchMode: FilterMatchMode.EQUALS }
 });
 
+const isMobile = ref(false);
+
+const checkScreenSize = () => {
+    isMobile.value = window.innerWidth < 768;
+};
+
 const rowsPerPage = computed(() => {
     if (rowHeight.value === 0 || containerHeight.value === 0) return 5;
     const paginatorHeight = 60; 
