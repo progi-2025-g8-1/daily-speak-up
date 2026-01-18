@@ -11,6 +11,7 @@ import router from './router';
 import { initSuperTokens } from './supertokens';
 import { useThemeStore } from './stores/themeStore';
 import 'primeicons/primeicons.css'
+import i18n from './i18n';
 
 // DailySpeakUp Color System (from email templates)
 // Primary: #3b82f6 (blue-500)
@@ -51,6 +52,8 @@ app.use(ToastService);
 app.use(ConfirmationService);
 
 app.use(router);
+
+app.use(i18n);
 
 app.directive('tooltip', Tooltip);
 
