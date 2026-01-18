@@ -176,8 +176,8 @@ const handleShowUsersVideosDialog = (user: any) => {
             :dropdown="false" @complete="search" @clear="resetUsers"/> 
         </div>
 
-        <div class="dataview-container w-[90%]" style="height: calc(100vh - 215px)">
-            <DataTable :value="showUsers" paginator :rows="rowsPerPage" v-model:filters="filters" filterDisplay="row">
+        <div class="dataview-container w-[90%]" style="height: calc(100vh - 180px)">
+            <DataTable :value="showUsers" paginator :rows="rowsPerPage" v-model:filters="filters" filterDisplay="row" scrollable scrollHeight="flex">
 
                 <Column header="Korisnik">
                     <template #body="slotProps">
