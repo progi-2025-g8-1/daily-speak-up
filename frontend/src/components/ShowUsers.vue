@@ -250,7 +250,7 @@ const handleShowUsersVideosDialog = (user: any) => {
 }
 
 .dataview-container {
-    overflow: hidden;
+    overflow: auto;
 }
 
 .p-togglebutton {
