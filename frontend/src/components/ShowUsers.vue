@@ -169,7 +169,11 @@ const handleShowUsersVideosDialog = (user: any) => {
 
    <div class="flex flex-col justify-center items-center gap-2">
         <div class="w-full flex justify-center items-center">
-            <AutoComplete v-model="searchValue" placeholder="Pretraži korisnike po korisničkom imenu..." :suggestions="handles" :dropdown="false" @complete="search" @clear="resetUsers"/> 
+            <AutoComplete 
+            v-model="searchValue" 
+            :placeholder="isMobile ? 'Pretraži korisnike...' : 'Pretraži korisnike po korisničkom imenu...'"
+            :suggestions="handles" 
+            :dropdown="false" @complete="search" @clear="resetUsers"/> 
         </div>
 
         <div class="dataview-container w-[90%]" style="height: calc(100vh - 215px)">
