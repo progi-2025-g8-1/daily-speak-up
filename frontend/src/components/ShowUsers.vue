@@ -33,7 +33,6 @@ const filters = ref({
 });
 
 const isMobile = ref(false);
-
 const checkScreenSize = () => {
     isMobile.value = window.innerWidth < 768;
 };
@@ -47,6 +46,9 @@ const rowsPerPage = computed(() => {
 });
 
 onMounted(async () => {
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+
     const response = await fetch(`${API_BASE_URL}/dashboard/users`,
     {
         credentials: 'include'
@@ -74,6 +76,7 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
     window.removeEventListener('resize', measureDimensions);
+    window.removeEventListener('resize', checkScreenSize);
 });
 
 const search = (event: { query: string }) => {
@@ -94,7 +97,7 @@ const resetUsers = () => {
 };
 
 const measureDimensions = () => {
-    const firstRow = document.querySelector('.user-row');
+    const firstRow = document.querySelector('.p-datatable-tbody tr');
     if (firstRow) {
         rowHeight.value = firstRow.getBoundingClientRect().height;
     }
