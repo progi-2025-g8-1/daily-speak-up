@@ -11,7 +11,7 @@
     import Logout from './Logout.vue';
     import User from './User.vue';
     import { RouterLink } from 'vue-router';
-    import { ref, onMounted, computed } from 'vue';
+    import { ref, onMounted, computed, watch } from 'vue';
     import { useI18n } from 'vue-i18n';
 
     const { t, locale } = useI18n();
@@ -24,6 +24,30 @@
     const streakNotifs = ref(false);
     const confirm = useConfirm();
     const hideDeleteAccountBtn = ref(false);
+
+    const getTranslatedInterestLabel = (slug) => {
+        try {
+            const translated = t(`interests.${slug}`);
+            // If translation key doesn't exist, t() returns the key itself
+            if (translated !== `interests.${slug}`) {
+                return translated;
+            }
+        } catch (e) {
+            // fallback
+        }
+        return slug.replace('_', ' ').charAt(0).toUpperCase() + slug.slice(1);
+    };
+
+    const updateInterestNames = () => {
+        interests.value = interests.value.map(interest => ({
+            name: getTranslatedInterestLabel(interest.code),
+            code: interest.code
+        }));
+    };
+
+    watch(locale, () => {
+        updateInterestNames();
+    });
 
     const confirm_account_deletion = () => {
         confirm.require({
@@ -78,7 +102,10 @@
             if (response.ok) {
                 const allInterests = await response.json();
                 allInterests.forEach(interest => {
-                    interests.value.push({ name: interest.label, code: interest.slug });
+                    interests.value.push({ 
+                        name: getTranslatedInterestLabel(interest.slug), 
+                        code: interest.slug 
+                    });
                 });
             }
 
@@ -215,14 +242,6 @@
         } catch (error) {
             console.error('Error updating preferred language:', error);
         }
-    };
-
-    const getTranslatedInterestLabel = (slug) => {
-        const translations = t('interests_list');
-        if (translations && typeof translations === 'object' && slug in translations) {
-            return translations[slug];
-        }
-        return slug.replace('_', ' ').charAt(0).toUpperCase() + slug.slice(1);
     };
 
 </script>

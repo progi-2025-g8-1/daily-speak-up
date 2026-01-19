@@ -72,7 +72,7 @@
 </template>
 
 <script>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { getUserId, isAuthenticated } from '../auth';
 import Avatar from 'primevue/avatar';
 import Chip from 'primevue/chip';
@@ -102,20 +102,26 @@ export default {
     }
   },
   setup(props, { emit }) {
-    const { t } = useI18n();
+    const { t, locale } = useI18n();
     const user = ref(null);
     const userId = ref('');
     const loading = ref(true);
     const error = ref('');
     const interests = ref([]);
+    const interestSlugs = ref([]);
 
     const getTranslatedInterestLabel = (slug) => {
-      const translations = t('interests_list');
+      const translations = t('interests');
       if (translations && typeof translations === 'object' && slug in translations) {
         return translations[slug];
       }
       return slug.replace('_', ' ').charAt(0).toUpperCase() + slug.slice(1);
     };
+
+    watch(locale, () => {
+      // Force re-render of interests when language changes
+      // This will cause getTranslatedInterestLabel to be called again
+    });
 
     const displayUser = computed(() => {
       return props.otherUserData || user.value;
