@@ -1,271 +1,287 @@
 {
-    "users_videos": {
-        "title": "User Videos",
-        "select_month": "Select month and year:",
-        "no_videos": "User {handle} has no recorded videos for the selected month.",
-        "delete_btn": "Delete Video",
-        "confirm_delete_msg": "Are you sure you want to delete this video?",
-        "confirm_delete_title": "Delete Video Confirmation",
-        "error_fetch": "Error fetching user videos"
-    },
-    "stats": {
-        "speeches_by_interest": "Speeches by Interest",
-        "freq_by_topic": "Speech frequency across all topics",
-        "no_data": "No data",
-        "daily_activity": {
-            "recorded_speeches": "Recorded Speeches"
-        },
-        "user_growth": {
-            "title": "User Count",
-            "subtitle": "Monthly user registrations",
-            "total_users_label": "Total Users"
-        }
-    },
-    "settings": {
-        "lang": {
-            "croatian": "Croatian",
-            "english": "English"
-        },
-        "title": "Account Settings",
-        "upload_photo": "Upload new profile photo",
-        
-        "select_language": "Select language",
-        "change_interests": "Change your interests",
-        "notifications": {
-            "title": "Notification settings",
-            "email": "Email notifications",
-            "push": "Push notifications",
-            "streak": "Streak reminders"
-        },
-        "delete_account": "Delete account",
-        "delete_confirmation": {
-            "message": "Are you sure you want to delete your account? This action cannot be undone.",
-            "header": "Dangerous action",
-            "cancel": "Cancel",
-            "delete": "Delete"
-        }
-    },
-    "onboarding": {
-        "welcome": "Welcome",
-        "subtitle": "Complete your profile in a few steps",
-        "profile": "Profile",
-        "interests": "Interests",
-        "loading": "Loading...",
-        "phase1": {
-            "title": "Setup your profile",
-            "subtitle": "Tell us something about yourself",
-            "name_label": "Name",
-            "name_placeholder": "Enter your name",
-            "name_hint": "Your full name or display name",
-            "handle_label": "Username (handle)",
-            "handle_placeholder": "e.g. john_doe123"
-        },
-        "phase2": {
-            "title": "Select your interests",
-            "subtitle": "Choose topics you are interested in (select at least 1)",
-            "selected": "selected"
-        }
-    },
-    "banned": {
-        "title": "Account suspended",
-        "subtitle": "Access to your account is temporarily disabled",
-        "reason_title": "Ban reason",
-        "reason_missing": "Reason not specified",
-        "appeal_info": "If you believe this is an error, you can contact support for more information or to appeal.",
-        "privacy_info": "For questions about privacy or account deletion, contact support"
-    },
-    "login": {
-        "button": "Log In",
-        "welcome_title": "Welcome Back",
-        "welcome_subtitle": "Sign in to continue to DailySpeakUp",
-        "continue_google": "Continue with Google",
-        "or": "OR",
-        "email_label": "Email address",
-        "email_placeholder": "you@example.com",
-        "admin_password_label": "Admin password",
-        "sending": "Sending...",
-        "send_magic_link": "Send Magic Link",
-        "login_root_admin": "Log in as root Admin",
-        "magic_link_sent": "Magic link sent!",
-        "check_email_at": "Check your email at",
-        "magic_link_instructions": "Click the link in your email to sign in. You can close this window.",
-        "error": {
-            "google": "Failed to sign in with Google",
-            "magic_link": "Failed to send magic link. Please try again.",
-            "generic": "Failed to sign in"
-        }
-    },
-    "common": {
-        "cancel": "Cancel",
-        "confirm": "Confirm",
-        "loading": "Loading...",
-        "logout": "Logout",
-        "close": "Close"
-    },
-    "landing": {
-        "hero_title": "DailySpeakUp",
-        "hero_subtitle_1": "In today's academic and business environment, many still face the challenges of public speaking and clear, confident communication – key skills for personal and professional success.",
-        "hero_subtitle_2": "DailySpeakUp offers a simple and accessible solution — daily one-minute speaking challenges that help you become a more confident and fluent speaker over time.",
-        "hero_subtitle_3": "Without the need for expensive courses or mentors, you can practice daily, track your progress, and get feedback from a community learning and growing with you.",
-        "how_it_works_title": "How it works in practice",
-        "how_it_works_subtitle": "Three simple steps",
-        "step_1_title": "Select a topic",
-        "step_1_desc": "Mark your interests and choose a topic from the offered options.",
-        "step_2_title": "Short recording",
-        "step_2_desc": "1 minute of speaking on web or mobile.",
-        "step_3_title": "Feedback",
-        "step_3_desc": "Get detailed comments from the community.",
-        "benefits_title": "What you get",
-        "benefit_1_title": "Regular practice",
-        "benefit_1_desc": "Daily exercises that fit into one day.",
-        "benefit_2_title": "Small steps",
-        "benefit_2_desc": "Five minutes is enough.",
-        "benefit_3_title": "Clear feedback",
-        "benefit_3_desc": "Clear and concrete feedback for your progress.",
-        "benefit_4_title": "Privacy",
-        "benefit_4_desc": "Your recordings and data are protected and will not be shared without your consent.",
-        "footer_rights": "DailySpeakUp — Privacy • Contact • About"
-    },
-    "dashboard": {
-        "tabs": {
-            "users": "Users",
-            "reported_videos": "Reported videos",
-            "bans": "Active bans",
-            "stats": "Statistics"
-        }
-    },
-    "not_found": {
-        "message": "404 - Page not found 😳"
-    },
-    "admin_dashboard": {
-        "users": {
-            "search_placeholder": "Search users by username...",
-            "table": {
-                "user": "User",
-                "videos_tooltip": "Show videos",
-                "ban_tooltip": "Ban user",
-                "role": "User Role",
-                "role_tooltip": "Change role",
-                "role_filter_placeholder": "Filter by role"
-            },
-            "roles": {
-                "user": "User",
-                "moderator": "Moderator",
-                "admin": "Admin"
-            }
-        },
-        "reported_videos": {
-            "instructions_title": "Instructions for reported videos",
-            "instructions_intro": "Video description and reasons for reporting are in the sliding panel of each reported video.",
-            "instructions_actions": "You can take actions such as dismissing the report, deleting the video, or banning the user using the corresponding buttons.",
-            "instructions_dismiss": "Dismiss report (purple icon): removes only the report.",
-            "instructions_delete": "Delete video (orange icon): permanently removes the video.",
-            "instructions_ban": "Ban user (red icon): prevents the user from uploading new videos.",
-            "confirm_dismiss": {
-                "message": "Are you sure you want to dismiss this report?",
-                "header": "Confirm dismiss",
-                "accept": "Dismiss report",
-                "reject": "Cancel"
-            },
-            "confirm_delete": {
-                "message": "Are you sure you want to delete this video?",
-                "header": "Confirm delete",
-                "accept": "Delete video",
-                "reject": "Cancel"
-            }
-        },
-        "bans": {
-            "table": {
-                "user": "User",
-                "banned_by": "Banned by",
-                "reason": "Ban reason",
-                "details": "Details",
-                "unban": "Unban"
-            },
-            "confirm_unban": {
-                "message": "Are you sure you want to unban user",
-                "header": "Confirm unban",
-                "accept": "Unban",
-                "reject": "Cancel"
-            },
-            "popover": {
-                "banned_by": "Ban issued by:",
-                "reason": "Ban reason:"
-            },
-            "confirm_ban_issue": {
-                "header": "Confirm Ban Issuance",
-                "message": "Are you sure you want to ban user",
-                "select_reason_placeholder": "Select reason",
-                "input_reason_placeholder": "Enter reason"
-            }
-        },
-        "stats": {
-            "total_users": "Total Users",
-            "total_speeches": "Total Speeches",
-            "pending_reports": "Pending Reports",
-            "total_bans": "Total Bans"
-        },
-        "custom_reason": "Custom reason"
-    },
-    "recorder": {
-        "topic": "Your topic:",
-        "camera_loading": "Accessing camera...",
-        "recording_in": "Recording in...",
-        "speakup": "SpeakUp!",
-        "stop_btn": "Stop Recording",
-        "success_title": "Successfully recorded!",
-        "success_msg": "Your DailySpeakUp has been saved! 🎉",
-        "error_start": "Error starting recording session. Check your connection or try again."
-    },
-    "speech": {
-        "rating": "Rating:",
-        "private": "Private",
-        "friends": "Friends",
-        "delete": "Delete"
-    },
-    "friends": {
-        "title": "Friends List",
-        "loading": "Loading friends...",
-        "empty": "No friends to show."
-    },
-    "main": {
-        "start_exercise": "Start your exercise!",
-        "speech_topic_title": "Speech Topic",
-        "interest_label": "Interest:",
-        "topic_placeholder": "Your speech topic will appear here after you press the record button."
-    },
-    "profile": {
-        "error_fetch": "Failed to fetch user data",
-        "error_generic": "An error occurred while fetching user data",
-        "header": {
-            "friends": "friends",
-            "streak": "streak",
-            "interests": "Interests",
-            "no_interests": "No interests added"
-        },
-        "dashboard_button": "Dashboard",
-        "select_date_me": "Select a date to view your recorded speeches.",
-        "select_date_other": "Select a date to view speeches.",
-        "no_speeches": "No speeches recorded for the selected date.",
-        "error_loading": "Error loading profile",
-        "user_not_found": "User not found",
-        "back": "Back",
-        "friendship": {
-            "req_sent": "Friend request sent",
-            "req_incoming": "You have an incoming friend request",
-            "requests": "Requests",
-            "connect_hint": "Connect with the user to see their speeches",
-            "send_request": "Send friend request"
-        }
-    },
-    "report_frame": {
-        "video_description": "Video description:",
-        "report_reasons": "Report reasons:",
-        "menu": {
-            "instructions": "Instructions",
-            "dismiss": "Dismiss report",
-            "delete": "Delete video",
-            "ban": "Ban user"
-        }
-    }
+    "users_videos":  {
+                         "title":  "User Videos",
+                         "select_month":  "Select month and year:",
+                         "no_videos":  "User {handle} has no recorded videos for the selected month.",
+                         "delete_btn":  "Delete Video",
+                         "confirm_delete_msg":  "Are you sure you want to delete this video?",
+                         "confirm_delete_title":  "Delete Video Confirmation",
+                         "error_fetch":  "Error fetching user videos"
+                     },
+    "stats":  {
+                  "speeches_by_interest":  "Speeches by Interest",
+                  "freq_by_topic":  "Speech frequency across all topics",
+                  "no_data":  "No data",
+                  "daily_activity":  {
+                                         "recorded_speeches":  "Recorded Speeches"
+                                     },
+                  "user_growth":  {
+                                      "title":  "User Count",
+                                      "subtitle":  "Monthly user registrations",
+                                      "total_users_label":  "Total Users"
+                                  }
+              },
+    "settings":  {
+                     "lang":  {
+                                  "croatian":  "Croatian",
+                                  "english":  "English"
+                              },
+                     "title":  "Account Settings",
+                     "upload_photo":  "Upload new profile photo",
+                     "select_language":  "Select language",
+                     "change_interests":  "Change your interests",
+                     "notifications":  {
+                                           "title":  "Notification settings",
+                                           "email":  "Email notifications",
+                                           "push":  "Push notifications",
+                                           "streak":  "Streak reminders"
+                                       },
+                     "delete_account":  "Delete account",
+                     "delete_confirmation":  {
+                                                 "message":  "Are you sure you want to delete your account? This action cannot be undone.",
+                                                 "header":  "Dangerous action",
+                                                 "cancel":  "Cancel",
+                                                 "delete":  "Delete"
+                                             }
+                 },
+    "onboarding":  {
+                       "welcome":  "Welcome",
+                       "subtitle":  "Complete your profile in a few steps",
+                       "profile":  "Profile",
+                       "interests":  "Interests",
+                       "loading":  "Loading...",
+                       "phase1":  {
+                                      "title":  "Setup your profile",
+                                      "subtitle":  "Tell us something about yourself",
+                                      "name_label":  "Name",
+                                      "name_placeholder":  "Enter your name",
+                                      "name_hint":  "Your full name or display name",
+                                      "handle_label":  "Username (handle)",
+                                      "handle_placeholder":  "e.g. john_doe123"
+                                  },
+                       "phase2":  {
+                                      "title":  "Select your interests",
+                                      "subtitle":  "Choose topics you are interested in (select at least 1)",
+                                      "selected":  "selected"
+                                  }
+                   },
+    "banned":  {
+                   "title":  "Account suspended",
+                   "subtitle":  "Access to your account is temporarily disabled",
+                   "reason_title":  "Ban reason",
+                   "reason_missing":  "Reason not specified",
+                   "appeal_info":  "If you believe this is an error, you can contact support for more information or to appeal.",
+                   "privacy_info":  "For questions about privacy or account deletion, contact support"
+               },
+    "login":  {
+                  "button":  "Log In",
+                  "welcome_title":  "Welcome Back",
+                  "welcome_subtitle":  "Sign in to continue to DailySpeakUp",
+                  "continue_google":  "Continue with Google",
+                  "or":  "OR",
+                  "email_label":  "Email address",
+                  "email_placeholder":  "you@example.com",
+                  "admin_password_label":  "Admin password",
+                  "sending":  "Sending...",
+                  "send_magic_link":  "Send Magic Link",
+                  "login_root_admin":  "Log in as root Admin",
+                  "magic_link_sent":  "Magic link sent!",
+                  "check_email_at":  "Check your email at",
+                  "magic_link_instructions":  "Click the link in your email to sign in. You can close this window.",
+                  "error":  {
+                                "google":  "Failed to sign in with Google",
+                                "magic_link":  "Failed to send magic link. Please try again.",
+                                "generic":  "Failed to sign in"
+                            }
+              },
+    "common":  {
+                   "cancel":  "Cancel",
+                   "confirm":  "Confirm",
+                   "loading":  "Loading...",
+                   "logout":  "Logout",
+                   "close":  "Close"
+               },
+    "landing":  {
+                    "hero_title":  "DailySpeakUp",
+                    "hero_subtitle_1":  "In today\u0027s academic and business environment, many still face the challenges of public speaking and clear, confident communication – key skills for personal and professional success.",
+                    "hero_subtitle_2":  "DailySpeakUp offers a simple and accessible solution — daily one-minute speaking challenges that help you become a more confident and fluent speaker over time.",
+                    "hero_subtitle_3":  "Without the need for expensive courses or mentors, you can practice daily, track your progress, and get feedback from a community learning and growing with you.",
+                    "how_it_works_title":  "How it works in practice",
+                    "how_it_works_subtitle":  "Three simple steps",
+                    "step_1_title":  "Select a topic",
+                    "step_1_desc":  "Mark your interests and choose a topic from the offered options.",
+                    "step_2_title":  "Short recording",
+                    "step_2_desc":  "1 minute of speaking on web or mobile.",
+                    "step_3_title":  "Feedback",
+                    "step_3_desc":  "Get detailed comments from the community.",
+                    "benefits_title":  "What you get",
+                    "benefit_1_title":  "Regular practice",
+                    "benefit_1_desc":  "Daily exercises that fit into one day.",
+                    "benefit_2_title":  "Small steps",
+                    "benefit_2_desc":  "Five minutes is enough.",
+                    "benefit_3_title":  "Clear feedback",
+                    "benefit_3_desc":  "Clear and concrete feedback for your progress.",
+                    "benefit_4_title":  "Privacy",
+                    "benefit_4_desc":  "Your recordings and data are protected and will not be shared without your consent.",
+                    "footer_rights":  "DailySpeakUp — Privacy • Contact • About"
+                },
+    "dashboard":  {
+                      "tabs":  {
+                                   "users":  "Users",
+                                   "reported_videos":  "Reported videos",
+                                   "bans":  "Active bans",
+                                   "stats":  "Statistics"
+                               }
+                  },
+    "not_found":  {
+                      "message":  "404 - Page not found 😳"
+                  },
+    "admin_dashboard":  {
+                            "users":  {
+                                          "search_placeholder":  "Search users by username...",
+                                          "table":  {
+                                                        "user":  "User",
+                                                        "videos_tooltip":  "Show videos",
+                                                        "ban_tooltip":  "Ban user",
+                                                        "role":  "User Role",
+                                                        "role_tooltip":  "Change role",
+                                                        "role_filter_placeholder":  "Filter by role"
+                                                    },
+                                          "roles":  {
+                                                        "user":  "User",
+                                                        "moderator":  "Moderator",
+                                                        "admin":  "Admin"
+                                                    }
+                                      },
+                            "reported_videos":  {
+                                                    "instructions_title":  "Instructions for reported videos",
+                                                    "instructions_intro":  "Video description and reasons for reporting are in the sliding panel of each reported video.",
+                                                    "instructions_actions":  "You can take actions such as dismissing the report, deleting the video, or banning the user using the corresponding buttons.",
+                                                    "instructions_dismiss":  "Dismiss report (purple icon): removes only the report.",
+                                                    "instructions_delete":  "Delete video (orange icon): permanently removes the video.",
+                                                    "instructions_ban":  "Ban user (red icon): prevents the user from uploading new videos.",
+                                                    "confirm_dismiss":  {
+                                                                            "message":  "Are you sure you want to dismiss this report?",
+                                                                            "header":  "Confirm dismiss",
+                                                                            "accept":  "Dismiss report",
+                                                                            "reject":  "Cancel"
+                                                                        },
+                                                    "confirm_delete":  {
+                                                                           "message":  "Are you sure you want to delete this video?",
+                                                                           "header":  "Confirm delete",
+                                                                           "accept":  "Delete video",
+                                                                           "reject":  "Cancel"
+                                                                       }
+                                                },
+                            "bans":  {
+                                         "table":  {
+                                                       "user":  "User",
+                                                       "banned_by":  "Banned by",
+                                                       "reason":  "Ban reason",
+                                                       "details":  "Details",
+                                                       "unban":  "Unban"
+                                                   },
+                                         "confirm_unban":  {
+                                                               "message":  "Are you sure you want to unban user",
+                                                               "header":  "Confirm unban",
+                                                               "accept":  "Unban",
+                                                               "reject":  "Cancel"
+                                                           },
+                                         "popover":  {
+                                                         "banned_by":  "Ban issued by:",
+                                                         "reason":  "Ban reason:"
+                                                     },
+                                         "confirm_ban_issue":  {
+                                                                   "header":  "Confirm Ban Issuance",
+                                                                   "message":  "Are you sure you want to ban user",
+                                                                   "select_reason_placeholder":  "Select reason",
+                                                                   "input_reason_placeholder":  "Enter reason"
+                                                               }
+                                     },
+                            "stats":  {
+                                          "total_users":  "Total Users",
+                                          "total_speeches":  "Total Speeches",
+                                          "pending_reports":  "Pending Reports",
+                                          "total_bans":  "Total Bans"
+                                      },
+                            "custom_reason":  "Custom reason"
+                        },
+    "recorder":  {
+                     "topic":  "Your topic:",
+                     "camera_loading":  "Accessing camera...",
+                     "recording_in":  "Recording in...",
+                     "speakup":  "SpeakUp!",
+                     "stop_btn":  "Stop Recording",
+                     "success_title":  "Successfully recorded!",
+                     "success_msg":  "Your DailySpeakUp has been saved! 🎉",
+                     "error_start":  "Error starting recording session. Check your connection or try again."
+                 },
+    "speech":  {
+                   "rating":  "Rating:",
+                   "private":  "Private",
+                   "friends":  "Friends",
+                   "delete":  "Delete"
+               },
+    "friends":  {
+                    "title":  "Friends List",
+                    "loading":  "Loading friends...",
+                    "empty":  "No friends to show."
+                },
+    "main":  {
+                 "start_exercise":  "Start your exercise!",
+                 "speech_topic_title":  "Speech Topic",
+                 "interest_label":  "Interest:",
+                 "topic_placeholder":  "Your speech topic will appear here after you press the record button."
+             },
+    "profile":  {
+                    "error_fetch":  "Failed to fetch user data",
+                    "error_generic":  "An error occurred while fetching user data",
+                    "header":  {
+                                   "friends":  "friends",
+                                   "streak":  "streak",
+                                   "interests":  "Interests",
+                                   "no_interests":  "No interests added"
+                               },
+                    "dashboard_button":  "Dashboard",
+                    "select_date_me":  "Select a date to view your recorded speeches.",
+                    "select_date_other":  "Select a date to view speeches.",
+                    "no_speeches":  "No speeches recorded for the selected date.",
+                    "error_loading":  "Error loading profile",
+                    "user_not_found":  "User not found",
+                    "back":  "Back",
+                    "friendship":  {
+                                       "req_sent":  "Friend request sent",
+                                       "req_incoming":  "You have an incoming friend request",
+                                       "requests":  "Requests",
+                                       "connect_hint":  "Connect with the user to see their speeches",
+                                       "send_request":  "Send friend request"
+                                   }
+                },
+    "report_frame":  {
+                         "video_description":  "Video description:",
+                         "report_reasons":  "Report reasons:",
+                         "menu":  {
+                                      "instructions":  "Instructions",
+                                      "dismiss":  "Dismiss report",
+                                      "delete":  "Delete video",
+                                      "ban":  "Ban user"
+                                  }
+                     },
+    "interests_list":  {
+                           "travel":  "Travel",
+                           "music":  "Music",
+                           "politics":  "Politics",
+                           "science":  "Science",
+                           "nature":  "Nature",
+                           "art":  "Art",
+                           "gaming":  "Gaming",
+                           "movies":  "Movies",
+                           "books":  "Books",
+                           "photography":  "Photography",
+                           "technology":  "Technology",
+                           "fashion":  "Fashion",
+                           "food":  "Food",
+                           "fitness":  "Fitness",
+                           "sports":  "Sports"
+                       }
 }

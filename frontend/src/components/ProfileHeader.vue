@@ -52,10 +52,10 @@
           {{ $t('profile.header.interests') }}
         </h3>
         <div v-if="interests.length > 0" class="flex flex-wrap gap-2">
-          <Chip 
-            v-for="interest in interests" 
+          <Chip
+            v-for="interest in interests"
             :key="interest"
-            :label="interest"
+            :label="getTranslatedInterestLabel(interest)"
             class="interest-chip"
           />
         </div>
@@ -108,6 +108,14 @@ export default {
     const loading = ref(true);
     const error = ref('');
     const interests = ref([]);
+
+    const getTranslatedInterestLabel = (slug) => {
+      const translations = t('interests_list');
+      if (translations && typeof translations === 'object' && slug in translations) {
+        return translations[slug];
+      }
+      return slug.replace('_', ' ').charAt(0).toUpperCase() + slug.slice(1);
+    };
 
     const displayUser = computed(() => {
       return props.otherUserData || user.value;
@@ -203,7 +211,8 @@ export default {
       interests,
       canViewFriends,
       shouldShowInterests,
-      handleShowFriends
+      handleShowFriends,
+      getTranslatedInterestLabel
     };
   },
 };

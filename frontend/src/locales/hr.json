@@ -1,271 +1,287 @@
 {
-    "users_videos": {
-        "title": "Videozapisi korisnika",
-        "select_month": "Odaberite mjesec i godinu:",
-        "no_videos": "Korisnik {handle} nema snimljenih videozapisa za odabrani mjesec.",
-        "delete_btn": "Obriši video",
-        "confirm_delete_msg": "Jeste li sigurni da želite obrisati ovaj videozapis?",
-        "confirm_delete_title": "Potvrda brisanja videozapisa",
-        "error_fetch": "Greška pri dohvaćanju videozapisa korisnika"
-    },
-    "stats": {
-        "speeches_by_interest": "Govori prema interesima",
-        "freq_by_topic": "Frekvencije govora po svim temama",
-        "no_data": "Nema podataka",
-        "daily_activity": {
-            "recorded_speeches": "Snimljeni govori"
-        },
-        "user_growth": {
-            "title": "Broj korisnika",
-            "subtitle": "Mjesečne registracije korisnika",
-            "total_users_label": "Ukupno korisnika"
-        }
-    },
-    "settings": {
-        "lang": {
-            "croatian": "Hrvatski",
-            "english": "Engleski"
-        },
-        "title": "Postavke računa",
-        "upload_photo": "Prenesite novu profilnu fotografiju",
-        
-        "select_language": "Odaberite jezik",
-        "change_interests": "Promijenite svoje interese",
-        "notifications": {
-            "title": "Postavke obavijesti",
-            "email": "e-mail obavijesti",
-            "push": "push obavijesti",
-            "streak": "streak podsjetnici"
-        },
-        "delete_account": "Izbriši račun",
-        "delete_confirmation": {
-            "message": "Jeste li sigurni da želite izbrisati svoj račun? Ova se radnja ne može poništiti.",
-            "header": "Opasna radnja",
-            "cancel": "Odustani",
-            "delete": "Izbriši"
-        }
-    },
-    "onboarding": {
-        "welcome": "Dobrodošli",
-        "subtitle": "Dovršite svoj profil u nekoliko koraka",
-        "profile": "Profil",
-        "interests": "Interesi",
-        "loading": "Učitavanje...",
-        "phase1": {
-            "title": "Postavite svoj profil",
-            "subtitle": "Recite nam nešto o sebi",
-            "name_label": "Ime",
-            "name_placeholder": "Unesite svoje ime",
-            "name_hint": "Vaše puno ime ili ime koje želite koristiti",
-            "handle_label": "Korisničko ime (handle)",
-            "handle_placeholder": "npr. john_doe123"
-        },
-        "phase2": {
-            "title": "Odaberite svoje interese",
-            "subtitle": "Izaberite teme koje vas zanimaju (odaberite najmanje 1)",
-            "selected": "odabrano"
-        }
-    },
-    "banned": {
-        "title": "Račun suspendiran",
-        "subtitle": "Pristup vašem računu je privremeno onemogućen",
-        "reason_title": "Razlog zabrane",
-        "reason_missing": "Razlog nije naveden",
-        "appeal_info": "Ako smatrate da je došlo do greške, možete kontaktirati podršku za dodatne informacije ili podnošenje žalbe.",
-        "privacy_info": "Za pitanja o privatnosti ili brisanju računa obratite se podršci"
-    },
-    "login": {
-        "button": "Prijava",
-        "welcome_title": "Dobrodošli natrag",
-        "welcome_subtitle": "Prijavite se za nastavak na DailySpeakUp",
-        "continue_google": "Nastavi s Googleom",
-        "or": "ILI",
-        "email_label": "Email adresa",
-        "email_placeholder": "vi@primjer.com",
-        "admin_password_label": "Admin lozinka",
-        "sending": "Šlanje...",
-        "send_magic_link": "Pošalji Magic Link",
-        "login_root_admin": "Prijavi se kao root Admin",
-        "magic_link_sent": "Magic link poslan!",
-        "check_email_at": "Provjerite svoj email na",
-        "magic_link_instructions": "Kliknite na poveznicu u emailu za prijavu. Možete zatvoriti ovaj prozor.",
-        "error": {
-            "google": "Neuspješna prijava s Googleom",
-            "magic_link": "Neuspješno slanje magic linka. Pokušajte ponovno.",
-            "generic": "Neuspješna prijava"
-        }
-    },
-    "common": {
-        "cancel": "Odustani",
-        "confirm": "Potvrdi",
-        "loading": "Učitavanje...",
-        "logout": "Odjava",
-        "close": "Zatvori"
-    },
-    "landing": {
-        "hero_title": "DailySpeakUp",
-        "hero_subtitle_1": "U današnjem akademskom i poslovnom okruženju, mnogi se i dalje suočavaju s izazovima javnog nastupa i jasne, samouvjerene komunikacije – ključne vještine za osobni i profesionalni uspjeh.",
-        "hero_subtitle_2": "DailySpeakUp nudi jednostavno i pristupačno rješenje — svakodnevne govorne izazove od jedne minute koji ti pomažu da s vremenom postaneš sigurniji i tečniji govornik.",
-        "hero_subtitle_3": "Bez potrebe za skupim tečajevima ili mentorima, možeš svakodnevno vježbati, pratiti vlastiti napredak i dobivati povratne informacije od zajednice koja uči i napreduje zajedno s tobom.",
-        "how_it_works_title": "Kako to izgleda u praksi",
-        "how_it_works_subtitle": "Tri jednostavna koraka",
-        "step_1_title": "Odabir teme",
-        "step_1_desc": "Označi svoje interese i odaberi temu od ponuđenih opcija.",
-        "step_2_title": "Kratko snimanje",
-        "step_2_desc": "1 minuta govora na webu ili mobitelu.",
-        "step_3_title": "Povratna informacija",
-        "step_3_desc": "Dobivaš detaljne komentare od zajednice.",
-        "benefits_title": "Što dobiješ",
-        "benefit_1_title": "Redovitu praksu",
-        "benefit_1_desc": "Svakodnevne vježbe koje stanu u jedan dan.",
-        "benefit_2_title": "Mali koraci",
-        "benefit_2_desc": "Dovoljno je pet minuta.",
-        "benefit_3_title": "Jasan feedback",
-        "benefit_3_desc": "Jasan i konkretan feedback za tvoj napredak.",
-        "benefit_4_title": "Privatnost",
-        "benefit_4_desc": "Tvoje snimke i podaci su zaštićeni i neće biti dijeljeni bez tvog pristanka.",
-        "footer_rights": "DailySpeakUp — Privacy • Contact • About"
-    },
-    "dashboard": {
-        "tabs": {
-            "users": "Korisnici",
-            "reported_videos": "Prijavljeni videozapisi",
-            "bans": "Uručene zabrane",
-            "stats": "Statistika"
-        }
-    },
-    "not_found": {
-        "message": "404 - Stranica nije pronađena 😳"
-    },
-    "admin_dashboard": {
-        "users": {
-            "search_placeholder": "Pretraži korisnike po korisničkom imenu...",
-            "table": {
-                "user": "Korisnik",
-                "videos_tooltip": "Prikaži videozapise",
-                "ban_tooltip": "Uruči zabranu",
-                "role": "Korisnička uloga",
-                "role_tooltip": "Promijeni ulogu",
-                "role_filter_placeholder": "Filtriraj po ulozi"
-            },
-            "roles": {
-                "user": "Korisnik",
-                "moderator": "Moderator",
-                "admin": "Administrator"
-            }
-        },
-        "reported_videos": {
-            "instructions_title": "Upute za prijavljene videozapise",
-            "instructions_intro": "Opis videozapisa i razlozi zbog kojih je video prijavljen nalaze se u kliznom okviru svakog prijavljenog videozapisa.",
-            "instructions_actions": "Možete poduzeti radnje kao što su brisanje prijave, brisanje videozapisa ili uručenje zabrane koristeći odgovarajuće gumbe na okviru prijave.",
-            "instructions_dismiss": "Brisanje prijave, pritiskom na dugme s ikonom (ljubičasto), uklanja samo prijavu, odbacuje ju u sustavu.",
-            "instructions_delete": "Brisanje videozapisa, pritiskom na dugme s ikonom (narančasto), trajno uklanja videozapis s platforme.",
-            "instructions_ban": "Uručivanje zabrane korisniku pritiskom na dugme s ikonom (crveno) sprječava korisnika da prenosi nove videozapise na platformu.",
-            "confirm_dismiss": {
-                "message": "Jeste li sigurni da želite obrisati ovu prijavu?",
-                "header": "Potvrda brisanja prijave",
-                "accept": "Obriši prijavu",
-                "reject": "Odustani"
-            },
-            "confirm_delete": {
-                "message": "Jeste li sigurni da želite obrisati ovaj videozapis?",
-                "header": "Potvrda brisanja videozapisa",
-                "accept": "Obriši video",
-                "reject": "Odustani"
-            }
-        },
-        "bans": {
-            "table": {
-                "user": "Korisnik",
-                "banned_by": "Uručitelj zabrane",
-                "reason": "Razlog zabrane",
-                "details": "Detalji",
-                "unban": "Poništi zabranu"
-            },
-            "confirm_unban": {
-                "message": "Jeste li sigurni da želite poništiti zabranu korisnika",
-                "header": "Potvrda poništavanja zabrane",
-                "accept": "Poništi zabranu",
-                "reject": "Odustani"
-            },
-            "popover": {
-                "banned_by": "Zabranu je uručio:",
-                "reason": "Razlog zabrane:"
-            },
-            "confirm_ban_issue": {
-                "header": "Potvrda uručivanja zabrane",
-                "message": "Jeste li sigurni da želite uručiti zabranu korisniku",
-                "select_reason_placeholder": "Odaberite razlog",
-                "input_reason_placeholder": "Unesite razlog"
-            }
-        },
-        "stats": {
-            "total_users": "Broj korisnika",
-            "total_speeches": "Ukupno govora",
-            "pending_reports": "Postojeće prijave",
-            "total_bans": "Uručene zabrane"
-        },
-        "custom_reason": "Prilagođeni razlog"
-    },
-    "recorder": {
-        "topic": "Vaša tema:",
-        "camera_loading": "Dohvaćanje kamere...",
-        "recording_in": "Snimanje za...",
-        "speakup": "SpeakUp!",
-        "stop_btn": "Zaustavi snimanje",
-        "success_title": "Uspješno snimljeno!",
-        "success_msg": "Vaš DailySpeakUp je pohranjen! 🎉",
-        "error_start": "Greška pri pokretanju sesije snimanja. Provjerite vezu ili pokušajte ponovno."
-    },
-    "speech": {
-        "rating": "Ocjena:",
-        "private": "Privatno",
-        "friends": "Za prijatelje",
-        "delete": "Obriši"
-    },
-    "friends": {
-        "title": "Popis prijatelja",
-        "loading": "Učitavanje prijatelja...",
-        "empty": "Nema prijatelja za prikazati."
-    },
-    "main": {
-        "start_exercise": "Započnite vježbu!",
-        "speech_topic_title": "Tema za govor",
-        "interest_label": "Interes:",
-        "topic_placeholder": "Vaša će se tema za govor pojaviti ovdje nakon što pritisnete gumb za snimanje."
-    },
-    "profile": {
-        "error_fetch": "Došlo je do greške pri dohvaćanju podataka korisnika",
-        "error_generic": "Došlo je do greške pri dohvaćanju podataka korisnika",
-        "header": {
-            "friends": "prijatelji",
-            "streak": "streak",
-            "interests": "Interesi",
-            "no_interests": "Nema dodanih interesa"
-        },
-        "dashboard_button": "Kontrolna ploča",
-        "select_date_me": "Odaberite datum za pregled Vaših snimljenih govora.",
-        "select_date_other": "Odaberite datum za pregled govora.",
-        "no_speeches": "Ne postoje snimljeni govori za odabrani datum.",
-        "error_loading": "Greška pri učitavanju profila",
-        "user_not_found": "Korisnik nije pronađen",
-        "back": "Nazad",
-        "friendship": {
-            "req_sent": "Zahtjev za prijateljstvo poslan",
-            "req_incoming": "Imate pristigli zahtjev za prijateljstvo",
-            "requests": "Zahtjevi",
-            "connect_hint": "Povežite se s korisnikom da biste vidjeli njihove govore",
-            "send_request": "Pošalji zahtjev za prijateljstvo"
-        }
-    },
-    "report_frame": {
-        "video_description": "Opis videa:",
-        "report_reasons": "Razlozi prijave:",
-        "menu": {
-            "instructions": "Upute",
-            "dismiss": "Obriši prijavu",
-            "delete": "Obriši video",
-            "ban": "Uruči zabranu"
-        }
-    }
+    "users_videos":  {
+                         "title":  "Videozapisi korisnika",
+                         "select_month":  "Odaberite mjesec i godinu:",
+                         "no_videos":  "Korisnik {handle} nema snimljenih videozapisa za odabrani mjesec.",
+                         "delete_btn":  "Obriši video",
+                         "confirm_delete_msg":  "Jeste li sigurni da želite obrisati ovaj videozapis?",
+                         "confirm_delete_title":  "Potvrda brisanja videozapisa",
+                         "error_fetch":  "Greška pri dohvaćanju videozapisa korisnika"
+                     },
+    "stats":  {
+                  "speeches_by_interest":  "Govori prema interesima",
+                  "freq_by_topic":  "Frekvencije govora po svim temama",
+                  "no_data":  "Nema podataka",
+                  "daily_activity":  {
+                                         "recorded_speeches":  "Snimljeni govori"
+                                     },
+                  "user_growth":  {
+                                      "title":  "Broj korisnika",
+                                      "subtitle":  "Mjesečne registracije korisnika",
+                                      "total_users_label":  "Ukupno korisnika"
+                                  }
+              },
+    "settings":  {
+                     "lang":  {
+                                  "croatian":  "Hrvatski",
+                                  "english":  "Engleski"
+                              },
+                     "title":  "Postavke računa",
+                     "upload_photo":  "Prenesite novu profilnu fotografiju",
+                     "select_language":  "Odaberite jezik",
+                     "change_interests":  "Promijenite svoje interese",
+                     "notifications":  {
+                                           "title":  "Postavke obavijesti",
+                                           "email":  "e-mail obavijesti",
+                                           "push":  "push obavijesti",
+                                           "streak":  "streak podsjetnici"
+                                       },
+                     "delete_account":  "Izbriši račun",
+                     "delete_confirmation":  {
+                                                 "message":  "Jeste li sigurni da želite izbrisati svoj račun? Ova se radnja ne može poništiti.",
+                                                 "header":  "Opasna radnja",
+                                                 "cancel":  "Odustani",
+                                                 "delete":  "Izbriši"
+                                             }
+                 },
+    "onboarding":  {
+                       "welcome":  "Dobrodošli",
+                       "subtitle":  "Dovršite svoj profil u nekoliko koraka",
+                       "profile":  "Profil",
+                       "interests":  "Interesi",
+                       "loading":  "Učitavanje...",
+                       "phase1":  {
+                                      "title":  "Postavite svoj profil",
+                                      "subtitle":  "Recite nam nešto o sebi",
+                                      "name_label":  "Ime",
+                                      "name_placeholder":  "Unesite svoje ime",
+                                      "name_hint":  "Vaše puno ime ili ime koje želite koristiti",
+                                      "handle_label":  "Korisničko ime (handle)",
+                                      "handle_placeholder":  "npr. john_doe123"
+                                  },
+                       "phase2":  {
+                                      "title":  "Odaberite svoje interese",
+                                      "subtitle":  "Izaberite teme koje vas zanimaju (odaberite najmanje 1)",
+                                      "selected":  "odabrano"
+                                  }
+                   },
+    "banned":  {
+                   "title":  "Račun suspendiran",
+                   "subtitle":  "Pristup vašem računu je privremeno onemogućen",
+                   "reason_title":  "Razlog zabrane",
+                   "reason_missing":  "Razlog nije naveden",
+                   "appeal_info":  "Ako smatrate da je došlo do greške, možete kontaktirati podršku za dodatne informacije ili podnošenje žalbe.",
+                   "privacy_info":  "Za pitanja o privatnosti ili brisanju računa obratite se podršci"
+               },
+    "login":  {
+                  "button":  "Prijava",
+                  "welcome_title":  "Dobrodošli natrag",
+                  "welcome_subtitle":  "Prijavite se za nastavak na DailySpeakUp",
+                  "continue_google":  "Nastavi s Googleom",
+                  "or":  "ILI",
+                  "email_label":  "Email adresa",
+                  "email_placeholder":  "vi@primjer.com",
+                  "admin_password_label":  "Admin lozinka",
+                  "sending":  "Šlanje...",
+                  "send_magic_link":  "Pošalji Magic Link",
+                  "login_root_admin":  "Prijavi se kao root Admin",
+                  "magic_link_sent":  "Magic link poslan!",
+                  "check_email_at":  "Provjerite svoj email na",
+                  "magic_link_instructions":  "Kliknite na poveznicu u emailu za prijavu. Možete zatvoriti ovaj prozor.",
+                  "error":  {
+                                "google":  "Neuspješna prijava s Googleom",
+                                "magic_link":  "Neuspješno slanje magic linka. Pokušajte ponovno.",
+                                "generic":  "Neuspješna prijava"
+                            }
+              },
+    "common":  {
+                   "cancel":  "Odustani",
+                   "confirm":  "Potvrdi",
+                   "loading":  "Učitavanje...",
+                   "logout":  "Odjava",
+                   "close":  "Zatvori"
+               },
+    "landing":  {
+                    "hero_title":  "DailySpeakUp",
+                    "hero_subtitle_1":  "U današnjem akademskom i poslovnom okruženju, mnogi se i dalje suočavaju s izazovima javnog nastupa i jasne, samouvjerene komunikacije – ključne vještine za osobni i profesionalni uspjeh.",
+                    "hero_subtitle_2":  "DailySpeakUp nudi jednostavno i pristupačno rješenje — svakodnevne govorne izazove od jedne minute koji ti pomažu da s vremenom postaneš sigurniji i tečniji govornik.",
+                    "hero_subtitle_3":  "Bez potrebe za skupim tečajevima ili mentorima, možeš svakodnevno vježbati, pratiti vlastiti napredak i dobivati povratne informacije od zajednice koja uči i napreduje zajedno s tobom.",
+                    "how_it_works_title":  "Kako to izgleda u praksi",
+                    "how_it_works_subtitle":  "Tri jednostavna koraka",
+                    "step_1_title":  "Odabir teme",
+                    "step_1_desc":  "Označi svoje interese i odaberi temu od ponuđenih opcija.",
+                    "step_2_title":  "Kratko snimanje",
+                    "step_2_desc":  "1 minuta govora na webu ili mobitelu.",
+                    "step_3_title":  "Povratna informacija",
+                    "step_3_desc":  "Dobivaš detaljne komentare od zajednice.",
+                    "benefits_title":  "Što dobiješ",
+                    "benefit_1_title":  "Redovitu praksu",
+                    "benefit_1_desc":  "Svakodnevne vježbe koje stanu u jedan dan.",
+                    "benefit_2_title":  "Mali koraci",
+                    "benefit_2_desc":  "Dovoljno je pet minuta.",
+                    "benefit_3_title":  "Jasan feedback",
+                    "benefit_3_desc":  "Jasan i konkretan feedback za tvoj napredak.",
+                    "benefit_4_title":  "Privatnost",
+                    "benefit_4_desc":  "Tvoje snimke i podaci su zaštićeni i neće biti dijeljeni bez tvog pristanka.",
+                    "footer_rights":  "DailySpeakUp — Privacy • Contact • About"
+                },
+    "dashboard":  {
+                      "tabs":  {
+                                   "users":  "Korisnici",
+                                   "reported_videos":  "Prijavljeni videozapisi",
+                                   "bans":  "Uručene zabrane",
+                                   "stats":  "Statistika"
+                               }
+                  },
+    "not_found":  {
+                      "message":  "404 - Stranica nije pronađena 😳"
+                  },
+    "admin_dashboard":  {
+                            "users":  {
+                                          "search_placeholder":  "Pretraži korisnike po korisničkom imenu...",
+                                          "table":  {
+                                                        "user":  "Korisnik",
+                                                        "videos_tooltip":  "Prikaži videozapise",
+                                                        "ban_tooltip":  "Uruči zabranu",
+                                                        "role":  "Korisnička uloga",
+                                                        "role_tooltip":  "Promijeni ulogu",
+                                                        "role_filter_placeholder":  "Filtriraj po ulozi"
+                                                    },
+                                          "roles":  {
+                                                        "user":  "Korisnik",
+                                                        "moderator":  "Moderator",
+                                                        "admin":  "Administrator"
+                                                    }
+                                      },
+                            "reported_videos":  {
+                                                    "instructions_title":  "Upute za prijavljene videozapise",
+                                                    "instructions_intro":  "Opis videozapisa i razlozi zbog kojih je video prijavljen nalaze se u kliznom okviru svakog prijavljenog videozapisa.",
+                                                    "instructions_actions":  "Možete poduzeti radnje kao što su brisanje prijave, brisanje videozapisa ili uručenje zabrane koristeći odgovarajuće gumbe na okviru prijave.",
+                                                    "instructions_dismiss":  "Brisanje prijave, pritiskom na dugme s ikonom (ljubičasto), uklanja samo prijavu, odbacuje ju u sustavu.",
+                                                    "instructions_delete":  "Brisanje videozapisa, pritiskom na dugme s ikonom (narančasto), trajno uklanja videozapis s platforme.",
+                                                    "instructions_ban":  "Uručivanje zabrane korisniku pritiskom na dugme s ikonom (crveno) sprječava korisnika da prenosi nove videozapise na platformu.",
+                                                    "confirm_dismiss":  {
+                                                                            "message":  "Jeste li sigurni da želite obrisati ovu prijavu?",
+                                                                            "header":  "Potvrda brisanja prijave",
+                                                                            "accept":  "Obriši prijavu",
+                                                                            "reject":  "Odustani"
+                                                                        },
+                                                    "confirm_delete":  {
+                                                                           "message":  "Jeste li sigurni da želite obrisati ovaj videozapis?",
+                                                                           "header":  "Potvrda brisanja videozapisa",
+                                                                           "accept":  "Obriši video",
+                                                                           "reject":  "Odustani"
+                                                                       }
+                                                },
+                            "bans":  {
+                                         "table":  {
+                                                       "user":  "Korisnik",
+                                                       "banned_by":  "Uručitelj zabrane",
+                                                       "reason":  "Razlog zabrane",
+                                                       "details":  "Detalji",
+                                                       "unban":  "Poništi zabranu"
+                                                   },
+                                         "confirm_unban":  {
+                                                               "message":  "Jeste li sigurni da želite poništiti zabranu korisnika",
+                                                               "header":  "Potvrda poništavanja zabrane",
+                                                               "accept":  "Poništi zabranu",
+                                                               "reject":  "Odustani"
+                                                           },
+                                         "popover":  {
+                                                         "banned_by":  "Zabranu je uručio:",
+                                                         "reason":  "Razlog zabrane:"
+                                                     },
+                                         "confirm_ban_issue":  {
+                                                                   "header":  "Potvrda uručivanja zabrane",
+                                                                   "message":  "Jeste li sigurni da želite uručiti zabranu korisniku",
+                                                                   "select_reason_placeholder":  "Odaberite razlog",
+                                                                   "input_reason_placeholder":  "Unesite razlog"
+                                                               }
+                                     },
+                            "stats":  {
+                                          "total_users":  "Broj korisnika",
+                                          "total_speeches":  "Ukupno govora",
+                                          "pending_reports":  "Postojeće prijave",
+                                          "total_bans":  "Uručene zabrane"
+                                      },
+                            "custom_reason":  "Prilagođeni razlog"
+                        },
+    "recorder":  {
+                     "topic":  "Vaša tema:",
+                     "camera_loading":  "Dohvaćanje kamere...",
+                     "recording_in":  "Snimanje za...",
+                     "speakup":  "SpeakUp!",
+                     "stop_btn":  "Zaustavi snimanje",
+                     "success_title":  "Uspješno snimljeno!",
+                     "success_msg":  "Vaš DailySpeakUp je pohranjen! 🎉",
+                     "error_start":  "Greška pri pokretanju sesije snimanja. Provjerite vezu ili pokušajte ponovno."
+                 },
+    "speech":  {
+                   "rating":  "Ocjena:",
+                   "private":  "Privatno",
+                   "friends":  "Za prijatelje",
+                   "delete":  "Obriši"
+               },
+    "friends":  {
+                    "title":  "Popis prijatelja",
+                    "loading":  "Učitavanje prijatelja...",
+                    "empty":  "Nema prijatelja za prikazati."
+                },
+    "main":  {
+                 "start_exercise":  "Započnite vježbu!",
+                 "speech_topic_title":  "Tema za govor",
+                 "interest_label":  "Interes:",
+                 "topic_placeholder":  "Vaša će se tema za govor pojaviti ovdje nakon što pritisnete gumb za snimanje."
+             },
+    "profile":  {
+                    "error_fetch":  "Došlo je do greške pri dohvaćanju podataka korisnika",
+                    "error_generic":  "Došlo je do greške pri dohvaćanju podataka korisnika",
+                    "header":  {
+                                   "friends":  "prijatelji",
+                                   "streak":  "streak",
+                                   "interests":  "Interesi",
+                                   "no_interests":  "Nema dodanih interesa"
+                               },
+                    "dashboard_button":  "Kontrolna ploča",
+                    "select_date_me":  "Odaberite datum za pregled Vaših snimljenih govora.",
+                    "select_date_other":  "Odaberite datum za pregled govora.",
+                    "no_speeches":  "Ne postoje snimljeni govori za odabrani datum.",
+                    "error_loading":  "Greška pri učitavanju profila",
+                    "user_not_found":  "Korisnik nije pronađen",
+                    "back":  "Nazad",
+                    "friendship":  {
+                                       "req_sent":  "Zahtjev za prijateljstvo poslan",
+                                       "req_incoming":  "Imate pristigli zahtjev za prijateljstvo",
+                                       "requests":  "Zahtjevi",
+                                       "connect_hint":  "Povežite se s korisnikom da biste vidjeli njihove govore",
+                                       "send_request":  "Pošalji zahtjev za prijateljstvo"
+                                   }
+                },
+    "report_frame":  {
+                         "video_description":  "Opis videa:",
+                         "report_reasons":  "Razlozi prijave:",
+                         "menu":  {
+                                      "instructions":  "Upute",
+                                      "dismiss":  "Obriši prijavu",
+                                      "delete":  "Obriši video",
+                                      "ban":  "Uruči zabranu"
+                                  }
+                     },
+    "interests_list":  {
+                           "travel":  "Putovanja",
+                           "music":  "Glazba",
+                           "politics":  "Politika",
+                           "science":  "Znanost",
+                           "nature":  "Priroda",
+                           "art":  "Umetnost",
+                           "gaming":  "Igre",
+                           "movies":  "Filmovi",
+                           "books":  "Knjige",
+                           "photography":  "Fotografija",
+                           "technology":  "Tehnologija",
+                           "fashion":  "Moda",
+                           "food":  "Hrana",
+                           "fitness":  "Fitness",
+                           "sports":  "Sport"
+                       }
 }

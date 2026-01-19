@@ -217,6 +217,14 @@
         }
     };
 
+    const getTranslatedInterestLabel = (slug) => {
+        const translations = t('interests_list');
+        if (translations && typeof translations === 'object' && slug in translations) {
+            return translations[slug];
+        }
+        return slug.replace('_', ' ').charAt(0).toUpperCase() + slug.slice(1);
+    };
+
 </script>
 
 <template>
@@ -233,7 +241,19 @@
                 
                 <!-- Theme selection removed -->
                 <Select v-model="selectedLanguage" :options="language" optionLabel="name" optionValue="code" :placeholder="$t('settings.select_language')" class="w-full mt-10" @update:modelValue="updateLanguage" />
-                <MultiSelect v-model="selectedInterests" :options="interests" optionLabel="name" optionValue="code" filter :placeholder="$t('settings.change_interests')"  class="w-full mt-10" />
+                <MultiSelect v-model="selectedInterests" :options="interests" optionLabel="name" optionValue="code" filter :placeholder="$t('settings.change_interests')"  class="w-full mt-10">
+                    <template #value="slotProps">
+                        <div v-if="slotProps.value && slotProps.value.length" class="flex flex-wrap gap-2">
+                            <span v-for="code in slotProps.value" :key="code" class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">{{ getTranslatedInterestLabel(code) }}</span>
+                        </div>
+                        <span v-else class="text-gray-400">{{ $t('settings.change_interests') }}</span>
+                    </template>
+                    <template #item="slotProps">
+                        <div class="flex items-center">
+                            <span>{{ getTranslatedInterestLabel(slotProps.option.code) }}</span>
+                        </div>
+                    </template>
+                </MultiSelect>
                 
                 <Panel :header="$t('settings.notifications.title')" class="mt-10">
                     <div class="mt-8 flex flex-col justify-start items-start">
