@@ -3,7 +3,7 @@ import Avatar from 'primevue/avatar'
 import { useRoute } from 'vue-router'
 import { ref, computed } from 'vue'
 import Login from '../components/LoginModal.vue'
-import { useI18n } from 'vue-i18n'
+import useI18n from 'vue-i18n'
 
 const isHome = computed(() => useRoute().path === '/')
 const { locale, t } = useI18n()
