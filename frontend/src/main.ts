@@ -62,6 +62,12 @@ initSuperTokens();
 
 const app = createApp(App);
 
+// Load language preference from localStorage
+const savedLanguage = localStorage.getItem('app-language');
+if (savedLanguage && (savedLanguage === 'hr' || savedLanguage === 'en')) {
+    i18n.global.locale.value = savedLanguage;
+}
+
 // middleware
 app.use(PrimeVue, {
     theme: {

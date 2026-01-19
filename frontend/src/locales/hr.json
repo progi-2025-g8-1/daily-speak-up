@@ -57,13 +57,21 @@
             "name_label": "Ime",
             "name_placeholder": "Unesite svoje ime",
             "name_hint": "Vaše puno ime ili ime koje želite koristiti",
-            "handle_label": "Korisničko ime (handle)",
-            "handle_placeholder": "npr. john_doe123"
+            "handle_label": "Korisničko ime",
+            "handle_placeholder": "npr. john_doe123",
+            "handle_taken": "Korisničko ime je već zauzeto",
+            "handle_available": "Korisničko ime je dostupno!",
+            "handle_requirements": "3-20 znakova, dozvoljena slova, brojevi i donja crta",
+            "continue_button": "Nastavi"
         },
         "phase2": {
             "title": "Odaberite svoje interese",
             "subtitle": "Izaberite teme koje vas zanimaju (odaberite najmanje 1)",
-            "selected": "odabrano"
+            "selected": "odabrano",
+            "empty_state": "Nema dostupnih interesa za prikaz",
+            "select_at_least_one": "Odaberite najmanje jedan interes",
+            "selected_count": "Odabrano: {count}",
+            "finish_button": "Završi postavljanje"
         }
     },
     "banned": {
@@ -272,5 +280,22 @@
         "search_placeholder": "Pretraži korisnike pomoću handlea ili emaila...",
         "no_users_found": "Nijedan korisnik nije pronađen",
         "search_prompt": "Pretražite korisnike s kojima se možete povezati"
+    },
+    "interests": {
+        "technology": "Tehnologija",
+        "sports": "Sport",
+        "music": "Glazba",
+        "movies": "Filmovi",
+        "books": "Knjige",
+        "travel": "Putovanja",
+        "food": "Hrana",
+        "art": "Umetnost",
+        "gaming": "Igre",
+        "fitness": "Fitness",
+        "science": "Znanost",
+        "fashion": "Moda",
+        "photography": "Fotografija",
+        "nature": "Priroda",
+        "politics": "Politika"
     }
 }

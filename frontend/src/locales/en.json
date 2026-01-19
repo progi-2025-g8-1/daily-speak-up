@@ -58,12 +58,20 @@
             "name_placeholder": "Enter your name",
             "name_hint": "Your full name or display name",
             "handle_label": "Username (handle)",
-            "handle_placeholder": "e.g. john_doe123"
+            "handle_placeholder": "e.g. john_doe123",
+            "handle_taken": "Handle is already taken",
+            "handle_available": "Handle is available!",
+            "handle_requirements": "3-20 characters, letters, numbers and underscore allowed",
+            "continue_button": "Continue"
         },
         "phase2": {
             "title": "Select your interests",
             "subtitle": "Choose topics you are interested in (select at least 1)",
-            "selected": "selected"
+            "selected": "selected",
+            "empty_state": "No interests available to display",
+            "select_at_least_one": "Select at least one interest",
+            "selected_count": "Selected: {count}",
+            "finish_button": "Finish setup"
         }
     },
     "banned": {
@@ -272,5 +280,22 @@
         "search_placeholder": "Search users by handle or email...",
         "no_users_found": "No users found",
         "search_prompt": "Search for users you can connect with"
+    },
+    "interests": {
+        "technology": "Technology",
+        "sports": "Sports",
+        "music": "Music",
+        "movies": "Movies",
+        "books": "Books",
+        "travel": "Travel",
+        "food": "Food",
+        "art": "Art",
+        "gaming": "Gaming",
+        "fitness": "Fitness",
+        "science": "Science",
+        "fashion": "Fashion",
+        "photography": "Photography",
+        "nature": "Nature",
+        "politics": "Politics"
     }
 }

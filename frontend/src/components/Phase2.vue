@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { api } from '../api'
 import Button from 'primevue/button'
 import Chip from 'primevue/chip'
 import ProgressSpinner from 'primevue/progressspinner'
 
 const emit = defineEmits<{(e:'done'): void}>()
+const { locale, t } = useI18n()
 type Interest = { slug: string; label: string }
 
 const catalog = ref<Interest[]>([])
@@ -18,7 +20,7 @@ const selectedCount = computed(() => picked.value.length)
 
 onMounted(async () => {
   try {
-    catalog.value = await api('/interests', { method: 'GET' })
+    catalog.value = await api(`/interests?lang=${locale.value}`, { method: 'GET' })
   } catch (error) {
     console.error('Error loading interests:', error)
     catalog.value = [
@@ -98,17 +100,17 @@ async function save() {
       <!-- Empty State -->
       <div v-if="catalog.length === 0" class="text-center py-8">
         <i class="pi pi-info-circle text-4xl text-muted mb-3"></i>
-        <p class="text-secondary">Nema dostupnih interesa za prikaz</p>
+        <p class="text-secondary">{{ t('onboarding.phase2.empty_state') }}</p>
       </div>
     </div>
 
     <!-- Action Buttons -->
     <div class="flex justify-between items-center pt-6 border-t border-light">
       <p class="text-sm text-light">
-        {{ selectedCount === 0 ? 'Odaberite najmanje jedan interes' : `Odabrano: ${selectedCount}` }}
+        {{ selectedCount === 0 ? t('onboarding.phase2.select_at_least_one') : t('onboarding.phase2.selected_count', { count: selectedCount }) }}
       </p>
       <Button 
-        label="Završi postavljanje"
+        :label="t('onboarding.phase2.finish_button')"
         icon="pi pi-check"
         iconPos="right"
         :disabled="selectedCount === 0"
