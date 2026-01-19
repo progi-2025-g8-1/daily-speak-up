@@ -33,7 +33,7 @@ INTEREST_TRANSLATIONS = {
         'books': 'Knjige',
         'travel': 'Putovanja',
         'food': 'Hrana',
-        'art': 'Umetnost',
+        'art': 'Umjetnost',
         'gaming': 'Igre',
         'fitness': 'Fitness',
         'science': 'Znanost',
