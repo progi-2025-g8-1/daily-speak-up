@@ -104,15 +104,15 @@ async function submit() {
       <!-- Handle validation messages -->
       <div v-if="handle && !checking" class="mt-2">
         <InlineMessage v-if="handleAvailable === false" severity="error" class="w-full">
-          @{{ handle }} je već zauzeto
+          {{ t('onboarding.phase1.handle_taken', { handle: handle }) }}
         </InlineMessage>
         <InlineMessage v-else-if="handleAvailable === true" severity="success" class="w-full">
-          @{{ handle }} je dostupno!
+          {{ t('onboarding.phase1.handle_available', { handle: handle }) }}
         </InlineMessage>
       </div>
       
       <small class="text-light">
-        3-20 znakova, dozvoljena slova, brojevi i donja crta
+        {{ t('onboarding.phase1.handle_requirements') }}
       </small>
     </div>
 
@@ -120,7 +120,7 @@ async function submit() {
     <div class="flex justify-end pt-4">
       <Button 
         type="submit" 
-        label="Nastavi"
+        :label="t('onboarding.phase1.continue_button')"
         icon="pi pi-arrow-right"
         iconPos="right"
         :loading="submitting || checking"
