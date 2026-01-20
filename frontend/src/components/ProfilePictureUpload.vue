@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { api } from '../api'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import Avatar from 'primevue/avatar'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
+import { getUserId } from '../auth'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -20,6 +21,26 @@ const emit = defineEmits<{
   (e: 'uploaded', url: string): void
   (e: 'deleted'): void
 }>()
+
+// Load photo directly from localStorage only
+const photoUrl = ref<string | null>(null)
+
+const loadPhotoFromStorage = async () => {
+  try {
+    const uid = await getUserId()
+    if (uid) {
+      const cached = localStorage.getItem(`profilePhoto:${uid}`)
+      photoUrl.value = cached || null
+      console.log(`[ProfilePictureUpload] Loaded from localStorage:`, !!cached)
+    }
+  } catch (e) {
+    console.warn('Failed to load photo:', e)
+  }
+}
+
+onMounted(() => {
+  loadPhotoFromStorage()
+})
 
 const uploadDialogVisible = ref(false)
 const cameraDialogVisible = ref(false)
@@ -170,32 +191,29 @@ async function uploadPhoto(file: File) {
   uploading.value = true
   
   try {
-    // Get upload URL from backend
-    const contentType = file.type
-    const uploadData = await api(`/photo/upload-url?content_type=${encodeURIComponent(contentType)}`)
-    
-    // Upload directly to S3 using presigned URL
-    const uploadResponse = await fetch(uploadData.upload_url, {
-      method: 'PUT',
-      body: file,
-      headers: {
-        'Content-Type': contentType
-      }
+    // Convert file to data URL FIRST (before upload) for local caching
+    const reader = new FileReader()
+    const dataUrl: string = await new Promise((resolve) => {
+      reader.onloadend = () => resolve(String(reader.result))
+      reader.readAsDataURL(file)
     })
     
-    if (!uploadResponse.ok) {
-      throw new Error('Failed to upload photo to S3')
+    // Upload via backend to avoid cross-origin CORS issues
+    const form = new FormData()
+    form.append('file', file)
+    await api('/photo/upload', {
+      method: 'POST',
+      body: form
+    })
+    
+    // Cache the file directly as data URL (we already have it!)
+    const uid = await getUserId()
+    if (uid) {
+      console.log(`[ProfilePictureUpload] Caching photo for userId=${uid}, size=${dataUrl.length} chars`);
+      localStorage.setItem(`profilePhoto:${uid}`, dataUrl)
+      console.log(`[ProfilePictureUpload] ✓ Photo cached successfully`);
     }
-    
-    // Update user profile with new photo URL
-    const photoKey = uploadData.key
-    await api('/user/me', {
-      method: 'PATCH',
-      body: JSON.stringify({ 
-        profile_picture_url: photoKey 
-      })
-    })
-    
+
     toast.add({
       severity: 'success',
       summary: t('profile_upload.success'),
@@ -203,7 +221,11 @@ async function uploadPhoto(file: File) {
       life: 3000
     })
     
-    emit('uploaded', photoKey)
+    // Reload from localStorage to display immediately
+    await loadPhotoFromStorage()
+    
+    // Emit data URL for display
+    emit('uploaded', dataUrl)
     
   } catch (error) {
     console.error('Error uploading photo:', error)
@@ -228,6 +250,16 @@ async function deletePhoto() {
         profile_picture_url: null 
       })
     })
+
+    // Remove cached photo from localStorage
+    try {
+      const uid = await getUserId()
+      if (uid) {
+        localStorage.removeItem(`profilePhoto:${uid}`)
+      }
+    } catch (e) {
+      console.warn('Failed to remove cached photo:', e)
+    }
     
     toast.add({
       severity: 'success',
@@ -260,28 +292,30 @@ defineExpose({
 <template>
   <div class="flex flex-col items-center gap-4">
     <!-- Avatar with upload button -->
-    <div class="relative">
-      <Avatar 
-        v-if="currentPhotoUrl"
-        :image="currentPhotoUrl"
-        :size="avatarSize"
-        :class="avatarClass"
-        shape="circle"
-        class="border-4 border-primary-100"
-      />
-      <Avatar 
-        v-else
-        icon="pi pi-user"
-        :size="avatarSize"
-        :class="avatarClass"
-        shape="circle"
-        class="border-4 border-primary-100 bg-primary-50 text-primary"
-      />
+    <div class="flex items-end gap-0">
+      <div class="relative">
+        <!-- Direct image from localStorage -->
+        <img 
+          v-if="photoUrl"
+          :src="photoUrl"
+          :class="avatarClass"
+          class="rounded-full border-4 border-primary-100 object-cover"
+          alt="Profile"
+        />
+        <!-- Fallback to default avatar if no photo -->
+        <div 
+          v-else
+          :class="avatarClass"
+          class="rounded-full border-4 border-primary-100 bg-primary-50 text-primary flex items-center justify-center text-4xl"
+        >
+          <i class="pi pi-user"></i>
+        </div>
+      </div>
       
       <Button
         icon="pi pi-camera"
         rounded
-        class="absolute bottom-0 right-0 shadow-lg"
+        class="shadow-lg mb-2 -ml-3"
         size="small"
         @click="openUploadDialog"
         :disabled="uploading"

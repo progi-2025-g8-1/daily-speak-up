@@ -12,10 +12,17 @@ const phase = ref<number | null>(null);
 const loading = ref(true);
 
 onMounted(async () => {
-  const st = await api('/onboarding/state', { method: 'GET' });
-  if (st.completed) return router.replace('/home');
-  phase.value = st.phase;
-  loading.value = false;
+  try {
+    const st = await api('/onboarding/state', { method: 'GET' });
+    if (st.completed) return router.replace('/home');
+    phase.value = st.phase;
+  } catch (e) {
+    console.warn('Onboarding state fetch failed; defaulting to phase 1:', e);
+    // Backend might be offline; default to phase 1 so user can proceed
+    phase.value = 1;
+  } finally {
+    loading.value = false;
+  }
 });
 
 function onPhase1Done() { phase.value = 2; }

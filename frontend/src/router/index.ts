@@ -110,8 +110,9 @@ async function isOnboardingComplete(): Promise<boolean | null> {
       return userData.onboarding_status === 'completed';
     }
     return null;
-  } catch (error) {
-    console.error('Error checking onboarding status:', error);
+  } catch (_error) {
+    // Backend might be offline; treat as unknown instead of throwing
+    console.warn('Onboarding check skipped: backend unreachable');
     return null;
   }
 }
@@ -130,8 +131,9 @@ async function isUserBanned(): Promise<{ banned: boolean; reason?: string; expir
       return await response.json();
     }
     return null;
-  } catch (error) {
-    console.error('Error checking ban status:', error);
+  } catch (_error) {
+    // Backend might be offline; treat as not banned to avoid hard lock
+    console.warn('Ban check skipped: backend unreachable');
     return null;
   }
 }
@@ -145,7 +147,7 @@ router.beforeEach(async (to, _from, next) => {
 
   if (authenticated) {
     const banStatus = await isUserBanned();
-    
+    // If backend unreachable (null), skip ban redirect
     if (banStatus?.banned) {
       if (to.path !== '/banned') {
         return next('/banned');

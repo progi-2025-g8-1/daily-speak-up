@@ -8,7 +8,7 @@
         <!-- Profile Picture with Upload for Own Profile -->
         <div v-if="!isOtherUser" class="relative">
           <ProfilePictureUpload 
-            :current-photo-url="displayUser.profile_picture_url"
+            :current-photo-url="profilePhotoUrl"
             :show-label="false"
             size="large"
             @uploaded="handlePhotoUploaded"
@@ -128,6 +128,7 @@ export default {
     const error = ref('');
     const interests = ref([]);
     const interestSlugs = ref([]);
+    const profilePhotoUrl = ref(null);
 
     const getTranslatedInterestLabel = (slug) => {
       try {
@@ -175,8 +176,9 @@ export default {
     };
 
     const handlePhotoUploaded = async (url) => {
-      // Refresh user data to get updated profile picture
-      window.location.reload();
+      // Display uploaded photo immediately
+      console.log(`[ProfileHeader] handlePhotoUploaded called with:`, { url, type: typeof url });
+      profilePhotoUrl.value = url;
     };
 
     const handlePhotoDeleted = () => {
@@ -254,6 +256,17 @@ export default {
           interests.value = interestsData.interests || [];
         }
 
+        // Load profile photo from localStorage cache
+        const uid = userId.value;
+        if (uid) {
+          const cached = localStorage.getItem(`profilePhoto:${uid}`);
+          console.log(`[ProfileHeader] userId=${uid}, cached=${!!cached}`);
+          if (cached) {
+            profilePhotoUrl.value = cached;
+            console.log(`[ProfileHeader] ✓ Profile photo loaded from cache`);
+          }
+        }
+
         // Fetch incoming requests count
         await fetchIncomingRequestsCount();
       } catch (e) {
@@ -278,7 +291,8 @@ export default {
       handleShowFriends,
       handlePhotoUploaded,
       handlePhotoDeleted,
-      getTranslatedInterestLabel
+      getTranslatedInterestLabel,
+      profilePhotoUrl
     };
   },
 };

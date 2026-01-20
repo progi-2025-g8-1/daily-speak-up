@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, UploadFile, File
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from supertokens_python.recipe.session import SessionContainer
@@ -81,4 +81,46 @@ async def get_photo_download_url(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f'Failed to generate download URL: {str(e)}'
+        )
+
+
+@router.post('/upload', response_class=JSONResponse)
+async def upload_profile_photo(
+    file: UploadFile = File(...),
+    s3_service: S3SecureService = Depends(get_s3_service),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Upload a profile photo via backend (avoids CORS issues with direct S3 uploads).
+    Accepts multipart/form-data with field name 'file'. Returns the S3 key and a presigned download URL.
+    """
+    try:
+        content_type = file.content_type or 'image/png'
+        if content_type not in ['image/png', 'image/jpeg', 'image/jpg']:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail='Invalid content type. Must be image/png or image/jpeg'
+            )
+
+        data = await file.read()
+        result = s3_service.upload_profile_photo(str(user.id), photo_data=data, content_type=content_type)
+
+        # Get presigned download URL for the uploaded photo
+        read = s3_service.get_photo_read_url(str(user.id))
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                'message': 'ok',
+                'key': result.get('key'),
+                'download_url': read.get('download_url')
+            }
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f'Error uploading profile photo: {str(e)}')
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f'Failed to upload profile photo: {str(e)}'
         )
