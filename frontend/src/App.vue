@@ -2,7 +2,6 @@
   import { RouterView, RouterLink } from 'vue-router';
   import { ref, onMounted, watch } from 'vue';
   import { useRoute } from 'vue-router';
-  import { useI18n } from 'vue-i18n';
   import LoginModal from './components/LoginModal.vue';
   import Logout from './components/Logout.vue';
   import User from './components/User.vue';

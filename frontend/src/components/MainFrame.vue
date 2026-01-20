@@ -41,8 +41,8 @@ const handleUploadData = (uploadMethod: string, uploadUrl: string, userId: strin
       class="w-full h-[53vh] lg:h-full flex flex-col justify-around items-center "
     >
       <div
-        class="justify-center font-sans text-[1.1vw] font-semibold text-center"
-        style="border: 1px solid var(--color-border-primary); color: var(--color-text-primary);"
+        class="justify-center font-sans text-3xl font-semibold text-center"
+        style="color: var(--color-text-primary);"
       >
         <h1>{{ $t('main.start_exercise') }}</h1>
       </div>

@@ -26,6 +26,7 @@ import i18n from './i18n';
 initSuperTokens();
 
 const app = createApp(App);
+const pinia = createPinia();
 
 // Load language preference from localStorage
 const savedLanguage = localStorage.getItem('app-language');
@@ -34,6 +35,8 @@ if (savedLanguage && (savedLanguage === 'hr' || savedLanguage === 'en')) {
 }
 
 // middleware
+app.use(pinia);
+
 app.use(PrimeVue, {
     theme: {
         preset: Lara,

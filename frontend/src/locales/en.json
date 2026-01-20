@@ -26,9 +26,14 @@
             "croatian": "Croatian",
             "english": "English"
         },
+        "theme": {
+            "light": "Light",
+            "dark": "Dark"
+        },
         "title": "Account Settings",
         "upload_photo": "Upload new profile photo",
         
+        "select_theme": "Select theme",
         "select_language": "Select language",
         "change_interests": "Change your interests",
         "notifications": {

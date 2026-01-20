@@ -2,8 +2,8 @@
   <div>
     <button 
       @click="showModal = true"
-      class="px-6 py-2.5 text-white font-semibold rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
-      style="background-color: var(--color-primary);">
+      class="text-white font-semibold rounded-lg transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center"
+      style="background-color: #2563eb; height: 42px; padding: 0 1rem;">
       {{ t('login.button') }}
     </button>
 
@@ -60,16 +60,16 @@
             </div>
 
             <div v-if="!emailSent">
-              <label class="block text-sm font-medium text-gray-700 mb-2" style="color: var(--color-text-dark);>{{ t('login.email_label') }}</label>
+              <label class="block text-sm font-medium text-gray-700 mb-2" style="color: var(--color-text-dark);">{{ t('login.email_label') }}</label>
               <InputText name="email"
                          type="text" 
                          :placeholder="t('login.email_placeholder')" 
                          @keyup.enter="handleEmailLogin"
                          @update:modelValue="checkMail"
                          v-model="email"
-                         class="w-full px-4 py-3"/>
-                         
-                style="border-color: var(--color-border-light); background-color: var(--color-bg-main); color: var(--color-text-dark);"
+                         class="w-full px-4 py-3"
+                         style="border-color: var(--color-border-light); background-color: var(--color-bg-main); color: var(--color-text-dark);"
+              />
               <label v-if="showPassword" class="block text-sm font-medium text-gray-700 mt-3">{{ t('login.admin_password_label') }}</label>
               <Password v-if="showPassword" v-model="passwordValue" :feedback="false" toggleMask class="w-full mt-3"  inputClass="w-full"/>
               <Button
@@ -77,7 +77,7 @@
                 @click="handleEmailLogin"
                 :disabled="!email || emailLoading"
                 variant="outlined"
-                class="w-full mt-4 px-4 py-3font-semibold rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center"
+                class="w-full mt-4 px-4 py-3 font-semibold rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center"
               >
                 <span v-if="emailLoading" class="flex items-center gap-2">
                   <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24">
@@ -94,7 +94,7 @@
                 :disabled="!email || emailLoading || !passwordValue"
                 variant="outlined"
                 :label="t('login.login_root_admin')"
-                class="w-full mt-4 px-4 py-3font-semibold rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center" />
+                class="w-full mt-4 px-4 py-3 font-semibold rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center" />
             </div>
 
             <div v-else class="text-center">
