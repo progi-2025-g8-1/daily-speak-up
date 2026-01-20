@@ -5,7 +5,20 @@
     <div v-else-if="displayUser" class="flex flex-col gap-4">
       <!-- User Info Section -->
       <div class="flex flex-row justify-around w-full">
+        <!-- Profile Picture with Upload for Own Profile -->
+        <div v-if="!isOtherUser" class="relative">
+          <ProfilePictureUpload 
+            :current-photo-url="displayUser.profile_picture_url"
+            :show-label="false"
+            size="large"
+            @uploaded="handlePhotoUploaded"
+            @deleted="handlePhotoDeleted"
+          />
+        </div>
+        
+        <!-- Avatar for Other Users -->
         <Avatar 
+          v-else
           :image="displayUser.profile_picture_url"
           :label="!displayUser.profile_picture_url ? (displayUser.handle?.[0]?.toUpperCase() || displayUser.email?.[0]?.toUpperCase()) : undefined"
           shape="circle" 
@@ -82,6 +95,7 @@ import Avatar from 'primevue/avatar';
 import Chip from 'primevue/chip';
 import ProgressSpinner from 'primevue/progressspinner';
 import Message from 'primevue/message';
+import ProfilePictureUpload from './ProfilePictureUpload.vue';
 import { useI18n } from 'vue-i18n';
 
 export default {
@@ -89,7 +103,8 @@ export default {
     Avatar,
     Chip,
     ProgressSpinner,
-    Message
+    Message,
+    ProfilePictureUpload
   },
   props: {
     otherUserData: {
@@ -157,6 +172,15 @@ export default {
         ? props.otherUserData?.id 
         : userId.value;
       emit('show-friends', idToEmit);
+    };
+
+    const handlePhotoUploaded = async (url) => {
+      // Refresh user data to get updated profile picture
+      window.location.reload();
+    };
+
+    const handlePhotoDeleted = () => {
+      window.location.reload();
     };
 
     const fetchIncomingRequestsCount = async () => {
@@ -252,6 +276,8 @@ export default {
       canViewFriends,
       shouldShowInterests,
       handleShowFriends,
+      handlePhotoUploaded,
+      handlePhotoDeleted,
       getTranslatedInterestLabel
     };
   },

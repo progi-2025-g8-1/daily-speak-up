@@ -253,7 +253,6 @@
                 :dismissable="false" class="!w-full lg:!w-[40vw]">
             <div class="flex flex-row justify-between items-center mt-2">
                 <User />
-                <Button icon="pi pi-upload" v-tooltip="{ value: $t('settings.upload_photo'), showDelay: 300, hideDelay: 300 }" rounded aria-label="Profilna" />
             </div>
 
             <div class="flex flex-col justify-start items-stretch w-full">
