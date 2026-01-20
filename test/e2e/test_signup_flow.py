@@ -73,14 +73,14 @@ class TestSignupFlow:
         
         # 2. Click login button
         login_btn = WebDriverWait(driver, 15).until(
-            EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Log In')]"))
+            EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Prijava')]"))
         )
         login_btn.click()
         time.sleep(2)
         
         # 3. Find email input
         email_input = WebDriverWait(driver, 10).until(
-            EC.visibility_of_element_located((By.CSS_SELECTOR, "input[type='email']"))
+            EC.visibility_of_element_located((By.CSS_SELECTOR, "input[name='email']"))
         )
         
         # 4. Test invalid email
@@ -90,7 +90,7 @@ class TestSignupFlow:
         # Try to find and click submit button with invalid email
         try:
             submit_btn_invalid = WebDriverWait(driver, 5).until(
-                EC.element_to_be_clickable((By.XPATH, "//button[.//span[contains(text(), 'Send Magic Link')]]"))
+                EC.element_to_be_clickable((By.XPATH, "//button[.//span[contains(text(), 'Magic Link')]]"))
             )
             submit_btn_invalid.click()
             time.sleep(1)
@@ -105,7 +105,7 @@ class TestSignupFlow:
         
         # Find submit button
         submit_btn = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.XPATH, "//button[.//span[contains(text(), 'Send Magic Link')]]"))
+            EC.element_to_be_clickable((By.XPATH, "//button[.//span[contains(text(), 'Magic Link')]]"))
         )
         submit_btn.click()
         time.sleep(2)

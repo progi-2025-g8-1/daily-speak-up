@@ -4,6 +4,7 @@ from pydantic import BaseModel, EmailStr
 
 from ..models import (
     AppLang,
+    AppTheme,
     OnboardingStatus,
     UserRole,
     SpeechVisibility
@@ -21,6 +22,7 @@ class UserResponse(BaseModel):
     profile_picture_url: Optional[str]
     onboarding_status: OnboardingStatus
     preferred_lang: AppLang
+    preferred_theme: AppTheme
     preferred_tz_offset: float
     email_notifications_enabled: bool
     push_notifications_enabled: bool

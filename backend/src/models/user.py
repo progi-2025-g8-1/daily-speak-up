@@ -14,7 +14,7 @@ import datetime
 import uuid
 
 from ..db import Base
-from .enums import UserRole, OnboardingStatus, AppLang
+from .enums import UserRole, OnboardingStatus, AppTheme, AppLang
 
 if TYPE_CHECKING:
     from .user_device import UserDevice
@@ -107,6 +107,11 @@ class User(Base):
     preferred_lang: Mapped[AppLang] = mapped_column(
         SQLEnum(AppLang, name='app_lang', create_type=True),
         default=AppLang.EN,
+        nullable=False,
+    )
+    preferred_theme: Mapped[AppTheme] = mapped_column(
+        SQLEnum(AppTheme, name='app_theme', create_type=True),
+        default=AppTheme.SYSTEM,
         nullable=False,
     )
     preferred_tz_offset: Mapped[float] = mapped_column(
