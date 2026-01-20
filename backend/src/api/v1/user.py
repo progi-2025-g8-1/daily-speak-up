@@ -10,7 +10,7 @@ from typing import List
 
 from ..deps import get_session, get_s3_service, get_current_user
 from ...db import get_db
-from ...schemas import UserResponse, UserCreate, MonthlyUserVideosResponse, VideoInfo, FriendsListResponse, FriendInfo, UserInterestsResponse, NotificationSettingUpdate, PublicUserProfile
+from ...schemas import UserResponse, UserCreate, MonthlyUserVideosResponse, VideoInfo, FriendsListResponse, FriendInfo, UserInterestsResponse, NotificationSettingUpdate, LanguageUpdate, PublicUserProfile
 from ...models import User, Friendship, UserStreak, Speech, UserDevice, UserInterest, Interest, Rating, Ban, Report, UserRole, RequestStatus, SpeechVisibility
 from supertokens_python.recipe.session import SessionContainer
 from supertokens_python.asyncio import delete_user
@@ -100,7 +100,6 @@ async def me(
         profile_picture_url=user.profile_picture_url,
         onboarding_status=user.onboarding_status,
         preferred_lang=user.preferred_lang,
-        preferred_theme=user.preferred_theme,
         preferred_tz_offset=user.preferred_tz_offset,
         email_notifications_enabled=user.email_notifications_enabled,
         push_notifications_enabled=user.push_notifications_enabled,
@@ -388,6 +387,24 @@ async def update_streak_reminders(
     user: User = Depends(get_current_user)
 ):
     user.streak_reminders_enabled = data.enabled
+    db.commit()
+    db.refresh(user)
+
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={
+            'message': 'ok'
+        }
+    )
+
+@router.put('/preferred-language', response_class=JSONResponse)
+async def update_preferred_language(
+    data: LanguageUpdate,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user)
+):
+    """Update the user's preferred application language."""
+    user.preferred_lang = data.lang
     db.commit()
     db.refresh(user)
 

@@ -8,7 +8,9 @@ import Skeleton from 'primevue/skeleton';
 import Dialog from 'primevue/dialog';
 import type { ReportInfo } from '../types/report-info';
 import { outlined } from '@primeuix/themes/aura/message';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8123/api/v1'
 const videos = ref<ReportInfo[]>([]);
 const first = ref(0);
@@ -30,7 +32,7 @@ const handleShowInstructions = () => {
 };
 
 const showConfirmBanDialog = (user_id: string, handle: string, reasons: string[] | undefined) => {
-    const updatedReasons = reasons ? [...reasons, 'Prilagođeni razlog'] : ['Prilagođeni razlog'];
+    const updatedReasons = reasons ? [...reasons, t('admin_dashboard.custom_reason')] : [t('admin_dashboard.custom_reason')];
     let reasonObjectList = [];
     for (let reason of updatedReasons) {
         reasonObjectList.push({name: reason});
@@ -67,11 +69,11 @@ onBeforeUnmount(() => {
 
 const handleDismissReport = (video_id: string) => {
     confirm.require({
-        message: 'Jeste li sigurni da želite obrisati ovu prijavu?',
-        header: 'Potvrda brisanja prijave',
+        message: t('admin_dashboard.reported_videos.confirm_dismiss.message'),
+        header: t('admin_dashboard.reported_videos.confirm_dismiss.header'),
         icon: 'pi pi-exclamation-triangle',
-        acceptProps: { label: 'Obriši prijavu', icon: 'pi pi-times', severity: 'danger' },
-        rejectProps: { label: 'Odustani', outlined: true, severity: 'secondary' },
+        acceptProps: { label: t('admin_dashboard.reported_videos.confirm_dismiss.accept'), icon: 'pi pi-times', severity: 'danger' },
+        rejectProps: { label: t('admin_dashboard.reported_videos.confirm_dismiss.reject'), outlined: true, severity: 'secondary' },
         accept: async () => {
             const response = await fetch(`${API_BASE_URL}/dashboard/dismiss-reports/${video_id}`, {
                 method: 'DELETE',
@@ -95,11 +97,11 @@ const handleDismissReport = (video_id: string) => {
 
 const handleDeleteVideo = (video_id: string) => {
     confirm.require({
-        message: 'Jeste li sigurni da želite obrisati ovaj videozapis?',
-        header: 'Potvrda brisanja videozapisa',
+        message: t('admin_dashboard.reported_videos.confirm_delete.message'),
+        header: t('admin_dashboard.reported_videos.confirm_delete.header'),
         icon: 'pi pi-exclamation-triangle',
-        acceptProps: { label: 'Obriši video', icon: 'pi pi-times', severity: 'danger' },
-        rejectProps: { label: 'Odustani', outlined: true, severity: 'secondary' },
+        acceptProps: { label: t('admin_dashboard.reported_videos.confirm_delete.accept'), icon: 'pi pi-times', severity: 'danger' },
+        rejectProps: { label: t('admin_dashboard.reported_videos.confirm_delete.reject'), outlined: true, severity: 'secondary' },
         accept: async () => {
             const response = await fetch(`${API_BASE_URL}/video/${video_id}`, {
                 method: 'DELETE',
@@ -123,7 +125,7 @@ const handleDeleteVideo = (video_id: string) => {
 </script>
 
 <template>
-    <Dialog header="Upute za prijavljene videozapise" 
+    <Dialog :header="t('admin_dashboard.reported_videos.instructions_title')" 
             v-model:visible="showReasonDialog" 
             :modal="true" 
             :closable="true" 
@@ -131,20 +133,20 @@ const handleDeleteVideo = (video_id: string) => {
             class="lg:w-2/3 md:w-3/4 w-[95%]">
         <ul class="list-disc pl-5 space-y-2">
             <li>
-                Opis videozapisa i razlozi zbog kojih je video prijavljen nalaze se u kliznom okviru svakog prijavljenog videozapisa.
+                {{ t('admin_dashboard.reported_videos.instructions_intro') }}
             </li>
             <li>
-                Možete poduzeti radnje kao što su brisanje prijave, brisanje videozapisa ili uručenje zabrane koristeći odgovarajuće gumbe na okviru prijave.
+                {{ t('admin_dashboard.reported_videos.instructions_actions') }}
                 
                 <ul class="list-disc pl-5 mt-2 space-y-1">
                     <li>
-                        Brisanje prijave, pritiskom na dugme s ikonom <span class="pi pi-angle-double-left text-purple-600"></span>, uklanja samo prijavu, odbacuje ju u sustavu.
+                        {{ t('admin_dashboard.reported_videos.instructions_dismiss') }}
                     </li>
                     <li>
-                        Brisanje videozapisa, pritiskom na dugme s ikonom <span class="pi pi-delete-left text-orange-600"></span>, trajno uklanja videozapis s platforme.
+                        {{ t('admin_dashboard.reported_videos.instructions_delete') }}
                     </li>
                     <li>
-                        Uručivanje zabrane korisniku pritiskom na dugme s ikonom <span class="pi pi-times text-red-600"></span> sprječava korisnika da prenosi nove videozapise na platformu.
+                        {{ t('admin_dashboard.reported_videos.instructions_ban') }}
                     </li>
                 </ul>
             </li>

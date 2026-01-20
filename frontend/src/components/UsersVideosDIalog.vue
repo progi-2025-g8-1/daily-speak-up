@@ -7,7 +7,9 @@
     import Carousel from 'primevue/carousel'; 
     import Card from 'primevue/card';
     import { useConfirm } from "primevue/useconfirm";
+    import { useI18n } from 'vue-i18n';
 
+    const { t } = useI18n();
     const props = defineProps<{
         showDialog: boolean,
         user: any | null | undefined
@@ -42,7 +44,7 @@
                 console.log('Dohvaćeni videozapisi korisnika:', videos.value);
                 console.log('Ukupno videozapisa:', videos.value.length);
             } else {
-                console.error('Greška pri dohvaćanju videozapisa korisnika');
+                console.error(t('users_videos.error_fetch'));
             }
         }
     };
@@ -59,18 +61,18 @@
                 videos.value = data.videos;
                 console.log('Dohvaćeni videozapisi korisnika:', videos.value);
             } else {
-                console.error('Greška pri dohvaćanju videozapisa korisnika');
+                 console.error(t('users_videos.error_fetch'));
             }
         }
     }, { immediate: true });
 
     const handleDeleteVideo = (video_id: string) => {
         confirm.require({
-            message: 'Jeste li sigurni da želite obrisati ovaj videozapis?',
-            header: 'Potvrda brisanja videozapisa',
+            message: t('users_videos.confirm_delete_msg'),
+            header: t('users_videos.confirm_delete_title'),
             icon: 'pi pi-exclamation-triangle',
-            acceptProps: { label: 'Obriši video', icon: 'pi pi-times', severity: 'danger' },
-            rejectProps: { label: 'Odustani', outlined: true, severity: 'secondary' },
+            acceptProps: { label: t('users_videos.delete_btn'), icon: 'pi pi-times', severity: 'danger' },
+            rejectProps: { label: t('common.cancel'), outlined: true, severity: 'secondary' },
             accept: async () => {
                 const response = await fetch(`${API_BASE_URL}/video/${video_id}`, {
                     method: 'DELETE',
@@ -104,19 +106,19 @@
     <Dialog v-model:visible="props.showDialog" modal :closable="false" class="w-[85vw]" >
         <template #header>
             <div class="flex justify-between items-center w-full">
-                <h3 class="m-0 text-xl font-bold">Videozapisi korisnika {{ props.user ? `@${props.user.handle}` : '' }}</h3>
+                <h3 class="m-0 text-xl font-bold">{{ t('users_videos.title') }} {{ props.user ? `@${props.user.handle}` : '' }}</h3>
                 <Button icon="pi pi-times" class="p-button-text p-button-plain" @click="$emit('update:showDialog', false)" aria-label="Close" rounded />
             </div>
         </template>
 
         <div class="flex flex-col justify-center gap-4 p-4">
             <div class="flex flex-row items-center gap-3">
-                <div class="text-lg font-semibold">Odaberite mjesec i godinu:</div>
+                <div class="text-lg font-semibold">{{ t('users_videos.select_month') }}</div>
                 <DatePicker v-model="chosenMonth" view="month" dateFormat="mm/yy" @update:modelValue="handleDateChange" />
             </div>
 
             <div v-if="videos.length === 0">
-                <Message severity="error">Korisnik {{ props.user ? `@${props.user.handle}` : '' }} nema snimljenih videozapisa za odabrani mjesec.</Message>
+                <Message severity="error">{{ t('users_videos.no_videos', { handle: props.user ? `@${props.user.handle}` : '' }) }}</Message>
             </div>
 
             <div v-else>
@@ -142,10 +144,11 @@
                                         preload="metadata"
                                         playsinline
                                     ></video>
-                                                                        <div class="mt-2 text-center">
-                                                                            <div class="font-semibold">{{ new Date(slotProps.data.year, slotProps.data.month - 1, slotProps.data.day).toLocaleDateString() }}</div>
-                                                                            <div class="text-sm text-gray-500">{{ slotProps.data.caption }}</div>
-                                                                            <Button                                              label="Obriši video"
+                                    <div class="mt-2 text-center">
+                                        <div class="font-semibold">{{ new Date(slotProps.data.year, slotProps.data.month - 1, slotProps.data.day).toLocaleDateString() }}</div>
+                                        <div class="text-sm text-gray-500">{{ slotProps.data.caption }}</div>
+                                        <Button 
+                                            :label="t('users_videos.delete_btn')"
                                             icon="pi pi-delete-left" 
                                             class="mt-6"  
                                             severity="danger" 

@@ -9,7 +9,9 @@ import Button from 'primevue/button';
 import Select from 'primevue/select';
 import { FilterMatchMode } from '@primevue/core/api';
 import UsersVideosDIalog from './UsersVideosDIalog.vue';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8123/api/v1'
 const users = ref([]);
 const showUsers = ref([]);
@@ -23,10 +25,10 @@ const showUsersVideosDialog = ref(false);
 const userInfo = ref<any | null | undefined>(null);
 const banHandle = ref<string | null | undefined>(null);
 const banUserId = ref<string | null | undefined>(null);
-const userRoles = ref([
-    { name: 'Korisnik', code: import.meta.env.VITE_USER_ROLE },
-    { name: 'Moderator', code: import.meta.env.VITE_MODERATOR_ROLE },
-    { name: 'Administrator', code: import.meta.env.VITE_ADMIN_ROLE },
+const userRoles = computed(() => [
+    { name: t('admin_dashboard.users.roles.user'), code: import.meta.env.VITE_USER_ROLE },
+    { name: t('admin_dashboard.users.roles.moderator'), code: import.meta.env.VITE_MODERATOR_ROLE },
+    { name: t('admin_dashboard.users.roles.admin'), code: import.meta.env.VITE_ADMIN_ROLE },
 ])
 const filters = ref({
     'user_role': { value: null, matchMode: FilterMatchMode.EQUALS }
@@ -104,7 +106,7 @@ const showConfirmBanDialog = async (user: any) => {
     const response = await fetch(`${API_BASE_URL}/dashboard/report-reasons/${user.user_id}`, {credentials: 'include'});
     if(response.ok) {
         let data = await response.json();
-        data.push('Prilagođeni razlog');
+        data.push(t('admin_dashboard.custom_reason'));
         let reasonObjectList = [];
         for (let reason of data) {
             reasonObjectList.push({name: reason});
@@ -112,7 +114,7 @@ const showConfirmBanDialog = async (user: any) => {
         banReasons.value = reasonObjectList;
     } else {
         console.error('Failed to fetch ban reasons:', response.statusText);
-        banReasons.value = [{name: 'Prilagođeni razlog'}];
+        banReasons.value = [{name: t('admin_dashboard.custom_reason')}];
     }
 
     banHandle.value = user.handle;
@@ -160,13 +162,13 @@ const handleShowUsersVideosDialog = (user: any) => {
 
    <div class="flex flex-col justify-center items-center gap-2">
         <div class="w-full flex justify-center items-center">
-            <AutoComplete v-model="searchValue" placeholder="Pretraži korisnike po korisničkom imenu..." :suggestions="handles" :dropdown="false" @complete="search" @clear="resetUsers"/> 
+            <AutoComplete v-model="searchValue" :placeholder="t('admin_dashboard.users.search_placeholder')" :suggestions="handles" :dropdown="false" @complete="search" @clear="resetUsers"/> 
         </div>
 
         <div class="dataview-container w-[90%]" style="height: calc(100vh - 215px)">
             <DataTable :value="showUsers" paginator :rows="rowsPerPage" v-model:filters="filters" filterDisplay="row">
 
-                <Column header="Korisnik">
+                <Column :header="t('admin_dashboard.users.table.user')">
                     <template #body="slotProps">
                         <div class="flex flex-row items-center">
                             <div class="md:w-40 flex flex-col justify-center items-center">
@@ -182,25 +184,25 @@ const handleShowUsersVideosDialog = (user: any) => {
 
                 <Column>
                     <template #body="slotProps">
-                        <Button icon="pi pi-video" rounded variant="outlined" aria-label="Videos" v-tooltip.top="{ value: 'Prikaži videozapise', showDelay: 500, hideDelay: 100 }" :onClick="() => handleShowUsersVideosDialog(slotProps.data)" />
+                        <Button icon="pi pi-video" rounded variant="outlined" aria-label="Videos" v-tooltip.top="{ value: t('admin_dashboard.users.table.videos_tooltip'), showDelay: 500, hideDelay: 100 }" :onClick="() => handleShowUsersVideosDialog(slotProps.data)" />
                     </template>
                 </Column>
 
                 <Column>
                     <template #body="slotProps">
-                        <Button icon="pi pi-times" severity="danger" rounded variant="outlined" aria-label="Ban" v-tooltip.top="{ value: 'Uruči zabranu', showDelay: 500, hideDelay: 100 }" :onClick="() => showConfirmBanDialog(slotProps.data)" />
+                        <Button icon="pi pi-times" severity="danger" rounded variant="outlined" aria-label="Ban" v-tooltip.top="{ value: t('admin_dashboard.users.table.ban_tooltip'), showDelay: 500, hideDelay: 100 }" :onClick="() => showConfirmBanDialog(slotProps.data)" />
                     </template>
                 </Column>
 
-                <Column header="Korisnička uloga" filterField="user_role" :showFilterMenu="false">
+                <Column :header="t('admin_dashboard.users.table.role')" filterField="user_role" :showFilterMenu="false">
                     <template #body="slotProps">
                         <Select v-model="slotProps.data.user_role"
                                 :options="userRoles"
                                 optionLabel="name"
                                 optionValue="code"
-                                placeholder="Korisnička uloga"
+                                :placeholder="t('admin_dashboard.users.table.role')"
                                 class="w-36"
-                                v-tooltip.top="{ value: 'Promijeni ulogu', showDelay: 500, hideDelay: 100 }"
+                                v-tooltip.top="{ value: t('admin_dashboard.users.table.role_tooltip'), showDelay: 500, hideDelay: 100 }"
                                 @update:modelValue="handleUserRoleChange($event, slotProps.data)" />
                     </template>
                     <template #filter="{ filterModel, filterCallback }">
@@ -208,7 +210,7 @@ const handleShowUsersVideosDialog = (user: any) => {
                                 :options="userRoles"
                                 optionLabel="name"
                                 optionValue="code"
-                                placeholder="Filtriraj po ulozi"
+                                :placeholder="t('admin_dashboard.users.table.role_filter_placeholder')"
                                 class="w-36"
                                 :showClear="true"
                                 @change="filterCallback()" />

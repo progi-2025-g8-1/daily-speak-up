@@ -39,10 +39,10 @@ onMounted(async () => {
             </svg>
           </div>
           <h1 class="text-2xl sm:text-3xl font-bold text-white text-center mb-2">
-            Račun suspendiran
+            {{ $t('banned.title') }}
           </h1>
           <p class="text-red-100 text-sm sm:text-base text-center">
-            Pristup vašem računu je privremeno onemogućen
+            {{ $t('banned.subtitle') }}
           </p>
         </div>
 
@@ -59,10 +59,10 @@ onMounted(async () => {
               </div>
               <div class="flex-1 min-w-0">
                 <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                  Razlog zabrane
+                  {{ $t('banned.reason_title') }}
                 </h2>
                 <p class="text-gray-800 text-sm sm:text-base leading-relaxed break-words">
-                  {{ reason || 'Razlog nije naveden' }}
+                  {{ reason || $t('banned.reason_missing') }}
                 </p>
               </div>
             </div>
@@ -76,7 +76,7 @@ onMounted(async () => {
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <p class="text-blue-900 text-xs sm:text-sm leading-relaxed">
-                Ako smatrate da je došlo do greške, možete kontaktirati podršku za dodatne informacije ili podnošenje žalbe.
+                {{ $t('banned.appeal_info') }}
               </p>
             </div>
           </div>
@@ -88,7 +88,7 @@ onMounted(async () => {
           <!-- Footer Note -->
           <div class="text-center pt-2">
             <p class="text-xs text-gray-400">
-              Za pitanja o privatnosti ili brisanju računa obratite se podršci
+              {{ $t('banned.privacy_info') }}
             </p>
           </div>
         </div>

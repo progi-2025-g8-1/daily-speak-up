@@ -176,11 +176,9 @@
     <div class="flex flex-col items-center w-full px-0">
         <Card class="w-full mt-0">
             <template #content>
-                <div class="relative py-4">
-                    <span class="pi pi-chevron-circle-left cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 z-10" style="font-size: 2.2rem;" @click="handleBack"></span>
-                    <h2 class="font-semibold text-xl w-full text-center">
-                        {{ !props.isOwnProfile || viewMode === 'friends' ? 'Popis prijatelja' : 'Zahtjevi za prijateljstvo' }}
-                    </h2>
+                <div class="flex justify-center items-center gap-4">
+                    <span class="pi pi-chevron-circle-left cursor-pointer" style="font-size: 2.5vw;" v-on:click="handleBack"></span>
+                    <h2 class="font-semibold text-3xl">{{ $t('friends.title') }}</h2>
                 </div>
             </template>
         </Card>
@@ -210,13 +208,13 @@
         <Card v-if="loading" class="w-full mt-[2vh]">
             <template #content>
                 <ProgressSpinner style="width: 4rem; height: 4rem;" />
-                <div class="mt-4 text-gray-500">Učitavanje...</div>
+                <div class="mt-4 text-gray-500">{{ $t('friends.loading') }}</div>
             </template>
         </Card>
 
         <Card v-else-if="error" class="w-full mt-[2vh]">
             <template #content>
-                <div class="text-red-600">{{ error }}</div>
+                {{ $t('friends.empty') }}
             </template>
         </Card>
 

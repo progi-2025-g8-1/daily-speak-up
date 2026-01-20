@@ -7,7 +7,9 @@
   import Button from 'primevue/button';
   import Skeleton from 'primevue/skeleton';
   import ProfileHeader from './ProfileHeader.vue';
+  import { useI18n } from 'vue-i18n';
   
+  const { t } = useI18n();
   const route = useRoute();
   const router = useRouter();
   const apiDomain = import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123';
@@ -130,7 +132,7 @@
     });
     
     if (!profileRes.ok) {
-      error.value = profileRes.status === 404 ? 'Korisnik nije pronađen' : 'Greška pri učitavanju profila';
+      error.value = profileRes.status === 404 ? t('profile.user_not_found') : t('profile.error_loading');
       return;
     }
     
@@ -169,7 +171,7 @@
     
   } catch (err) {
     console.error('Error loading profile:', err);
-    error.value = 'Došlo je do greške pri učitavanju profila';
+    error.value = t('profile.error_loading');
   } finally {
     loading.value = false;
   }
@@ -232,7 +234,7 @@ const sendFriendRequest = async () => {
           <div class="text-center py-8">
             <i class="pi pi-exclamation-circle text-4xl text-red-500 mb-4"></i>
             <p class="text-lg text-gray-700">{{ error }}</p>
-            <Button label="Nazad" @click="router.push('/home')" class="mt-4" />
+            <Button :label="$t('profile.back')" @click="router.push('/home')" class="mt-4" />
           </div>
         </template>
       </Card>
@@ -258,16 +260,22 @@ const sendFriendRequest = async () => {
           <div class="text-center py-4">
             <template v-if="hasPendingRequest">
               <p class="text-gray-600 mb-3">
-                {{ friendshipStatus === 'pending_outgoing' ? 'Zahtjev za prijateljstvo poslan' : 'Imate pristigli zahtjev za prijateljstvo' }}
+                {{ friendshipStatus === 'pending_outgoing' ? $t('profile.friendship.req_sent') : $t('profile.friendship.req_incoming') }}
               </p>
+              <Button 
+                :label="$t('profile.friendship.requests')" 
+                icon="pi pi-users" 
+                @click="router.push('/friends')" 
+                outlined
+              />
             </template>
             <template v-else>
-              <p class="text-gray-600 mb-3">Povežite se s korisnikom da biste vidjeli njihove govore</p>
+              <p class="text-gray-600 mb-3">{{ $t('profile.friendship.connect_hint') }}</p>
               <Button 
+                :label="$t('profile.friendship.send_request')" 
+                icon="pi pi-user-plus" 
                 :disabled="sendingRequest"
                 :loading="sendingRequest"
-                label="Pošalji zahtjev za prijateljstvo" 
-                icon="pi pi-user-plus"
                 @click="sendFriendRequest"
               />
             </template>
@@ -296,13 +304,13 @@ const sendFriendRequest = async () => {
   
           <template #footer>
             <div class="p-3 text-sm text-gray-500">
-              Odaberite datum za pregled govora.
+              {{ $t('profile.select_date_other') }}
             </div>
           </template>
         </DatePicker>
   
         <Message severity="error" class="mt-[4vh]" v-if="showErrorMessage">
-          Ne postoje snimljeni govori za odabrani datum.
+          {{ $t('profile.no_speeches') }}
         </Message>
       </template>
     </div>

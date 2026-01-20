@@ -1,5 +1,5 @@
 <template>
-    <Button label="Odjava" icon="pi pi-sign-out" severity="warn" @click="handleLogout" :loading="loading" />
+    <Button :label="$t('common.logout')" icon="pi pi-sign-out" severity="warn" @click="handleLogout" :loading="loading" />
 </template>
 
 <script>

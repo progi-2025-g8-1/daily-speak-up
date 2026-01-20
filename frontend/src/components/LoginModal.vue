@@ -4,7 +4,7 @@
       @click="showModal = true"
       class="px-6 py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-sm hover:shadow-md"
     >
-      Log In
+      {{ t('login.button') }}
     </button>
 
     <Transition name="modal">
@@ -29,8 +29,8 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </div>
-            <h2 class="text-2xl font-bold text-gray-800">Welcome Back</h2>
-            <p class="text-gray-500 mt-2">Sign in to continue to DailySpeakUp</p>
+            <h2 class="text-2xl font-bold text-gray-800">{{ t('login.welcome_title') }}</h2>
+            <p class="text-gray-500 mt-2">{{ t('login.welcome_subtitle') }}</p>
           </div>
 
           <div class="p-8">
@@ -45,7 +45,7 @@
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
               </svg>
-              Continue with Google
+              {{ t('login.continue_google') }}
             </Button>
 
             <div class="relative my-6">
@@ -53,20 +53,20 @@
                 <div class="w-full border-t border-gray-300"></div>
               </div>
               <div class="relative flex justify-center text-sm">
-                <span class="px-4 bg-white text-gray-500 font-medium">OR</span>
+                <span class="px-4 bg-white text-gray-500 font-medium">{{ t('login.or') }}</span>
               </div>
             </div>
 
             <div v-if="!emailSent">
-              <label class="block text-sm font-medium text-gray-700 mb-2">Email address</label>
+              <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('login.email_label') }}</label>
               <InputText name="email"
                          type="text" 
-                         placeholder="you@example.com" 
+                         :placeholder="t('login.email_placeholder')" 
                          @keyup.enter="handleEmailLogin"
                          @update:modelValue="checkMail"
                          v-model="email"
                          class="w-full px-4 py-3"/>
-              <label v-if="showPassword" class="block text-sm font-medium text-gray-700 mt-3">Admin password</label>
+              <label v-if="showPassword" class="block text-sm font-medium text-gray-700 mt-3">{{ t('login.admin_password_label') }}</label>
               <Password v-if="showPassword" v-model="passwordValue" :feedback="false" toggleMask class="w-full mt-3"  inputClass="w-full"/>
               <Button
                 v-if="!showPassword"
@@ -80,16 +80,16 @@
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  <span>Sending...</span>
+                  <span>{{ t('login.sending') }}</span>
                 </span>
-                <span v-else>Send Magic Link</span>
+                <span v-else>{{ t('login.send_magic_link') }}</span>
               </Button>
               <Button
                 v-if="showPassword"
                 @click="handleEmailLogin"
                 :disabled="!email || emailLoading || !passwordValue"
                 variant="outlined"
-                label="Log in as root Admin"
+                :label="t('login.login_root_admin')"
                 class="w-full mt-4 px-4 py-3font-semibold rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center" />
             </div>
 
@@ -99,22 +99,22 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <p class="text-sm text-green-800 font-medium">
-                  Magic link sent!
+                  {{ t('login.magic_link_sent') }}
                 </p>
                 <p class="text-sm text-green-700 mt-1">
-                  Check your email at <strong>{{ email }}</strong>
+                  {{ t('login.check_email_at') }} <strong>{{ email }}</strong>
                 </p>
               </div>
               
               <p class="text-sm text-gray-600 mb-4">
-                Click the link in your email to sign in. You can close this window.
+                {{ t('login.magic_link_instructions') }}
               </p>
               
               <button
                 @click="closeModal"
                 class="w-full px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors"
               >
-                Close
+                {{ t('common.close') }}
               </button>
             </div>
 
@@ -130,6 +130,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 import { signInWithGoogle, createPasswordlessCode, signInWithEmailPassword } from '../auth';
 import Button from 'primevue/button';
 import Password from 'primevue/password';

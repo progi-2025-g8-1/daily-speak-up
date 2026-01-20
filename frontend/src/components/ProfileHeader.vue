@@ -28,7 +28,7 @@
                 <span class="text-2xl font-bold text-dark">{{ displayUser.streak || displayUser.current_streak || 0 }}</span>
                 <span class="pi pi-sparkles font-xl"></span>
               </div>
-              <span class="text-xs text-gray-600">streak</span>
+              <span class="text-xs text-gray-600">{{ $t('profile.header.streak') }}</span>
             </div>
             <div class="flex flex-col items-start">
               <div 
@@ -43,7 +43,7 @@
                   {{ incomingRequestsCount }}
                 </span>
               </div>
-              <span class="text-xs text-gray-600">prijatelji</span>
+              <span class="text-xs text-gray-600">{{ $t('profile.header.friends') }}</span>
             </div>
           </div>
         </div>
@@ -53,18 +53,18 @@
       <div v-if="shouldShowInterests" class="w-full">
         <h3 class="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
           <i class="pi pi-heart"></i>
-          Interesi
+          {{ $t('profile.header.interests') }}
         </h3>
         <div v-if="interests.length > 0" class="flex flex-wrap gap-2">
-          <Chip 
-            v-for="interest in interests" 
+          <Chip
+            v-for="interest in interests"
             :key="interest"
-            :label="interest"
+            :label="getTranslatedInterestLabel(interest)"
             class="interest-chip"
           />
         </div>
         <p v-else class="text-sm text-gray-500 italic">
-          Nema dodanih interesa
+          {{ $t('profile.header.no_interests') }}
         </p>
       </div>
     </div>
@@ -76,12 +76,13 @@
 </template>
 
 <script>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { getUserId, isAuthenticated } from '../auth';
 import Avatar from 'primevue/avatar';
 import Chip from 'primevue/chip';
 import ProgressSpinner from 'primevue/progressspinner';
 import Message from 'primevue/message';
+import { useI18n } from 'vue-i18n';
 
 export default {
   components: {
@@ -105,11 +106,30 @@ export default {
     }
   },
   setup(props, { emit }) {
+    const { t, locale } = useI18n();
     const user = ref(null);
     const userId = ref('');
     const loading = ref(true);
     const error = ref('');
     const interests = ref([]);
+    const interestSlugs = ref([]);
+
+    const getTranslatedInterestLabel = (slug) => {
+      try {
+        const translated = t(`interests.${slug}`);
+        if (translated !== `interests.${slug}`) {
+          return translated;
+        }
+      } catch (e) {
+        // fallback
+      }
+      return slug.replace('_', ' ').charAt(0).toUpperCase() + slug.slice(1);
+    };
+
+    watch(locale, () => {
+      // Force re-render of interests when language changes
+      // This will cause getTranslatedInterestLabel to be called again
+    });
     const incomingRequestsCount = ref(0);
 
     const displayUser = computed(() => {
@@ -202,7 +222,7 @@ export default {
           localStorage.setItem('userRole', user.value.role);
           emit('user-role', user.value.role);
         } else {
-          error.value = 'Failed to fetch user data';
+          error.value = t('profile.error_fetch');
         }
 
         if (interestsResponse.ok) {
@@ -213,7 +233,7 @@ export default {
         // Fetch incoming requests count
         await fetchIncomingRequestsCount();
       } catch (e) {
-          error.value = 'An error occurred while fetching user data';
+          error.value = t('profile.error_generic');
           console.error('User fetch error:', e);
         } finally {
           loading.value = false;
@@ -231,7 +251,8 @@ export default {
       incomingRequestsCount,
       canViewFriends,
       shouldShowInterests,
-      handleShowFriends
+      handleShowFriends,
+      getTranslatedInterestLabel
     };
   },
 };

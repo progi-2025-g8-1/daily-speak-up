@@ -6,6 +6,9 @@ import SpeechesByInterestChart from './SpeechesByInterestChart.vue';
 import DailySpeechActivityChart from './DailySpeechActivityChart.vue';
 import Skeleton from 'primevue/skeleton';
 import type { RefreshStatsInterface } from '../types/stats-types';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8123/api/v1';
 
@@ -67,7 +70,7 @@ defineExpose({
                         <div class="flex flex-col justify-center items-start">
                             <div v-if="stats.totalUsers !== null" class="text-3xl font-bold text-gray-800">{{ stats.totalUsers }}</div>
                             <Skeleton v-else size="2.5rem" class="mr-2"></Skeleton>
-                            <div v-if="stats.totalUsers !== null" class="text-sm text-gray-500">Broj korisnika</div>
+                            <div v-if="stats.totalUsers !== null" class="text-sm text-gray-500">{{ t('admin_dashboard.stats.total_users') }}</div>
                             <Skeleton v-else width="5rem" height="0.7rem" class="mt-2"></Skeleton>
                         </div>
                     </div>
@@ -84,7 +87,7 @@ defineExpose({
                         <div class="flex flex-col justify-center items-start">
                             <div v-if="stats.totalSpeeches !== null" class="text-3xl font-bold text-gray-800">{{ stats.totalSpeeches }}</div>
                             <Skeleton v-else size="2.5rem" class="mr-2"></Skeleton>
-                            <div v-if="stats.totalSpeeches !== null" class="text-sm text-gray-500">Ukupno govora</div>
+                            <div v-if="stats.totalSpeeches !== null" class="text-sm text-gray-500">{{ t('admin_dashboard.stats.total_speeches') }}</div>
                             <Skeleton v-else width="5rem" height="0.7rem" class="mt-2"></Skeleton>
                         </div>
                     </div>
@@ -101,7 +104,7 @@ defineExpose({
                         <div class="flex flex-col justify-center items-start">
                             <div v-if="stats.pendingReports !== null" class="text-3xl font-bold text-gray-800">{{ stats.pendingReports }}</div>
                             <Skeleton v-else size="2.5rem" class="mr-2"></Skeleton>
-                            <div v-if="stats.pendingReports !== null" class="text-sm text-gray-500">Postojeće prijave</div>
+                            <div v-if="stats.pendingReports !== null" class="text-sm text-gray-500">{{ t('admin_dashboard.stats.pending_reports') }}</div>
                             <Skeleton v-else width="5rem" height="0.7rem" class="mt-2"></Skeleton>
                         </div>
                     </div>
@@ -118,7 +121,7 @@ defineExpose({
                         <div class="flex flex-col justify-center items-start">
                             <div v-if="stats.totalBans !== null" class="text-3xl font-bold text-gray-800">{{ stats.totalBans }}</div>
                             <Skeleton v-else size="2.5rem" class="mr-2"></Skeleton>
-                            <div v-if="stats.totalBans !== null" class="text-sm text-gray-500">Uručene zabrane</div>
+                            <div v-if="stats.totalBans !== null" class="text-sm text-gray-500">{{ t('admin_dashboard.stats.total_bans') }}</div>
                             <Skeleton v-else width="5rem" height="0.7rem" class="mt-2"></Skeleton>
                         </div>
                     </div>

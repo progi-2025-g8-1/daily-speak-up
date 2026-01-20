@@ -9,7 +9,7 @@
           </InputIcon>
           <InputText 
             v-model="searchQuery" 
-            placeholder="Pretražite korisnike pomoću handlea ili emaila..."
+            :placeholder="t('user_search.search_placeholder')"
             class="w-full"
             @input="handleSearch"
           />
@@ -45,14 +45,14 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
-        <p class="text-gray-500">Nijedan korisnik nije pronađen</p>
+        <p class="text-gray-500">{{ t('user_search.no_users_found') }}</p>
       </div>
   
       <div v-else class="text-center py-8">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
         </svg>
-        <p class="text-gray-500">Pretražite korisnike s kojima se možete povezati</p>
+        <p class="text-gray-500">{{ t('user_search.search_prompt') }}</p>
       </div>
   
       <!-- Error Message -->
@@ -65,6 +65,7 @@
   <script setup>
   import { ref } from 'vue';
   import { useRouter } from 'vue-router';
+  import { useI18n } from 'vue-i18n';
   import Avatar from 'primevue/avatar';
   import InputText from 'primevue/inputtext';
   import IconField from 'primevue/iconfield';
@@ -73,6 +74,7 @@
   import Message from 'primevue/message';
   
   const router = useRouter();
+  const { t } = useI18n();
   const searchQuery = ref('');
   const searchResults = ref([]);
   const searching = ref(false);

@@ -2,7 +2,9 @@
 import { ref, onMounted } from 'vue';
 import Chart from 'primevue/chart';
 import ProgressSpinner from 'primevue/progressspinner';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8123/api/v1';
 
 const chartData = ref();
@@ -103,8 +105,8 @@ defineExpose({
                 justify-center items-center
                 bg-white rounded-xl shadow-sm p-5">
         <div class="mb-4">
-            <h3 class="text-lg font-semibold text-gray-800">Govori prema interesima</h3>
-            <p class="text-sm text-gray-500">Frekvencije govora po svim temama</p>
+            <h3 class="text-lg font-semibold text-gray-800">{{ t('stats.speeches_by_interest') }}</h3>
+            <p class="text-sm text-gray-500">{{ t('stats.freq_by_topic') }}</p>
         </div>
         <div class="flex items-center justify-center">
             <Chart v-if="chartData && chartOptions" type="doughnut" :data="chartData" :options="chartOptions" class="w-full max-w-md" />
@@ -112,7 +114,7 @@ defineExpose({
                 <ProgressSpinner />
             </div>
             <div v-else class="h-64 flex items-center justify-center text-gray-500">
-                Nema podataka
+                {{ t('stats.no_data') }}
             </div>
         </div>
     </div>

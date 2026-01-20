@@ -2,7 +2,9 @@
 import { ref, onMounted } from 'vue';
 import Chart from 'primevue/chart';
 import ProgressSpinner from 'primevue/progressspinner';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8123/api/v1';
 
 const chartData = ref();
@@ -67,7 +69,7 @@ const refreshStats = async () => {
                     labels: response_data.labels,
                     datasets: [
                         {
-                            label: 'Snimljeni govori',
+                            label: t('stats.daily_activity.recorded_speeches'),
                             data: response_data.counts,
                             backgroundColor: 'rgba(139, 92, 246, 0.7)',
                             hoverBackgroundColor: 'rgba(139, 92, 246, 0.9)',
