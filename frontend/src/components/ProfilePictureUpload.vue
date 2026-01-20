@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { api } from '../api'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
@@ -112,23 +112,44 @@ async function openCamera() {
   cameraDialogVisible.value = true
   uploadDialogVisible.value = false
   
+  // Wait for dialog and video element to render first
+  await nextTick()
+  await new Promise(resolve => setTimeout(resolve, 100))
+  
+  capturing.value = true
+  
   try {
-    capturing.value = true
+    console.log('[Camera] Requesting camera access...')
     const stream = await navigator.mediaDevices.getUserMedia({ 
       video: { 
         width: { ideal: 1280 },
-        height: { ideal: 720 }
+        height: { ideal: 720 },
+        facingMode: 'user'
       } 
     })
+    console.log('[Camera] ✓ Got stream, tracks:', stream.getVideoTracks().length)
     mediaStream.value = stream
     
-    if (videoRef.value) {
-      videoRef.value.srcObject = stream
-      await videoRef.value.play()
-    }
     capturing.value = false
+    
+    // Wait one more tick after setting capturing = false
+    await nextTick()
+    
+    if (videoRef.value) {
+      console.log('[Camera] ✓ Video element found, setting srcObject...')
+      videoRef.value.srcObject = stream
+      
+      try {
+        await videoRef.value.play()
+        console.log('[Camera] ✓ Video playing!')
+      } catch (playErr) {
+        console.error('[Camera] Play failed:', playErr)
+      }
+    } else {
+      console.error('[Camera] ✗ Video ref is null!')
+    }
   } catch (error) {
-    console.error('Error accessing camera:', error)
+    console.error('[Camera] ✗ Error:', error)
     toast.add({
       severity: 'error',
       summary: t('profile_upload.error'),
@@ -382,14 +403,19 @@ defineExpose({
         </div>
         
         <div v-else-if="!capturedImage" class="w-full">
-          <video 
-            ref="videoRef"
-            class="w-full rounded-lg shadow-lg"
-            autoplay
-            playsinline
-          ></video>
+          <div class="w-full flex justify-center mb-4">
+            <video 
+              ref="videoRef"
+              class="rounded-lg shadow-lg"
+              width="640"
+              height="480"
+              autoplay
+              playsinline
+              muted
+            ></video>
+          </div>
           
-          <div class="flex justify-center mt-4">
+          <div class="flex justify-center">
             <Button
               :label="t('profile_upload.capture')"
               icon="pi pi-camera"
