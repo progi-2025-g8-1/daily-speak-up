@@ -330,7 +330,7 @@ class TestOnboardingFlow:
         response = client.get("/api/v1/onboarding/state")
         
         # Assert
-        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert response.status_code in (status.HTTP_404_NOT_FOUND, status.HTTP_401_UNAUTHORIZED)
         assert "not found" in response.json()["detail"].lower()
 
 

@@ -135,7 +135,9 @@ class TestUserSchemas:
 
     def test_user_response_valid(self):
         """Test UserResponse with all valid fields."""
+        user_id = uuid4()
         data = {
+            "id": str(user_id),
             "role": UserRole.USER,
             "email": "user@example.com",
             "handle": "johndoe",
@@ -152,6 +154,7 @@ class TestUserSchemas:
         }
         user = UserResponse(**data)
         
+        assert user.id == user_id
         assert user.role == UserRole.USER
         assert user.email == "user@example.com"
         assert user.handle == "johndoe"
@@ -164,6 +167,7 @@ class TestUserSchemas:
     def test_user_response_invalid_role(self):
         """Test UserResponse rejects invalid role."""
         data = {
+            "id": str(uuid4()),
             "role": "invalid_role",
             "email": "user@example.com",
             "handle": "johndoe",
