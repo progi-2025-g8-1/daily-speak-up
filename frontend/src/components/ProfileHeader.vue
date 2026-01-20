@@ -115,9 +115,13 @@ export default {
     const interestSlugs = ref([]);
 
     const getTranslatedInterestLabel = (slug) => {
-      const translations = t('interests');
-      if (translations && typeof translations === 'object' && slug in translations) {
-        return translations[slug];
+      try {
+        const translated = t(`interests.${slug}`);
+        if (translated !== `interests.${slug}`) {
+          return translated;
+        }
+      } catch (e) {
+        // fallback
       }
       return slug.replace('_', ' ').charAt(0).toUpperCase() + slug.slice(1);
     };
