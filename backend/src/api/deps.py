@@ -1,3 +1,7 @@
+from fastapi import Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from supertokens_python.recipe.session import SessionContainer
+
 from ..services import (
     AuthService,
     EmailService,
@@ -6,7 +10,14 @@ from ..services import (
 )
 from ..services.auth_service import get_session
 from ..services.email_impl.sender import ResendEmailSender
+from ..db import get_db
+from ..models import User
 from .config import get_settings
+from fastapi import Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from ..db import get_db
+from ..models import User
+from supertokens_python.recipe.session import SessionContainer
 
 _auth_service: AuthService | None = None
 _email_service: EmailService | None = None
@@ -63,3 +74,21 @@ def get_resend_email_sender() -> ResendEmailSender:
             from_email=settings.RESEND_FROM_EMAIL
         )
     return _resend_email_sender
+
+async def get_current_user(
+    db: Session = Depends(get_db),
+    session: SessionContainer = Depends(get_session)
+) -> User:
+    supertokens_user_id = session.get_user_id()
+    
+    user = db.query(User).filter(
+        User.supertokens_user_id == supertokens_user_id
+    ).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found"
+        )
+
+    return user

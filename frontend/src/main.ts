@@ -27,13 +27,11 @@ initSuperTokens();
 
 const app = createApp(App);
 
-// Create and use Pinia store
-const pinia = createPinia();
-app.use(pinia);
-
-// Initialize theme from store
-const themeStore = useThemeStore();
-themeStore.initializeTheme();
+// Load language preference from localStorage
+const savedLanguage = localStorage.getItem('app-language');
+if (savedLanguage && (savedLanguage === 'hr' || savedLanguage === 'en')) {
+    i18n.global.locale.value = savedLanguage;
+}
 
 // middleware
 app.use(PrimeVue, {

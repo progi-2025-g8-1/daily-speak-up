@@ -27,8 +27,8 @@ function onPhase2Done() { router.replace('/home'); }
     <div v-if="!loading" class="w-full max-w-2xl">
       <!-- Header -->
       <div class="text-center mb-8">
-        <h1 class="text-4xl font-bold mb-2" style="color: var(--color-primary-dark);">Dobrodošli</h1>
-        <p class="text-secondary">Dovršite svoj profil u nekoliko koraka</p>
+        <h1 class="text-4xl font-bold mb-2" style="color: var(--color-primary-dark);">{{ $t('onboarding.welcome') }}</h1>
+        <p class="text-secondary">{{ $t('onboarding.subtitle') }}</p>
       </div>
 
       <!-- Progress Steps -->
@@ -40,7 +40,7 @@ function onPhase2Done() { router.replace('/home'); }
           >
             1
           </div>
-          <span class="ml-2 font-medium" :class="phase! >= 1 ? 'text-primary' : 'text-gray-500'">Profil</span>
+          <span class="ml-2 font-medium" :class="phase! >= 1 ? 'text-primary' : 'text-gray-500'">{{ $t('onboarding.profile') }}</span>
         </div>
         
         <div class="w-16 h-1 rounded" :class="phase! >= 2 ? 'bg-primary' : 'bg-gray-300'"></div>
@@ -52,7 +52,7 @@ function onPhase2Done() { router.replace('/home'); }
           >
             2
           </div>
-          <span class="ml-2 font-medium" :class="phase! >= 2 ? 'text-primary' : 'text-gray-500'">Interesi</span>
+          <span class="ml-2 font-medium" :class="phase! >= 2 ? 'text-primary' : 'text-gray-500'">{{ $t('onboarding.interests') }}</span>
         </div>
       </div>
 
@@ -68,7 +68,7 @@ function onPhase2Done() { router.replace('/home'); }
     <!-- Loading State -->
     <div v-else class="flex flex-col items-center justify-center gap-4">
       <ProgressSpinner style="width: 50px; height: 50px" strokeWidth="4" />
-      <p class="text-secondary text-lg">Učitavanje...</p>
+      <p class="text-secondary text-lg">{{ $t('onboarding.loading') }}</p>
     </div>
   </div>
 </template>

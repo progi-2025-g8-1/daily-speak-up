@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session
 from supertokens_python.recipe.session import SessionContainer
 
-from ..deps import get_session
+from ..deps import get_session, get_current_user
 from ...db import get_db
 from ...models import User
 from ...models.enums import OnboardingStatus
@@ -15,20 +15,9 @@ router = APIRouter(prefix="/onboarding", tags=["Onboarding"])
 @router.get("/state")
 async def get_onboarding_state(
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session)
+    user: User = Depends(get_current_user)
 ):
     """Get the current onboarding state for the authenticated user."""
-    supertokens_user_id = session.get_user_id()
-    
-    user: User | None = db.query(User).filter(
-        User.supertokens_user_id == supertokens_user_id
-    ).first()
-
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
-        )
     
     # Map onboarding status to phase number
     phase_map = {
@@ -49,23 +38,17 @@ async def get_onboarding_state(
 async def update_onboarding_profile(
     profile_data: dict,
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session)
+    user: User = Depends(get_current_user)
 ):
     """Update user profile during onboarding (Phase 1). Uses existing userdata endpoint."""
     # Use the existing set_username endpoint
     if 'handle' in profile_data:
         username_data = UsernameData(username=profile_data['handle'])
-        await set_username(username_data, db, session)
+        await set_username(username_data, db, user)
     
     # Update onboarding status
-    supertokens_user_id = session.get_user_id()
-    user: User | None = db.query(User).filter(
-        User.supertokens_user_id == supertokens_user_id
-    ).first()
-
-    if user:
-        user.onboarding_status = OnboardingStatus.INTERESTS_SELECTION
-        db.commit()
+    user.onboarding_status = OnboardingStatus.INTERESTS_SELECTION
+    db.commit()
     
     return {
         "message": "Profile updated successfully",
@@ -77,23 +60,17 @@ async def update_onboarding_profile(
 async def update_onboarding_interests(
     interest_data: dict,
     db: Session = Depends(get_db),
-    session: SessionContainer = Depends(get_session)
+    user: User = Depends(get_current_user)
 ):
     """Update user interests during onboarding (Phase 2). Uses existing userdata endpoint."""
     # Use the existing set_interests endpoint
     interests_list = interest_data.get('interests', [])
     interests = InterestData(interests=interests_list)
-    result = await set_interests(interests, db, session)
+    result = await set_interests(interests, db, user)
     
     # Update onboarding status to completed
-    supertokens_user_id = session.get_user_id()
-    user: User | None = db.query(User).filter(
-        User.supertokens_user_id == supertokens_user_id
-    ).first()
-
-    if user:
-        user.onboarding_status = OnboardingStatus.COMPLETED
-        db.commit()
+    user.onboarding_status = OnboardingStatus.COMPLETED
+    db.commit()
     
     return {
         "message": "Onboarding completed successfully",

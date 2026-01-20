@@ -5,8 +5,11 @@ import { useToast } from 'primevue/usetoast';
 import ProgressSpinner from 'primevue/progressspinner';
 import { VideoConstraints } from "../AV_settings/video_constraints";
 import { AudioConstraints } from "../AV_settings/audio_constraints";
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const toast = useToast();
+const emit = defineEmits(['recording-finished']);
 const RECORDING_DURATION = 60000;
 const TOAST_DISPLAY_DURATION = 4000;
 
@@ -101,11 +104,9 @@ async function uploadToS3() {
   }
 
   try {
-    const videoBlob = new Blob([recordedBlob], { type: "video/mp4" });
-    
     const response = await window.fetch(uploadUrl, {
-      method: "PUT",
-      body: videoBlob,
+      method: uploadMethod || "PUT",
+      body: recordedBlob,
     });
 
     if (!response.ok) {   
@@ -151,7 +152,20 @@ async function startRecording() {
     await nextTick();
 
     if (videoRef.value) {
-      mediaRecorder = new MediaRecorder(mediaStream);
+      const mimeTypes = [
+        "video/mp4",
+        "video/webm;codecs=h264",
+        "video/webm"
+      ];
+      let selectedMimeType = "video/webm";
+      for (const type of mimeTypes) {
+        if (MediaRecorder.isTypeSupported(type)) {
+          selectedMimeType = type;
+          break;
+        }
+      }
+
+      mediaRecorder = new MediaRecorder(mediaStream, { mimeType: selectedMimeType });
 
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
@@ -160,7 +174,7 @@ async function startRecording() {
       };
 
       mediaRecorder.onstop = () => {
-        recordedBlob = new Blob(recordedChunks, { type: 'video/mp4' });
+        recordedBlob = new Blob(recordedChunks, { type: selectedMimeType });
         recordedChunks = [];
       };
 
@@ -183,7 +197,7 @@ async function startRecording() {
   }
 }
 
-function stopRecording() {
+async function stopRecording() {
   clearTimers();
 
   if (mediaRecorder) {
@@ -193,28 +207,29 @@ function stopRecording() {
 
   isFadingOut.value = true;
 
-  setTimeout(() => {
-    if (videoRef.value) {
-      videoRef.value.srcObject = null;
-    }
-    showRecording.value = false;
-    isFadingOut.value = false;
+  await new Promise(resolve => setTimeout(resolve, 500));
 
-    stopMediaTracks();
+  if (videoRef.value) {
+    videoRef.value.srcObject = null;
+  }
+  showRecording.value = false;
+  isFadingOut.value = false;
 
-    if (uploadUrl) {
-      uploadToS3();
-    }
+  stopMediaTracks();
 
-    visibleDialog.value = false;
-    
-    toast.add({
-      severity: 'success',
-      summary: 'Uspješno snimljeno!',
-      detail: 'Vaš DailySpeakUp je pohranjen! 🎉',
-      life: TOAST_DISPLAY_DURATION
-    });
-  }, 500);
+  if (uploadUrl) {
+    await uploadToS3();
+    emit('recording-finished');
+  }
+
+  visibleDialog.value = false;
+  
+  toast.add({
+    severity: 'success',
+    summary: t('recorder.success_title'),
+    detail: t('recorder.success_msg'),
+    life: TOAST_DISPLAY_DURATION
+  });
 }
 
 function setSpeechTopic(interest, topic) {
@@ -240,17 +255,17 @@ defineExpose({
     :pt="{ mask: { class: isFadingOut ? 'fade-out' : '' } }"
   >
     <div v-if="isLoadingCamera" class="w-full text-center py-8 px-8">
-      <h2 class="pb-2 mb-8 text-2xl font-bold">📖 Vaša tema:</h2>
+      <h2 class="pb-2 mb-8 text-2xl font-bold">{{ $t('recorder.topic') }}</h2>
       <h2 class="mb-4 text-lg font-bold">{{ speechTopic }} ({{ speechInterest }})</h2>
       <br />
       <ProgressSpinner />
       <br />
-      <p class="text-lg font-bold">Dohvaćanje kamere... </p>
+      <p class="text-lg font-bold">{{ $t('recorder.camera_loading') }} </p>
     </div>
 
     <div v-if="isPreCountdown || showRecording" class="w-full">
-      <h1 class="pb-2 mb-1">🎥 {{ isPreCountdown ? 'Snimanje za...' : 'SpeakUp!' }}</h1>
-      <p class="mb-4 text-lg font-bold">📖 Vaša tema: {{ speechTopic }} ({{ speechInterest }})</p>
+      <h1 class="pb-2 mb-1">🎥 {{ isPreCountdown ? $t('recorder.recording_in') : $t('recorder.speakup') }}</h1>
+      <p class="mb-4 text-lg font-bold">{{ $t('recorder.topic') }} {{ speechTopic }} ({{ speechInterest }})</p>
       <div class="!flex flex-col justify-center items-center relative inline-block w-full">
         <div class="rounded-2xl overflow-hidden w-[70vw] lg:w-[65vh]">
           <video
@@ -279,6 +294,15 @@ defineExpose({
         >
           00:{{ String(countdown).padStart(2, '0') }}
         </div>
+
+        <!-- Stop button during recording -->
+        <button
+          v-if="showRecording && !isPreCountdown"
+          class="absolute bottom-2 right-2 bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-lg shadow-md"
+          @click="stopRecording"
+        >
+          {{ $t('recorder.stop_btn') }}
+        </button>
       </div>
     </div>
   </Dialog>

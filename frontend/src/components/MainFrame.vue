@@ -44,7 +44,7 @@ const handleUploadData = (uploadMethod: string, uploadUrl: string, userId: strin
         class="justify-center font-sans text-[1.1vw] font-semibold text-center"
         style="border: 1px solid var(--color-border-primary); color: var(--color-text-primary);"
       >
-        <h1>Započnite vježbu!</h1>
+        <h1>{{ $t('main.start_exercise') }}</h1>
       </div>
 
       <div class="my-[5vh]">
@@ -58,16 +58,15 @@ const handleUploadData = (uploadMethod: string, uploadUrl: string, userId: strin
       </div>
 
       <div>
-        <Fieldset legend="Tema za govor" :toggleable="true" style="--p-fieldset-legend-color: var(--color-primary); --p-fieldset-background: var(--color-bg-card); --p-fieldset-border-color: var(--color-primary);">
+        <Fieldset :legend="$t('main.speech_topic_title')" :toggleable="true" style="--p-fieldset-legend-color: var(--color-primary); --p-fieldset-background: var(--color-bg-card); --p-fieldset-border-color: var(--color-primary);">
           <p class="m-0 font-bold" v-if="interest">
-            Interes: {{ interest }}
+            {{ $t('main.interest_label') }} {{ interest }}
           </p>
           <p class="m-0" v-if="topic">
             {{ topic }}
           </p>
           <p class="m-0" v-else>
-            Vaša će se tema za govor pojaviti ovdje nakon što pritisnete gumb
-            za snimanje.
+            {{ $t('main.topic_placeholder') }}
           </p>
         </Fieldset>
       </div>

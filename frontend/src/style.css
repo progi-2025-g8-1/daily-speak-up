@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+@theme {
+  --breakpoint-xs: 30rem;
+  --breakpoint-2xl: 100rem;
+  --breakpoint-3xl: 120rem;
+  --breakpoint-big: 56rem;
+}
+
 :root {
   /* DailySpeakUp Brand Colors - Based on Email Templates */
   
@@ -104,31 +111,6 @@ body {
   color: var(--color-text-dark);
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: var(--color-primary);
-  color: var(--color-text-white);
-  cursor: pointer;
-  transition: all 0.25s;
-}
-button:hover {
-  background-color: var(--color-primary-medium);
-}
-button:focus,
-button:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-}
 
 .card {
   padding: 2em;
@@ -157,3 +139,47 @@ button:focus-visible {
 .border-medium { border-color: var(--color-border-medium); }
 
 .gradient-primary { background: var(--gradient-primary); }
+
+
+.icon-button {
+  background: transparent !important;
+  border: none !important;
+  padding: 0.5rem;
+  color: black;
+}
+
+.icon-button:hover {
+  background: transparent !important;
+  transform: scale(1.15);
+}
+
+.icon-button:focus,
+.icon-button:active {
+  background: transparent !important;
+  outline: none !important;
+}.icon-button {
+  background: transparent !important;
+  border: none !important;
+  padding: 0.5rem;
+  color: black;
+}
+
+.icon-button:hover {
+  background: transparent !important;
+  transform: scale(1.15);
+}
+
+.icon-button:focus,
+.icon-button:active {
+  background: transparent !important;
+  outline: none !important;
+}
+
+.interest-chip {
+  background-color: #93c5fd !important;
+  color: #1e40af !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 1rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+}

@@ -7,6 +7,8 @@ import AuthCallbackView from '../views/AuthCallbackView.vue'
 import PasswordlessCallbackView from '../views/PasswordlessCallbackView.vue'
 import OnboardingView from '../views/OnboardingView.vue'
 import Profile from '../views/Profile.vue'
+import DashboardView from '../views/DashboardView.vue'
+import BannedView from '../views/BannedView.vue'
 import { isAuthenticated } from '../auth'
 
 const router = createRouter({
@@ -35,9 +37,9 @@ const router = createRouter({
       component: PasswordlessCallbackView
     },
     {
-      path: '/:pathMatch(.*)*',
-      name: 'not-found',
-      component: NotFoundView
+      path: '/banned',
+      name: 'banned',
+      component: BannedView
     },
     {
       path: '/onboarding',
@@ -46,19 +48,49 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path: '/dashboard',
+      name: 'dashboard',
+      component: DashboardView,
+      meta: { requiresAuth: true },
+      beforeEnter: async () => {
+        try {
+          const response = await fetch(`${import.meta.env.VITE_API_DOMAIN}/api/v1/user/me`, {
+            credentials: 'include',
+          });
+
+          if (!response.ok) {
+            return { path: '/' };
+          }
+          
+          const userData = await response.json();
+
+          if (userData.role === import.meta.env.VITE_ADMIN_ROLE ||
+              userData.role === import.meta.env.VITE_MODERATOR_ROLE ||
+              userData.role === import.meta.env.VITE_ROOT_ROLE) {
+            return true
+          }
+          return { path: '/' };
+        } catch {
+          return { path: '/' };
+        }
+      }
+    },
+    {
       path: '/:handle',
       name: 'Profile',
       component: Profile,
-      beforeEnter: (to, _from, next) => {
-        const reservedPaths = ['login', 'profile', 'settings', 'auth'];
-        const handle = to.params.handle as string;
-        
-        if (reservedPaths.indexOf(handle) !== -1) {
-          next('/404');
-        } else {
-          next();
-        }
-      }
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/search',
+      name: 'search',
+      component: () => import('../views/SearchView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: NotFoundView
     }
   ]
 });
@@ -84,11 +116,42 @@ async function isOnboardingComplete(): Promise<boolean | null> {
   }
 }
 
+async function isUserBanned(): Promise<{ banned: boolean; reason?: string; expires_at?: string } | null> {
+  try {
+    const apiDomain = import.meta.env.VITE_API_DOMAIN || (window as any).ENV?.VITE_API_DOMAIN || 'http://localhost:8123';
+    const response = await fetch(`${apiDomain}/api/v1/user/amibanned`, {
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+
+    if (response.ok) {
+      return await response.json();
+    }
+    return null;
+  } catch (error) {
+    console.error('Error checking ban status:', error);
+    return null;
+  }
+}
+
 router.beforeEach(async (to, _from, next) => {
   const authenticated = await isAuthenticated();
 
   if (to.meta.requiresAuth && !authenticated) {
     return next('/');
+  }
+
+  if (authenticated) {
+    const banStatus = await isUserBanned();
+    
+    if (banStatus?.banned) {
+      if (to.path !== '/banned') {
+        return next('/banned');
+      }
+      return next();
+    }
   }
 
   if (authenticated && to.meta.requiresAuth) {

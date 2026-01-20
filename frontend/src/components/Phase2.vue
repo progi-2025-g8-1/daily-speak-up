@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { api } from '../api'
 import Button from 'primevue/button'
 import Chip from 'primevue/chip'
 import ProgressSpinner from 'primevue/progressspinner'
 
 const emit = defineEmits<{(e:'done'): void}>()
+const { locale, t } = useI18n()
 type Interest = { slug: string; label: string }
 
 const catalog = ref<Interest[]>([])
@@ -18,7 +20,7 @@ const selectedCount = computed(() => picked.value.length)
 
 onMounted(async () => {
   try {
-    catalog.value = await api('/interests', { method: 'GET' })
+    catalog.value = await api(`/interests?lang=${locale.value}`, { method: 'GET' })
   } catch (error) {
     console.error('Error loading interests:', error)
     catalog.value = [
@@ -57,8 +59,8 @@ async function save() {
 <template>
   <div class="space-y-6">
     <div class="mb-6">
-      <h2 class="text-2xl font-bold mb-2" style="color: var(--color-primary);">Odaberite svoje interese</h2>
-      <p style="color: var(--color-text-secondary);">Izaberite teme koje vas zanimaju (odaberite najmanje 1)</p>
+      <h2 class="text-2xl font-bold mb-2" style="color: var(--color-primary);">{{ $t('onboarding.phase2.title') }}</h2>
+      <p style="color: var(--color-text-secondary);">{{ $t('onboarding.phase2.subtitle') }}</p>
     </div>
 
     <!-- Loading State -->
@@ -70,7 +72,7 @@ async function save() {
     <div v-else class="space-y-4">
       <!-- Selected Count -->
       <div v-if="selectedCount > 0" class="flex items-center gap-2">
-        <Chip :label="`${selectedCount} odabrano`" style="background-color: var(--color-bg-accent); color: var(--color-primary);" />
+        <Chip :label="`${selectedCount} ${$t('onboarding.phase2.selected')}`" style="background-color: var(--color-bg-accent); color: var(--color-primary);" />
       </div>
 
       <!-- Interest Buttons -->
@@ -98,17 +100,17 @@ async function save() {
       <!-- Empty State -->
       <div v-if="catalog.length === 0" class="text-center py-8">
         <i class="pi pi-info-circle text-4xl mb-3" style="color: var(--color-text-muted);"></i>
-        <p style="color: var(--color-text-secondary);">Nema dostupnih interesa za prikaz</p>
+        <p style="color: var(--color-text-secondary);">{{ t('onboarding.phase2.empty_state') }}</p>
       </div>
     </div>
 
     <!-- Action Buttons -->
     <div class="flex justify-between items-center pt-6" style="border-top: 1px solid var(--color-border-light);">
       <p class="text-sm" style="color: var(--color-text-light);">
-        {{ selectedCount === 0 ? 'Odaberite najmanje jedan interes' : `Odabrano: ${selectedCount}` }}
+        {{ selectedCount === 0 ? t('onboarding.phase2.select_at_least_one') : t('onboarding.phase2.selected_count', { count: selectedCount }) }}
       </p>
       <Button 
-        label="Završi postavljanje"
+        :label="t('onboarding.phase2.finish_button')"
         icon="pi pi-check"
         iconPos="right"
         :disabled="selectedCount === 0"

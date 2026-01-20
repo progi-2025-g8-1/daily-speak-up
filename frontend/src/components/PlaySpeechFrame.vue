@@ -95,15 +95,15 @@
       <div class="flex flex-row items-center justify-between w-full mt-6">
           <div class="flex flex-row items-center gap-3">
               <Rating :modelValue="5" readonly />
-              <p>Ocjena: 5.0</p>
+              <p>{{ $t('speech.rating') }} 5.0</p>
           </div>
           <div class="flex flex-row items-center gap-4">
             <div class="pi pi-share-alt" style="color:black; font-size: 1.2rem;"></div>
             <div v-if="isOwner()" class="flex flex-row items-center gap-4">
-              <ToggleButton onLabel="Privatno" offLabel="Za prijatelje" onIcon="pi pi-lock" 
+              <ToggleButton :onLabel="$t('speech.private')" :offLabel="$t('speech.friends')" onIcon="pi pi-lock" 
                           offIcon="pi pi-lock-open" class="w-36" aria-label="Do you confirm" 
                           @change="handleVisibilitySwitch" v-model="videoVisibility"/>
-              <Button icon="pi pi-eraser" label="Obriši" severity="danger" v-on:click="deleteVideo" />
+              <Button icon="pi pi-eraser" :label="$t('speech.delete')" severity="danger" v-on:click="deleteVideo" />
             </div>
           </div>
       </div>

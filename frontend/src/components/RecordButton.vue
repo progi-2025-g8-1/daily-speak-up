@@ -1,5 +1,8 @@
 <script setup>
 import { ref, onBeforeUnmount } from "vue";
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n(); 
 
 const props = defineProps({
   interes: {
@@ -90,7 +93,7 @@ const generateTopic = async () => {
 
   try {
     // Pokušaj preuzeti temu sa backend servisa
-    const response = await fetch(`${API_BASE_URL}/userdata/topic`, {
+    const response = await fetch(`${API_BASE_URL}/video/start`, {
       signal: AbortSignal.timeout(4000) // Timeout nakon 4 sekunde
     });
 
@@ -104,26 +107,21 @@ const generateTopic = async () => {
       progress.value = 1; // Ostavi na kraju
       isGeneratingTopic.value = false;
 
+      emit("upload-data", data.upload_method, data.upload_url, data.user_id, data.video_path);
       emit("topic-generated", data.interest, data.topic, props.lang);
       emit("start-recording", true);
       return;
+    } else {
+      throw new Error(`Server returned ${response.status}`);
     }
   } catch (error) {
-    console.log("[RecordButton] Backend nije dostupan, korištenje lokalne teme:", error);
+    console.error("[RecordButton] Error starting video session:", error);
+    alert(t('recorder.error_start'));
+  } finally {
+    clearInterval(progressIntervalId);
+    isGeneratingTopic.value = false;
+    progress.value = 0;
   }
-
-  // Čekaj da se progress ring završi
-  await new Promise(resolve => setTimeout(resolve, Math.max(0, TOPIC_GENERATION_DURATION - (Date.now() - start))));
-  clearInterval(progressIntervalId);
-  progress.value = 1; // Ostavi na kraju
-  isGeneratingTopic.value = false;
-
-  // Koristi lokalnu nasumičnu temu kao fallback
-  const randomTopic = getRandomTopic(props.interes);
-  console.log("[RecordButton] korišćenje lokalne teme:", randomTopic);
-  
-  emit("topic-generated", props.interes, randomTopic, props.lang);
-  emit("start-recording", true);
 };
 </script>
 

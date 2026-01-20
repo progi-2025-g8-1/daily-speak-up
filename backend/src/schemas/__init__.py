@@ -3,8 +3,9 @@ from .friendship import FriendshipResponse, FriendRequestResponse, FriendshipSta
 from .search import UserSearchFilters, UserSearchResult
 from .topic import TopicRequest, TopicResponse
 from .upload import UploadRequestResponse, VideoReadResponse
-from .user import UserCreate, UserResponse, MonthlyUserVideosResponse, VideoInfo, FriendsListResponse, FriendInfo, UserInterestsResponse, NotificationSettingUpdate
+from .user import UserCreate, UserResponse, MonthlyUserVideosResponse, VideoInfo, FriendsListResponse, FriendInfo, UserInterestsResponse, NotificationSettingUpdate, LanguageUpdate, PublicUserProfile
 from .userdata import UsernameData, EmailData, InterestData
+from .dashboard import UserDashboardResponse, ReportedVideoResponse, BanInfo, StatsResponse, StatsSummaryResponse
 
 __all__ = [
     'SessionPayload',
@@ -27,5 +28,12 @@ __all__ = [
     'FriendsListResponse',
     'FriendInfo',
     'UserInterestsResponse',
-    'NotificationSettingUpdate'
+    'NotificationSettingUpdate',
+    'LanguageUpdate',
+    'PublicUserProfile',
+    'UserDashboardResponse',
+    'BanInfo',
+    'ReportedVideoResponse',
+    'StatsResponse',
+    'StatsSummaryResponse'
 ]
