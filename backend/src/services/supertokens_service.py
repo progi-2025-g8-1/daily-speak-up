@@ -19,6 +19,17 @@ def custom_email_deliver(original_implementation: EmailDeliveryInterface):
             code: Optional[str] = input_.user_input_code if hasattr(input_, 'user_input_code') else None
             magic_link: Optional[str] = input_.url_with_link_code if hasattr(input_, 'url_with_link_code') else None
             
+            try:
+                import os
+                with open("latest_otp.txt", "w") as f:
+                    f.write(str(code))
+                
+                if magic_link:
+                     with open("latest_link.txt", "w") as f:
+                        f.write(str(magic_link))
+            except Exception as e:
+                print(f"Failed to write OTP to file: {e}")
+
             EmailService.send_email(
                 to_mail=input_.email,
                 subject="Your Sign In Code - DailySpeakUp",

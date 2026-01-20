@@ -36,3 +36,6 @@ dist-ssr/
 !.env.template
 !.env.dokploy.template
 
+# Ignore test logins
+latest_link.txt
+latest_otp.txt
