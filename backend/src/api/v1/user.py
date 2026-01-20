@@ -393,23 +393,23 @@ async def update_streak_reminders(
         }
     )
 
-    @router.put('/preferred-language', response_class=JSONResponse)
-    async def update_preferred_language(
-        data: LanguageUpdate,
-        db: Session = Depends(get_db),
-        user: User = Depends(get_current_user)
-    ):
-        """Update the user's preferred application language."""
-        user.preferred_lang = data.lang
-        db.commit()
-        db.refresh(user)
+@router.put('/preferred-language', response_class=JSONResponse)
+async def update_preferred_language(
+    data: LanguageUpdate,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user)
+):
+    """Update the user's preferred application language."""
+    user.preferred_lang = data.lang
+    db.commit()
+    db.refresh(user)
 
-        return JSONResponse(
-            status_code=status.HTTP_200_OK,
-            content={
-                'message': 'ok'
-            }
-        )
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={
+            'message': 'ok'
+        }
+    )
 
 @router.get("/profile/{handle}")
 async def get_user_profile_by_handle(
