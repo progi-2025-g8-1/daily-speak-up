@@ -208,7 +208,7 @@
         <Card v-if="loading" class="w-full mt-[2vh]">
             <template #content>
                 <ProgressSpinner style="width: 4rem; height: 4rem;" />
-                <div class="mt-4 text-gray-500">{{ $t('friends.loading') }}</div>
+                <div class="mt-4" style="color: var(--color-text-secondary);">{{ $t('friends.loading') }}</div>
             </template>
         </Card>
 

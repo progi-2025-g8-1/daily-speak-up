@@ -128,13 +128,14 @@
               {{ date.day }}
               <span 
                 v-if="hasEvent(date.day)" 
-                class="absolute inset-0 border-2 border-blue-500 rounded-full pointer-events-none"
+                class="absolute inset-0 rounded-full pointer-events-none"
+                style="border: 2px solid var(--color-primary);"
               ></span>
             </div>
           </template>
 
            <template #footer>
-                <div class="p-3 text-sm text-gray-500">
+                <div class="p-3 text-sm" style="color: var(--color-text-secondary);">
                     {{ $t('profile.select_date_me') }}
                 </div>
             </template>

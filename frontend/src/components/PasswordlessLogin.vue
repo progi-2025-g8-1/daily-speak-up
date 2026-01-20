@@ -9,7 +9,7 @@
     
     <Dialog v-model:visible="visible" modal header="Sign in with Email" :style="{ width: '25rem' }">
       <form v-if="!emailSent" @submit.prevent="handleSendMagicLink" class="flex flex-col gap-4">
-        <p class="text-sm text-gray-600">We'll send you a magic link to sign in instantly.</p>
+        <p class="text-sm" style="color: var(--color-text-secondary);">We'll send you a magic link to sign in instantly.</p>
         
         <div class="flex flex-col gap-2">
           <label for="email" class="font-semibold">Email</label>
@@ -37,7 +37,7 @@
           Magic link sent! Check your email at <strong>{{ email }}</strong>
         </Message>
         
-        <p class="text-sm text-gray-600">
+        <p class="text-sm" style="color: var(--color-text-secondary);">
           Click the link in your email to sign in. You can close this window.
         </p>
         

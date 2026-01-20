@@ -13,9 +13,11 @@
     import { RouterLink } from 'vue-router';
     import { ref, onMounted, computed, watch } from 'vue';
     import { useI18n } from 'vue-i18n';
+    import { useThemeStore } from '../stores/themeStore';
 
     const { t, locale } = useI18n();
     const visible = ref(false);
+    const themeStore = useThemeStore();
     const selectedLanguage = ref('hr');
     const selectedInterests = ref([]);
     const interests = ref([]);
@@ -187,7 +189,14 @@
         { name: t('settings.lang.english'), code: 'en' },
     ]);
 
-    // Theme options removed
+    const themeOptions = computed(() => [
+        { name: t('settings.theme.light'), code: 'light' },
+        { name: t('settings.theme.dark'), code: 'dark' },
+    ]);
+
+    const updateTheme = (themeCode) => {
+        themeStore.setTheme(themeCode);
+    };
 
     const updateEmailNotifs = async () => {
         const response = await fetch(`${import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123'}/api/v1/user/email-notifications`, {
@@ -258,7 +267,7 @@
 
             <div class="flex flex-col justify-start items-stretch w-full">
                 
-                <!-- Theme selection removed -->
+                <Select v-model="themeStore.themeMode" :options="themeOptions" optionLabel="name" optionValue="code" :placeholder="$t('settings.select_theme')" class="w-full mt-10" @update:modelValue="updateTheme" />
                 <Select v-model="selectedLanguage" :options="language" optionLabel="name" optionValue="code" :placeholder="$t('settings.select_language')" class="w-full mt-10" @update:modelValue="updateLanguage" />
                 <MultiSelect v-model="selectedInterests" :options="interests" optionLabel="name" optionValue="code" filter :placeholder="$t('settings.change_interests')"  class="w-full mt-10">
                     <template #value="slotProps">
@@ -299,17 +308,59 @@
                 </div>
             </div>
         </Drawer>
-        <div class="flex flex-col justify-center items-center border-2 border-solid aspect-square
-                    rounded-full border-blue w-10 mr-1 h-10 hover:scale-105 cursor-pointer transition duration-200"
+        <div class="flex flex-col justify-center items-center aspect-square rounded-full w-10 mr-1 h-10 hover:scale-105 cursor-pointer transition duration-200"
+            style="border: 2px solid var(--color-primary);"
             @click="visible = true">
-            <span class="pi pi-cog" style="color:black; font-size: 1.2rem;"></span>
+            <span class="pi pi-cog" style="color: var(--color-text-dark); font-size: 1.2rem;"></span>
         </div>
     </div>
 </template>
 
-<style scoped>
+<style>
     .yMargin {
         margin: 1.3rem 0;
+    }
+
+    .p-select:focus,
+    .p-select:focus-within {
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25) !important;
+    }
+
+    .p-select-overlay .p-select-option:hover {
+        background-color: #60a5fa !important;
+        color: white !important;
+    }
+
+    .p-select-overlay .p-select-option.p-focus {
+        background-color: #60a5fa !important;
+        color: white !important;
+    }
+
+    .p-select-overlay .p-select-option.p-highlight {
+        background-color: #3b82f6 !important;
+        color: white !important;
+    }
+
+    .p-multiselect:focus,
+    .p-multiselect:focus-within {
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25) !important;
+    }
+
+    .p-multiselect-overlay .p-multiselect-option:hover {
+        background-color: #60a5fa !important;
+        color: white !important;
+    }
+
+    .p-multiselect-overlay .p-multiselect-option.p-focus {
+        background-color: #60a5fa !important;
+        color: white !important;
+    }
+
+    .p-multiselect-overlay .p-multiselect-option.p-highlight {
+        background-color: #3b82f6 !important;
+        color: white !important;
     }
 
 </style>

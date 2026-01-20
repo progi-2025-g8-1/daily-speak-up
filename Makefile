@@ -1,3 +1,5 @@
+SHELL := /bin/bash
+
 setup:
 	@bash scripts/setup.sh
 
@@ -33,7 +35,8 @@ dev-rabbitmq:
 	docker run -d --name rabbitmq-dev -p 5672:5672 -p 15672:15672 rabbitmq:3-management || docker start rabbitmq-dev
 
 dev-supertokens:
-	@set -a; source backend/.env; set +a; \
+	@dos2unix backend/.env 2>/dev/null || sed -i 's/\r$$//' backend/.env; \
+	set -a; source backend/.env; set +a; \
 	docker run -d --name supertokens-dev -p 3567:3567 -e POSTGRESQL_CONNECTION_URI="$$SUPERTOKENS_DATABASE_URL" registry.supertokens.io/supertokens/supertokens-postgresql:latest || docker start supertokens-dev
 
 celery-worker:

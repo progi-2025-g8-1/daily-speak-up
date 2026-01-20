@@ -32,7 +32,8 @@ const handleUploadData = (uploadMethod: string, uploadUrl: string, userId: strin
 
 <template>
   <div
-    class="flex flex-col justify-start items-center bg-sky-100 w-[100vw] lg:w-[60vw] h-full"
+    class="flex flex-col justify-start items-center w-[100vw] lg:w-[60vw] h-full"
+    style="background-color: var(--color-bg-main);"
   >
     <NavBar />
 
@@ -40,8 +41,8 @@ const handleUploadData = (uploadMethod: string, uploadUrl: string, userId: strin
       class="w-full h-[53vh] lg:h-full flex flex-col justify-around items-center "
     >
       <div
-        class="border-black justify-center
-                font-sans text-[1.5vw] font-semibold text-center"
+        class="justify-center font-sans text-3xl font-semibold text-center"
+        style="color: var(--color-text-primary);"
       >
         <h1>{{ $t('main.start_exercise') }}</h1>
       </div>
@@ -57,12 +58,7 @@ const handleUploadData = (uploadMethod: string, uploadUrl: string, userId: strin
       </div>
 
       <div>
-        <Fieldset :legend="$t('main.speech_topic_title')" 
-        :toggleable="true"
-        :pt="{
-          legendLabel: { style: 'color: #000000 !important' }
-          }" 
-        >
+        <Fieldset :legend="$t('main.speech_topic_title')" :toggleable="true" style="--p-fieldset-legend-color: var(--color-primary); --p-fieldset-background: var(--color-bg-card); --p-fieldset-border-color: var(--color-primary);">
           <p class="m-0 font-bold" v-if="interest">
             {{ $t('main.interest_label') }} {{ interest }}
           </p>
@@ -79,4 +75,30 @@ const handleUploadData = (uploadMethod: string, uploadUrl: string, userId: strin
 </template>
 
 <style scoped>
+/* Osnovna boja gumba */
+:deep(.p-button) {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  color: #fff !important;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Hover stanje */
+:deep(.p-button:hover) {
+  background-color: var(--color-primary-dark) !important;
+  border-color: var(--color-primary-dark) !important;
+}
+
+/* Fokus (da ne posvijetli) */
+:deep(.p-button:focus) {
+  box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.3) !important;
+}
+
+
+:deep(.p-button:disabled) {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  opacity: 0.6;
+}
+
 </style>

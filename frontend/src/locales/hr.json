@@ -26,9 +26,14 @@
             "croatian": "Hrvatski",
             "english": "Engleski"
         },
+        "theme": {
+            "light": "Svijetla",
+            "dark": "Tamna"
+        },
         "title": "Postavke računa",
         "upload_photo": "Prenesite novu profilnu fotografiju",
         
+        "select_theme": "Odaberite temu",
         "select_language": "Odaberite jezik",
         "change_interests": "Promijenite svoje interese",
         "notifications": {

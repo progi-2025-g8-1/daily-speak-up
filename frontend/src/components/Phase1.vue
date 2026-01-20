@@ -64,7 +64,7 @@ async function submit() {
 
     <!-- Name Field -->
     <div class="space-y-2">
-      <label for="name" class="block text-sm font-semibold text-dark">
+      <label for="name" class="block text-sm font-semibold" style="color: var(--color-text-dark);">
         {{ t('onboarding.phase1.name_label') }} <span style="color: var(--color-error);">*</span>
       </label>
       <InputText 
@@ -75,12 +75,12 @@ async function submit() {
         required
         :disabled="submitting"
       />
-      <small class="text-light">{{ t('onboarding.phase1.name_hint') }}</small>
+      <small style="color: var(--color-text-light);">{{ t('onboarding.phase1.name_hint') }}</small>
     </div>
 
     <!-- Handle Field -->
     <div class="space-y-2">
-      <label for="handle" class="block text-sm font-semibold text-dark">
+      <label for="handle" class="block text-sm font-semibold" style="color: var(--color-text-dark);">
         {{ t('onboarding.phase1.handle_label') }} <span style="color: var(--color-error);">*</span>
       </label>
       <div class="relative">
@@ -97,7 +97,8 @@ async function submit() {
         />
         <i 
           v-if="checking" 
-          class="pi pi-spin pi-spinner absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+          class="pi pi-spin pi-spinner absolute right-3 top-1/2 -translate-y-1/2"
+          style="color: var(--color-text-light);"
         ></i>
       </div>
       
@@ -110,7 +111,7 @@ async function submit() {
           {{ t('onboarding.phase1.handle_available', { handle: handle }) }}
         </InlineMessage>
       </div>
-      
+      style="color: var(--color-text-light);
       <small class="text-light">
         {{ t('onboarding.phase1.handle_requirements') }}
       </small>

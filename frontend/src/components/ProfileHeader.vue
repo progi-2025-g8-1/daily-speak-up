@@ -9,26 +9,25 @@
           :image="displayUser.profile_picture_url"
           :label="!displayUser.profile_picture_url ? (displayUser.handle?.[0]?.toUpperCase() || displayUser.email?.[0]?.toUpperCase()) : undefined"
           shape="circle" 
-          class="bg-sky-400 text-white"
-          style="width: 100px; height: 100px; font-size: 3rem;"
+          style="width: 100px; height: 100px; font-size: 3rem; background-color: var(--color-primary); color: white;"
         />
 
         <div class="flex flex-col items-start">
-          <h2 class="text-2xl font-semibold text-dark m-0 mb-1">
+          <h2 class="text-2xl font-semibold m-0 mb-1" style="color: var(--color-text-dark);">
             {{ displayUser.handle || displayUser.email }}
           </h2>
           
-          <h3 v-if="!isOtherUser" class="text-lg text-gray-500 m-0 mb-3">
+          <h3 v-if="!isOtherUser" class="text-lg m-0 mb-3" style="color: var(--color-text-secondary);">
             {{ displayUser.email }}
           </h3>
 
           <div class="flex gap-10">
             <div class="flex flex-col items-start">
               <div class="flex flex-row items-center gap-2">
-                <span class="text-2xl font-bold text-dark">{{ displayUser.streak || displayUser.current_streak || 0 }}</span>
+                <span class="text-2xl font-bold" style="color: var(--color-text-dark);">{{ displayUser.streak || displayUser.current_streak || 0 }}</span>
                 <span class="pi pi-sparkles font-xl"></span>
               </div>
-              <span class="text-xs text-gray-600">{{ $t('profile.header.streak') }}</span>
+              <span class="text-xs" style="color: var(--color-text-light);">{{ $t('profile.header.streak') }}</span>
             </div>
             <div class="flex flex-col items-start">
               <div 
@@ -36,14 +35,14 @@
                 :class="{ 'cursor-pointer hover:opacity-70': canViewFriends }"
                 @click="canViewFriends ? handleShowFriends() : null"
               >
-                <span class="text-2xl font-bold text-dark">{{ displayUser.friends_count || displayUser.friend_count || 0 }}</span>
+                <span class="text-2xl font-bold" style="color: var(--color-text-dark);">{{ displayUser.friends_count || displayUser.friend_count || 0 }}</span>
                 <span class="pi pi-users font-xl"></span>
                 <!-- Red badge for incoming requests (own profile only) -->
                 <span v-if="!isOtherUser && incomingRequestsCount > 0" class="absolute -top-2 -right-3 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                   {{ incomingRequestsCount }}
                 </span>
               </div>
-              <span class="text-xs text-gray-600">{{ $t('profile.header.friends') }}</span>
+              <span class="text-xs" style="color: var(--color-text-light);">{{ $t('profile.header.friends') }}</span>
             </div>
           </div>
         </div>

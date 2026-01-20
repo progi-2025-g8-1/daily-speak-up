@@ -20,25 +20,25 @@ const indicatorConfig = computed(() => {
   
   if (env === 'development' || env === 'dev') {
     return {
-      color: 'bg-yellow-500',
+      color: '#f59e0b', // warning yellow
       label: 'DEV',
       fullLabel: 'Development'
     };
   } else if (env === 'staging' || env === 'stage') {
     return {
-      color: 'bg-blue-500',
+      color: '#3b82f6', // primary blue
       label: 'STAGING',
       fullLabel: 'Staging'
     };
   } else if (env === 'test' || env === 'testing') {
     return {
-      color: 'bg-purple-500',
+      color: '#8b5cf6', // purple
       label: 'TEST',
       fullLabel: 'Testing'
     };
   } else {
     return {
-      color: 'bg-orange-500',
+      color: '#f97316', // orange
       label: env.toUpperCase(),
       fullLabel: env.charAt(0).toUpperCase() + env.slice(1)
     };
@@ -53,12 +53,11 @@ const indicatorConfig = computed(() => {
     style="z-index: 9999;"
   >
     <div 
-      :class="[
-        'px-3 py-1.5 text-white font-bold text-xs shadow-lg',
-        'flex items-center gap-2',
-        indicatorConfig.color
-      ]"
-      style="border-bottom-right-radius: 0.5rem;"
+      :style="{
+        'background-color': indicatorConfig.color,
+        'border-bottom-right-radius': '0.5rem'
+      }"
+      class="px-3 py-1.5 text-white font-bold text-xs shadow-lg flex items-center gap-2"
       :title="`Environment: ${indicatorConfig.fullLabel}`"
     >
       <span class="inline-block w-2 h-2 bg-white rounded-full animate-pulse"></span>

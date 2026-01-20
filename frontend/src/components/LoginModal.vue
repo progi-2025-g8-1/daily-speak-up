@@ -2,8 +2,8 @@
   <div>
     <button 
       @click="showModal = true"
-      class="px-6 py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-sm hover:shadow-md"
-    >
+      class="text-white font-semibold rounded-lg transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center"
+      style="background-color: #2563eb; height: 42px; padding: 0 1rem;">
       {{ t('login.button') }}
     </button>
 
@@ -13,31 +13,33 @@
         class="fixed inset-0 flex items-center justify-center z-50 p-4"
         @click.self="closeModal"
       >
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md relative">
+        <div class="rounded-2xl shadow-2xl w-full max-w-md relative" style="background-color: var(--color-bg-card);">
           <button 
             @click="closeModal"
-            class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 transition-colors"
+            class="absolute top-4 right-4 transition-colors"
+            style="color: var(--color-text-light);"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
 
-          <div class="text-center pt-8 pb-6 px-8 border-b border-gray-100">
-            <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div class="text-center pt-8 pb-6 px-8" style="border-bottom: 1px solid var(--color-border-light);">
+            <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style="background-color: var(--color-primary);">
               <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </div>
-            <h2 class="text-2xl font-bold text-gray-800">{{ t('login.welcome_title') }}</h2>
-            <p class="text-gray-500 mt-2">{{ t('login.welcome_subtitle') }}</p>
+            <h2 class="text-2xl font-bold" style="color: var(--color-text-dark);">{{ t('login.welcome_title') }}</h2>
+            <p class="mt-2" style="color: var(--color-text-secondary);">{{ t('login.welcome_subtitle') }}</p>
           </div>
 
           <div class="p-8">
             <Button
               @click="handleGoogleLogin"
               variant="outlined"
-              class="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium text-gray-700 hover:border-gray-400 mb-4"
+              class="w-full flex items-center justify-center gap-3 px-4 py-3 border-2 rounded-lg transition-colors font-medium mb-4"
+              style="background-color: var(--color-bg-card); border-color: var(--color-border-medium); color: var(--color-text-dark);"
             >
               <svg class="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -50,22 +52,24 @@
 
             <div class="relative my-6">
               <div class="absolute inset-0 flex items-center">
-                <div class="w-full border-t border-gray-300"></div>
+                <div class="w-full" style="border-top: 1px solid var(--color-border-light);"></div>
               </div>
-              <div class="relative flex justify-center text-sm">
-                <span class="px-4 bg-white text-gray-500 font-medium">{{ t('login.or') }}</span>
+              <div class="relative font-medium" style="background-color: var(--color-bg-card); color: var(--color-text-secondary);">
+                <span class="px-4 font-medium" style="background-color: var(--color-bg-card); color: var(--color-text-secondary);">{{ t('login.or') }}</span>
               </div>
             </div>
 
             <div v-if="!emailSent">
-              <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('login.email_label') }}</label>
+              <label class="block text-sm font-medium text-gray-700 mb-2" style="color: var(--color-text-dark);">{{ t('login.email_label') }}</label>
               <InputText name="email"
                          type="text" 
                          :placeholder="t('login.email_placeholder')" 
                          @keyup.enter="handleEmailLogin"
                          @update:modelValue="checkMail"
                          v-model="email"
-                         class="w-full px-4 py-3"/>
+                         class="w-full px-4 py-3"
+                         style="border-color: var(--color-border-light); background-color: var(--color-bg-main); color: var(--color-text-dark);"
+              />
               <label v-if="showPassword" class="block text-sm font-medium text-gray-700 mt-3">{{ t('login.admin_password_label') }}</label>
               <Password v-if="showPassword" v-model="passwordValue" :feedback="false" toggleMask class="w-full mt-3"  inputClass="w-full"/>
               <Button
@@ -73,7 +77,7 @@
                 @click="handleEmailLogin"
                 :disabled="!email || emailLoading"
                 variant="outlined"
-                class="w-full mt-4 px-4 py-3font-semibold rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center"
+                class="w-full mt-4 px-4 py-3 font-semibold rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center"
               >
                 <span v-if="emailLoading" class="flex items-center gap-2">
                   <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24">
@@ -90,12 +94,12 @@
                 :disabled="!email || emailLoading || !passwordValue"
                 variant="outlined"
                 :label="t('login.login_root_admin')"
-                class="w-full mt-4 px-4 py-3font-semibold rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center" />
+                class="w-full mt-4 px-4 py-3 font-semibold rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center" />
             </div>
 
             <div v-else class="text-center">
-              <div class="mb-4 p-4 bg-green-50 rounded-lg border border-green-200">
-                <svg class="w-12 h-12 text-green-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="mb-4 p-4 rounded-lg" style="background-color: var(--color-bg-main); border: 1px solid var(--color-success);">
+                <svg class="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--color-success);">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <p class="text-sm text-green-800 font-medium">
@@ -112,14 +116,15 @@
               
               <button
                 @click="closeModal"
-                class="w-full px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors"
+                class="w-full px-4 py-2 font-medium rounded-lg transition-colors"
+                style="background-color: var(--color-bg-main); color: var(--color-text-primary); border: 1px solid var(--color-border-light);"
               >
                 {{ t('common.close') }}
               </button>
             </div>
 
-            <div v-if="errorMessage" class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p class="text-sm text-red-800">{{ errorMessage }}</p>
+            <div v-if="errorMessage" class="mt-4 p-3 rounded-lg" style="background-color: var(--color-bg-main); border: 1px solid var(--color-error);">
+              <p class="text-sm" style="color: var(--color-error);">{{ errorMessage }}</p>
             </div>
           </div>
         </div>
