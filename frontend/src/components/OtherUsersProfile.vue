@@ -177,6 +177,33 @@
   }
 };
 
+const sendFriendRequest = async () => {
+  if (!profile.value || !profile.value.id) return;
+  sendingRequest.value = true;
+  try {
+    const res = await fetch(`${apiDomain}/api/v1/friend/request`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ target_user_id: profile.value.id })
+    });
+
+    if (res.ok) {
+      // Mark as outgoing pending from the frontend perspective
+      friendshipStatus.value = 'pending_outgoing';
+    } else {
+      const err = await res.json().catch(() => null);
+      console.error('Failed to send friend request', err);
+      showErrorMessage.value = true;
+    }
+  } catch (err) {
+    console.error('Error sending friend request:', err);
+    showErrorMessage.value = true;
+  } finally {
+    sendingRequest.value = false;
+  }
+};
+
   
   onMounted(() => {
     loadProfile();
@@ -185,7 +212,7 @@
   
   <template>
     <!-- Loading State -->
-    <div v-if="loading" class="flex flex-col items-center w-[93%]">
+    <div v-if="loading" class="flex flex-col items-center w-full">
       <Card class="w-full mt-[2vh]">
         <template #content>
           <div class="flex items-center gap-4">
@@ -201,7 +228,7 @@
     </div>
   
     <!-- Error State -->
-    <div v-else-if="error" class="flex flex-col items-center w-[93%]">
+    <div v-else-if="error" class="flex flex-col items-center w-full">
       <Card class="w-full mt-[2vh]">
         <template #content>
           <div class="text-center py-8">
@@ -214,9 +241,9 @@
     </div>
   
     <!-- Profile Content -->
-    <div v-else class="flex flex-col items-center w-[93%]">
+    <div v-else class="flex flex-col items-center w-full">
       <!-- Profile Header Card -->
-      <Card class="w-full mt-[2vh]">
+      <Card class="w-full">
         <template #content>
           <ProfileHeader 
             :other-user-data="profile" 
@@ -247,6 +274,9 @@
               <Button 
                 :label="$t('profile.friendship.send_request')" 
                 icon="pi pi-user-plus" 
+                :disabled="sendingRequest"
+                :loading="sendingRequest"
+                @click="sendFriendRequest"
               />
             </template>
           </div>

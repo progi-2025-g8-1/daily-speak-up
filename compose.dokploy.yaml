@@ -44,6 +44,9 @@ services:
       - R2_ADMIN_API_KEY=${R2_ADMIN_API_KEY}
       - R2_ACCESS_KEY_ID=${R2_ACCESS_KEY_ID}
       - R2_JURISDICTION=${R2_JURISDICTION}
+      - ROOT_ADMIN_EMAIL=${ROOT_ADMIN_EMAIL}
+      - ROOT_ADMIN_PASSWORD=${ROOT_ADMIN_PASSWORD}
+      - ROOT_ADMIN_HANDLE=${ROOT_ADMIN_HANDLE}
     depends_on:
       - supertokens
     networks:

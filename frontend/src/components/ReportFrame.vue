@@ -158,7 +158,7 @@
                                 rounded
                                 variant="outlined"
                                 :severity="item.severity"
-                                @click="item.command && item.command({ originalEvent: $event, item: item })"
+                                @click="item.command ? item.command({ originalEvent: $event, item }) : null"
                                 :pt="{ root: { class: item.class } }"
                                 v-tooltip.left="item.label" />
 

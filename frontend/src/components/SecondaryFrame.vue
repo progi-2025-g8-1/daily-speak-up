@@ -46,13 +46,14 @@
 </script>
 
 <template>
-  <div class="flex flex-col items-center lg:w-[40vw] lg:h-full">
+  <div class="flex flex-col items-center lg:w-[40vw] lg:h-full p-4">
     <CurrentUsersProfile v-if="showCurrentUsersProfile"
                          ref="currentUsersProfileRef"
                          @date-selected="handleDateSelected"
                          @show-friends="handleShowFriends" />
 
     <FriendsList v-else-if="showFriendsList" ref="friendsListRef"
+                                             :is-own-profile="true"
                                              @hide-friends="hideFriends"/>
   </div>
 </template>

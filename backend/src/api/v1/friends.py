@@ -65,10 +65,9 @@ async def send_friend_request(
                 detail='Friend request already pending'
             )
         elif existing_friendship.status == RequestStatus.DENIED:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail='Friend request was previously denied'
-            )
+            # Allow resending request after denial - delete old and create new
+            db.delete(existing_friendship)
+            db.commit()
     
     # Create new friend request
     new_friendship = Friendship(

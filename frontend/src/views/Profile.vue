@@ -1,14 +1,14 @@
 <template>
-  <div class="min-h-screen bg-main">
+  <div class="min-h-screen bg-main overflow-x-hidden">
 
     <NavBar />
     
-    <div class="max-w-md mx-auto" id="i1">
+    <div class="max-w-2xl mx-auto w-full" id="i1">
       
-      <Card class="shadow-lg mt-6 mx-4">
+      <Card class="shadow-lg mt-4 w-full">
         <template #header>
-          <div class="px-6 pt-6 pb-2">
-            <div class="flex items-center justify-between mb-2">
+          <div class="px-6 pt-4 pb-0">
+            <div class="flex items-center justify-between mb-0">
               <router-link 
                 to="/home" 
                 class="inline-flex items-center gap-2 px-3 py-1.5 font-medium transition-colors duration-200"
@@ -27,8 +27,15 @@
         </template>
         
         <template #content>
-          <CurrentUsersProfile v-if="isOwnProfile" />
-          <OtherUsersProfile v-else />
+          <div class="w-full">
+            <div v-if="showFriendsPanel">
+              <FriendsList ref="friendsListRef" :is-own-profile="isOwnProfile" @hide-friends="hideFriends" />
+            </div>
+            <div v-else>
+              <CurrentUsersProfile v-if="isOwnProfile" @show-friends="handleShowFriends" />
+              <OtherUsersProfile v-else @show-friends="handleShowFriends" />
+            </div>
+          </div>
         </template>
       </Card>
     </div>
@@ -36,16 +43,31 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 import NavBar from '../components/NavBar.vue';
 import CurrentUsersProfile from '../components/CurrentUsersProfile.vue';
 import OtherUsersProfile from '../components/OtherUsersProfile.vue';
+import FriendsList from '../components/FriendsList.vue';
 import Card from 'primevue/card';
 import { isAuthenticated } from '../auth';
 
 const route = useRoute();
 const isOwnProfile = ref(false);
+const showFriendsPanel = ref(false);
+const friendsListRef = ref(null);
+
+const handleShowFriends = async (userId) => {
+  showFriendsPanel.value = true;
+  await nextTick();
+  if (friendsListRef.value && typeof friendsListRef.value.showFriends === 'function') {
+    friendsListRef.value.showFriends(userId);
+  }
+};
+
+const hideFriends = () => {
+  showFriendsPanel.value = false;
+};
 
 const checkIfOwnProfile = async () => {
   try {
@@ -89,6 +111,7 @@ onMounted(async () => {
 
 // Watch for route changes (if user navigates to different profile)
 watch(() => route.params.handle, async () => {
+  showFriendsPanel.value = false;
   await checkIfOwnProfile();
 });
 </script>
@@ -157,5 +180,10 @@ watch(() => route.params.handle, async () => {
     #i1 :deep(.p-datepicker table th) {
       padding: 0.15rem;
     }
+  }
+
+  /* Reduce padding in Profile card content */
+  #i1 :deep(.p-card-content) {
+    padding-top: 0 !important;
   }
 </style>
