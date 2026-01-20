@@ -4,12 +4,14 @@ import { api } from '../api'
 import InputText from 'primevue/inputtext'
 import Button from 'primevue/button'
 import InlineMessage from 'primevue/inlinemessage'
+import ProfilePictureUpload from './ProfilePictureUpload.vue'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 const emit = defineEmits<{(e:'done'): void}>()
 const name = ref('')
 const handle = ref('')
+const profilePictureUrl = ref<string | null>(null)
 const checking = ref(false)
 const handleAvailable = ref<boolean | null>(null)
 const submitting = ref(false)
@@ -42,9 +44,18 @@ async function submit() {
   
   submitting.value = true
   try {
+    const payload: any = { 
+      name: name.value, 
+      handle: handle.value 
+    }
+    
+    if (profilePictureUrl.value) {
+      payload.profile_picture_url = profilePictureUrl.value
+    }
+    
     await api('/onboarding/profile', {
       method: 'PATCH',
-      body: JSON.stringify({ name: name.value, handle: handle.value })
+      body: JSON.stringify(payload)
     })
     emit('done')
   } catch (error) {
@@ -53,6 +64,14 @@ async function submit() {
     submitting.value = false
   }
 }
+
+function handlePhotoUploaded(url: string) {
+  profilePictureUrl.value = url
+}
+
+function handlePhotoDeleted() {
+  profilePictureUrl.value = null
+}
 </script>
 
 <template>
@@ -60,6 +79,17 @@ async function submit() {
     <div class="mb-6">
       <h2 class="text-2xl font-bold mb-2 text-primary">{{ t('onboarding.phase1.title') }}</h2>
       <p class="text-secondary">{{ t('onboarding.phase1.subtitle') }}</p>
+    </div>
+
+    <!-- Profile Picture Upload -->
+    <div class="flex justify-center mb-6">
+      <ProfilePictureUpload 
+        :current-photo-url="profilePictureUrl"
+        :show-label="true"
+        size="large"
+        @uploaded="handlePhotoUploaded"
+        @deleted="handlePhotoDeleted"
+      />
     </div>
 
     <!-- Name Field -->

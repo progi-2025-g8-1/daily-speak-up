@@ -50,6 +50,26 @@
             "delete": "Delete"
         }
     },
+    "profile_upload": {
+        "click_to_upload": "Click to upload or capture photo",
+        "choose_option": "Choose an option",
+        "take_photo": "Take Photo",
+        "upload_from_device": "Upload from Device",
+        "delete_photo": "Delete Photo",
+        "starting_camera": "Starting camera...",
+        "capture": "Capture",
+        "retake": "Retake",
+        "use_photo": "Use Photo",
+        "error": "Error",
+        "success": "Success",
+        "invalid_file_type": "Please select a valid image file",
+        "file_too_large": "File size must be less than 5MB",
+        "camera_access_denied": "Camera access denied. Please grant camera permissions.",
+        "photo_uploaded": "Profile photo uploaded successfully",
+        "photo_deleted": "Profile photo deleted successfully",
+        "upload_failed": "Failed to upload photo. Please try again.",
+        "delete_failed": "Failed to delete photo. Please try again."
+    },
     "onboarding": {
         "welcome": "Welcome",
         "subtitle": "Complete your profile in a few steps",

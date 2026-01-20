@@ -50,6 +50,26 @@
             "delete": "Izbriši"
         }
     },
+    "profile_upload": {
+        "click_to_upload": "Kliknite za prijenos ili snimanje fotografije",
+        "choose_option": "Odaberite opciju",
+        "take_photo": "Uslikaj",
+        "upload_from_device": "Prijenos s uređaja",
+        "delete_photo": "Izbriši fotografiju",
+        "starting_camera": "Pokretanje kamere...",
+        "capture": "Snimi",
+        "retake": "Ponovi",
+        "use_photo": "Koristi fotografiju",
+        "error": "Greška",
+        "success": "Uspjeh",
+        "invalid_file_type": "Molimo odaberite valjanu sliku",
+        "file_too_large": "Veličina datoteke mora biti manja od 5MB",
+        "camera_access_denied": "Pristup kameri odbijen. Molimo dozvolite pristup kameri.",
+        "photo_uploaded": "Profilna fotografija uspješno prenesena",
+        "photo_deleted": "Profilna fotografija uspješno izbrisana",
+        "upload_failed": "Prijenos fotografije nije uspio. Molimo pokušajte ponovo.",
+        "delete_failed": "Brisanje fotografije nije uspjelo. Molimo pokušajte ponovo."
+    },
     "onboarding": {
         "welcome": "Dobrodošli",
         "subtitle": "Dovršite svoj profil u nekoliko koraka",

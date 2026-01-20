@@ -5,7 +5,20 @@
     <div v-else-if="displayUser" class="flex flex-col gap-4">
       <!-- User Info Section -->
       <div class="flex flex-row justify-around w-full">
+        <!-- Profile Picture with Upload for Own Profile -->
+        <div v-if="!isOtherUser" class="relative">
+          <ProfilePictureUpload 
+            :current-photo-url="profilePhotoUrl"
+            :show-label="false"
+            size="large"
+            @uploaded="handlePhotoUploaded"
+            @deleted="handlePhotoDeleted"
+          />
+        </div>
+        
+        <!-- Avatar for Other Users -->
         <Avatar 
+          v-else
           :image="displayUser.profile_picture_url"
           :label="!displayUser.profile_picture_url ? (displayUser.handle?.[0]?.toUpperCase() || displayUser.email?.[0]?.toUpperCase()) : undefined"
           shape="circle" 
@@ -81,6 +94,7 @@ import Avatar from 'primevue/avatar';
 import Chip from 'primevue/chip';
 import ProgressSpinner from 'primevue/progressspinner';
 import Message from 'primevue/message';
+import ProfilePictureUpload from './ProfilePictureUpload.vue';
 import { useI18n } from 'vue-i18n';
 
 export default {
@@ -88,7 +102,8 @@ export default {
     Avatar,
     Chip,
     ProgressSpinner,
-    Message
+    Message,
+    ProfilePictureUpload
   },
   props: {
     otherUserData: {
@@ -112,6 +127,7 @@ export default {
     const error = ref('');
     const interests = ref([]);
     const interestSlugs = ref([]);
+    const profilePhotoUrl = ref(null);
 
     const getTranslatedInterestLabel = (slug) => {
       try {
@@ -156,6 +172,16 @@ export default {
         ? props.otherUserData?.id 
         : userId.value;
       emit('show-friends', idToEmit);
+    };
+
+    const handlePhotoUploaded = async (url) => {
+      // Display uploaded photo immediately
+      console.log(`[ProfileHeader] handlePhotoUploaded called with:`, { url, type: typeof url });
+      profilePhotoUrl.value = url;
+    };
+
+    const handlePhotoDeleted = () => {
+      window.location.reload();
     };
 
     const fetchIncomingRequestsCount = async () => {
@@ -229,6 +255,17 @@ export default {
           interests.value = interestsData.interests || [];
         }
 
+        // Load profile photo from localStorage cache
+        const uid = userId.value;
+        if (uid) {
+          const cached = localStorage.getItem(`profilePhoto:${uid}`);
+          console.log(`[ProfileHeader] userId=${uid}, cached=${!!cached}`);
+          if (cached) {
+            profilePhotoUrl.value = cached;
+            console.log(`[ProfileHeader] ✓ Profile photo loaded from cache`);
+          }
+        }
+
         // Fetch incoming requests count
         await fetchIncomingRequestsCount();
       } catch (e) {
@@ -251,7 +288,10 @@ export default {
       canViewFriends,
       shouldShowInterests,
       handleShowFriends,
-      getTranslatedInterestLabel
+      handlePhotoUploaded,
+      handlePhotoDeleted,
+      getTranslatedInterestLabel,
+      profilePhotoUrl
     };
   },
 };

@@ -5,7 +5,11 @@ const API = import.meta.env.VITE_API_BASE_URL || (window as any).ENV?.VITE_API_B
 export async function api(path: string, init: RequestInit = {}) {
   const token = await getAccessToken();
   const headers = new Headers(init.headers || {});
-  headers.set('Content-Type', 'application/json');
+  // Only set JSON content-type if body is not FormData
+  const isFormData = typeof FormData !== 'undefined' && init.body instanceof FormData;
+  if (!isFormData) {
+    headers.set('Content-Type', 'application/json');
+  }
   if (token) headers.set('Authorization', `Bearer ${token}`);
 
   const res = await fetch(`${API}${path}`, { ...init, headers, credentials: 'include' });
