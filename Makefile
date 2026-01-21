@@ -94,4 +94,10 @@ kill:
 	docker rm $(docker ps -aq)
 	@echo "Done!"
 
-.PHONY: setup install pip npm dev backend frontend compose down dev-rabbitmq dev-supertokens celery-worker stop-rabbitmq stop-supertokens clean-rabbitmq clean-supertokens test create-db reset-db reset-db-force drop-db kill
+stop:
+	docker stop $(docker ps -aq)
+
+rm:
+	docker rm $(docker ps -aq)
+
+.PHONY: setup install pip npm dev backend frontend compose down dev-rabbitmq dev-supertokens celery-worker stop-rabbitmq stop-supertokens clean-rabbitmq clean-supertokens test create-db reset-db reset-db-force drop-db kill stop rm
