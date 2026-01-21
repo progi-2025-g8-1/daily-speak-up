@@ -259,7 +259,10 @@
         "rating": "Ocjena:",
         "private": "Privatno",
         "friends": "Za prijatelje",
-        "delete": "Obriši"
+        "delete": "Obriši",
+        "rate_this": "Ocijeni govor",
+        "your_rating": "Tvoja ocjena:",
+        "no_ratings": "Još nema ocjena"
     },
     "friends": {
         "title": "Prijatelji",

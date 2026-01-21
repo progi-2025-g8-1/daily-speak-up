@@ -41,6 +41,8 @@ class VideoInfo(BaseModel):
     caption: Optional[str]
     url: str
     visibility: SpeechVisibility
+    average_rating: Optional[float] = None
+    total_ratings: int = 0
 
 class MonthlyUserVideosResponse(BaseModel):
     videos: List[VideoInfo]  

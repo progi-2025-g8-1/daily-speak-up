@@ -3,7 +3,7 @@ import datetime
 from uuid import UUID 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
-from sqlalchemy import extract, and_, or_
+from sqlalchemy import extract, and_, or_, func
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -182,6 +182,17 @@ async def get_monthly_user_videos(
     videos = []
 
     for speech in speeches:
+        # Calculate rating info for this speech
+        rating_stats = db.query(
+            func.avg(Rating.score).label('avg_rating'),
+            func.count(Rating.id).label('total_ratings')
+        ).filter(
+            Rating.speech_id == speech.id,
+            Rating.removed_at.is_(None)
+        ).first()
+        
+        avg_rating = float(rating_stats.avg_rating) if rating_stats.avg_rating else None
+        total_ratings = int(rating_stats.total_ratings) if rating_stats.total_ratings else 0
 
         # If the video is hosted on YouTube, use the existing URL directly
         if 'youtube' in str(speech.s3_url):
@@ -194,7 +205,9 @@ async def get_monthly_user_videos(
                     caption=speech.caption,
                     url=speech.s3_url,
                     owner_id=speech.user_id,
-                    visibility=speech.visibility_level
+                    visibility=speech.visibility_level,
+                    average_rating=avg_rating,
+                    total_ratings=total_ratings
                 )
             )
             continue
@@ -231,7 +244,9 @@ async def get_monthly_user_videos(
                 caption=speech.caption,
                 url=download_url if download_url is not None else speech.s3_url,
                 owner_id=speech.user_id,
-                visibility=speech.visibility_level
+                visibility=speech.visibility_level,
+                average_rating=avg_rating,
+                total_ratings=total_ratings
             )
         )
     

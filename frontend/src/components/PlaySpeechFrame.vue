@@ -3,6 +3,7 @@
     import Dialog from 'primevue/dialog';
     import Button from 'primevue/button';
     import ToggleButton from 'primevue/togglebutton';
+    import StarRating from './StarRating.vue';
     import { getUserId } from '../auth';
 
     const emits = defineEmits(['video-deleted']);
@@ -12,6 +13,8 @@
     const videoCaption = ref(''); 
     const videoVisibility = ref(false);
     const isOwner = ref(false);
+    const averageRating = ref(null);
+    const totalRatings = ref(0);
 
     let videoInfo = null;
 
@@ -62,6 +65,11 @@
         }
     };
 
+    const handleRatingUpdated = (rating, newAverage, newTotal) => {
+        averageRating.value = newAverage;
+        totalRatings.value = newTotal;
+    };
+
     const displaySpeechDialog = (date, hasSpeeches, video) => {
       if (hasSpeeches) {
         visible.value = true;
@@ -69,6 +77,8 @@
         videoInfo = video;
         videoCaption.value = video.caption;
         videoVisibility.value = video.visibility === 'private';
+        averageRating.value = video.average_rating;
+        totalRatings.value = video.total_ratings || 0;
         checkIsOwner();
       }
     };
@@ -94,12 +104,13 @@
       </div>
       <div>{{ videoCaption }}</div>
       <div class="flex flex-row items-center justify-between w-full mt-6">
-          <div class="flex flex-row items-center gap-3">
-              <div class="flex gap-1">
-                <span v-for="i in 5" :key="i" class="text-yellow-400">★</span>
-              </div>
-              <p>{{ $t('speech.rating') }} 5.0</p>
-          </div>
+          <StarRating
+            v-if="videoInfo"
+            :speech-id="videoInfo.video_id"
+            :average-rating="averageRating"
+            :total-ratings="totalRatings"
+            @rating-updated="handleRatingUpdated"
+          />
           <div class="flex flex-row items-center gap-4">
             <div v-if="isOwner" class="flex flex-row items-center gap-4">
               <ToggleButton :onLabel="$t('speech.private')" :offLabel="$t('speech.friends')" onIcon="pi pi-lock" 

@@ -259,7 +259,10 @@
         "rating": "Rating:",
         "private": "Private",
         "friends": "Friends",
-        "delete": "Delete"
+        "delete": "Delete",
+        "rate_this": "Rate this speech",
+        "your_rating": "Your rating:",
+        "no_ratings": "No ratings yet"
     },
     "friends": {
         "title": "Friends",
