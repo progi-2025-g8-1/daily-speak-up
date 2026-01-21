@@ -262,9 +262,18 @@
         "delete": "Obriši"
     },
     "friends": {
-        "title": "Popis prijatelja",
+        "title": "Prijatelji",
         "loading": "Učitavanje prijatelja...",
-        "empty": "Nema prijatelja za prikazati."
+        "empty": "Nema prijatelja za prikazati.",
+        "no_friends": "Još nemaš prijatelja",
+        "no_requests": "Nema zahtjeva za prijateljstvo",
+        "accept": "Prihvati",
+        "reject": "Odbij",
+        "error_loading": "Neuspjelo učitavanje popisa prijatelja",
+        "tabs": {
+            "friends": "Prijatelji",
+            "requests": "Zahtjevi"
+        }
     },
     "main": {
         "start_exercise": "Započnite vježbu!",

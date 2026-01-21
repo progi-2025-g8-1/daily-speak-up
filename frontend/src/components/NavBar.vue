@@ -6,7 +6,7 @@
 
 <template>
 
-    <div class="flex flex-row justify-between items-center w-full mt-4 px-4 py-2" style="border: 1px solid var(--color-border-light); background-color: var(--color-bg-card); box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08); border-radius: 1.25rem;">
+    <div class="flex flex-row justify-between items-center w-full mt-4 py-2 px-4 lg:px-4" style="border: 1px solid var(--color-border-light); background-color: var(--color-bg-card); box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08); border-radius: 1.25rem;">
 
         <RouterLink to="/" class="flex flex-row items-center justify-center">
             <img src="../assets/DSU_logo_circle.svg" alt="Daily Speak Up Logo" class="h-[4vh] mr-3"/>

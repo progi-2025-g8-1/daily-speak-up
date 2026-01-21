@@ -262,9 +262,18 @@
         "delete": "Delete"
     },
     "friends": {
-        "title": "Friends List",
+        "title": "Friends",
         "loading": "Loading friends...",
-        "empty": "No friends to show."
+        "empty": "No friends to show.",
+        "no_friends": "You don't have any friends yet",
+        "no_requests": "No pending friend requests",
+        "accept": "Accept",
+        "reject": "Reject",
+        "error_loading": "Failed to load friends list",
+        "tabs": {
+            "friends": "Friends",
+            "requests": "Requests"
+        }
     },
     "main": {
         "start_exercise": "Start your exercise!",

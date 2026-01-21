@@ -1,11 +1,12 @@
 <script setup>
     import { ref } from 'vue';
     import { useRouter } from 'vue-router';
-    import Card from 'primevue/card';
-    import ScrollPanel from 'primevue/scrollpanel';
     import ProgressSpinner from 'primevue/progressspinner';
     import Avatar from 'primevue/avatar';
     import Button from 'primevue/button';
+    import { useI18n } from 'vue-i18n';
+
+    const { t } = useI18n();
 
     const props = defineProps({
         isOwnProfile: {
@@ -84,7 +85,7 @@
             }
         } catch (err) {
             console.error('Failed to fetch friends list', err);
-            error.value = 'Neuspjelo učitavanje popisa prijatelja.';
+            error.value = t('friends.error_loading');
             friendsList.value = [];
         } finally {
             loading.value = false;
@@ -107,7 +108,7 @@
             requestsList.value = Array.isArray(data) ? data : [];
         } catch (err) {
             console.error('Failed to fetch requests', err);
-            error.value = 'Neuspjelo učitavanje zahtjeva.';
+            error.value = t('friends.error_loading');
             requestsList.value = [];
         } finally {
             loading.value = false;
@@ -154,11 +155,11 @@
                     }
                 }
             } else {
-                error.value = accept ? 'Neuspjelo prihvaćanje zahtjeva.' : 'Neuspjelo odbijanje zahtjeva.';
+                error.value = t('friends.error_loading');
             }
         } catch (err) {
             console.error('Failed to respond to request', err);
-            error.value = accept ? 'Neuspjelo prihvaćanja zahtjeva.' : 'Neuspjelo odbijanja zahtjeva.';
+            error.value = t('friends.error_loading');
         } finally {
             respondingId.value = null;
         }
@@ -172,140 +173,348 @@
 
 
 <template>
+    <div class="friends-container">
+        <!-- Header -->
+        <div class="friends-header">
+            <Button
+                icon="pi pi-arrow-left"
+                text
+                rounded
+                class="back-button"
+                @click="handleBack"
+                :aria-label="$t('profile.back')"
+            />
+            <h2 class="friends-title">{{ $t('friends.title') }}</h2>
+        </div>
 
-    <div class="flex flex-col items-center w-full px-0">
-        <Card class="w-full mt-0">
-            <template #content>
-                <div class="flex justify-center items-center gap-4">
-                    <span class="pi pi-chevron-circle-left cursor-pointer" style="font-size: 2.5vw;" v-on:click="handleBack"></span>
-                    <h2 class="font-semibold text-3xl">{{ $t('friends.title') }}</h2>
-                </div>
-            </template>
-        </Card>
+        <!-- Tabs for own profile -->
+        <div v-if="props.isOwnProfile" class="tabs-container">
+            <button
+                class="tab-button"
+                :class="{ active: viewMode === 'friends' }"
+                @click="viewMode = 'friends'"
+            >
+                <span class="pi pi-users tab-icon"></span>
+                {{ $t('friends.tabs.friends') }} ({{ friendsList.length }})
+            </button>
+            <button
+                class="tab-button"
+                :class="{ active: viewMode === 'requests' }"
+                @click="switchToRequests"
+            >
+                <span class="pi pi-bell tab-icon"></span>
+                {{ $t('friends.tabs.requests') }} ({{ requestsList.length }})
+            </button>
+        </div>
 
-        <!-- Tabs/Toggle -->
-        <Card v-if="props.isOwnProfile" class="w-full mt-[2vh]">
-            <template #content>
-                <div class="flex gap-2 justify-center">
-                    <Button 
-                        :label="`Prijatelji (${friendsList.length})`"
-                        outlined
-                        @click="viewMode = 'friends'"
-                        :class="{ 'border-2': viewMode === 'friends' }"
-                        style="color: #3b82f6; border-color: #3b82f6;"
+        <!-- Loading State -->
+        <div v-if="loading" class="state-container">
+            <ProgressSpinner style="width: 3rem; height: 3rem;" />
+            <div class="state-text">{{ $t('friends.loading') }}</div>
+        </div>
+
+        <!-- Error State -->
+        <div v-else-if="error" class="state-container">
+            <i class="pi pi-exclamation-circle error-icon"></i>
+            <div class="state-text">{{ error }}</div>
+        </div>
+
+        <!-- Friends List -->
+        <div v-else-if="viewMode === 'friends'" class="content-area">
+            <div v-if="friendsList.length === 0" class="empty-state">
+                <i class="pi pi-users empty-icon"></i>
+                <p class="empty-text">{{ $t('friends.no_friends') }}</p>
+            </div>
+            <div v-else class="friends-list">
+                <div
+                    v-for="friend in friendsList"
+                    :key="friend.handle"
+                    class="friend-item"
+                    @click="goToProfile(friend.handle)"
+                >
+                    <Avatar
+                        :image="friend.profile_picture_url"
+                        :label="!friend.profile_picture_url ? (friend.handle?.[0]?.toUpperCase() || 'U') : undefined"
+                        class="friend-avatar"
+                        size="large"
+                        shape="circle"
                     />
-                    <Button 
-                        :label="`Zahtjevi (${requestsList.length})`"
-                        outlined
-                        @click="switchToRequests"
-                        :class="{ 'border-2': viewMode === 'requests' }"
-                        style="color: #3b82f6; border-color: #3b82f6;"
-                    />
+                    <div class="friend-info">
+                        <span class="friend-handle">@{{ friend.handle }}</span>
+                    </div>
+                    <i class="pi pi-chevron-right chevron-icon"></i>
                 </div>
-            </template>
-        </Card>
+            </div>
+        </div>
 
-        <Card v-if="loading" class="w-full mt-[2vh]">
-            <template #content>
-                <ProgressSpinner style="width: 4rem; height: 4rem;" />
-                <div class="mt-4" style="color: var(--color-text-secondary);">{{ $t('friends.loading') }}</div>
-            </template>
-        </Card>
-
-        <Card v-else-if="error" class="w-full mt-[2vh]">
-            <template #content>
-                {{ $t('friends.empty') }}
-            </template>
-        </Card>
-
-        <!-- Friends View -->
-        <template v-else-if="viewMode === 'friends'">
-            <Card v-if="friendsList.length === 0" class="mt-[2vh]">
-                <template #content>
-                    Nema prijatelja za prikazati.
-                </template>
-            </Card>
-            <Card v-else class="w-full min-h-[500px] mt-[2vh]">
-                <template #content>
-                    <div class="flex flex-col gap-4 p-4">
-                            <div 
-                                v-for="friend in friendsList" 
-                                :key="friend.handle" 
-                                class="flex flex-row items-center gap-4 p-2 border-b border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors"
-                                @click="goToProfile(friend.handle)"
-                            >
-                                <Avatar 
-                                    :image="friend.profile_picture_url" 
-                                    :label="!friend.profile_picture_url ? (friend.handle?.[0]?.toUpperCase() || 'U') : undefined"
-                                    class="mr-2 bg-sky-400 text-white" 
-                                    size="xlarge" 
-                                    shape="circle" 
-                                />
-                                <div class="flex flex-col">
-                                    <span class="font-medium text-lg">{{ friend.handle }}</span>
-                                </div>
-                            </div>
+        <!-- Requests List -->
+        <div v-else-if="viewMode === 'requests'" class="content-area">
+            <div v-if="requestsList.length === 0" class="empty-state">
+                <i class="pi pi-bell empty-icon"></i>
+                <p class="empty-text">{{ $t('friends.no_requests') }}</p>
+            </div>
+            <div v-else class="friends-list">
+                <div
+                    v-for="request in requestsList"
+                    :key="request.friendship_id"
+                    class="request-item"
+                >
+                    <div class="request-user" @click="goToProfile(request.handle)">
+                        <Avatar
+                            :image="request.profile_picture_url"
+                            :label="!request.profile_picture_url ? (request.handle?.[0]?.toUpperCase() || 'U') : undefined"
+                            class="friend-avatar"
+                            size="large"
+                            shape="circle"
+                        />
+                        <div class="friend-info">
+                            <span class="friend-handle">@{{ request.handle }}</span>
+                            <span class="request-date">{{ new Date(request.created_at).toLocaleDateString() }}</span>
                         </div>
-                </template>
-            </Card>
-        </template>
-
-        <!-- Requests View -->
-        <template v-else-if="viewMode === 'requests'">
-            <Card v-if="requestsList.length === 0" class="mt-[2vh]">
-                <template #content>
-                    Nema zahtjeva za prijateljstvo.
-                </template>
-            </Card>
-            <Card v-else class="w-full min-h-[500px] mt-[2vh]">
-                <template #content>
-                    <div class="flex flex-col gap-4 p-4">
-                            <div 
-                                v-for="request in requestsList" 
-                                :key="request.friendship_id" 
-                                class="flex flex-row items-center gap-4 p-2 border-b border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors"
-                                @click="goToProfile(request.handle)"
-                            >
-                                <Avatar 
-                                    :image="request.profile_picture_url" 
-                                    :label="!request.profile_picture_url ? (request.handle?.[0]?.toUpperCase() || 'U') : undefined"
-                                    class="mr-2 bg-sky-400 text-white" 
-                                    size="xlarge" 
-                                    shape="circle" 
-                                />
-                                <div class="flex flex-col flex-1">
-                                    <span class="font-medium text-lg">{{ request.handle }}</span>
-                                    <span class="text-gray-500 text-sm">{{ new Date(request.created_at).toLocaleDateString() }}</span>
-                                </div>
-                                <div class="flex gap-2" @click.stop>
-                                    <Button 
-                                        label="Prihvati" 
-                                        icon="pi pi-check"
-                                        @click="respondToRequest(request.friendship_id, true)"
-                                        :loading="respondingId === request.friendship_id"
-                                        style="background-color: #3b82f6; border-color: #3b82f6;"
-                                        class="p-button-sm"
-                                    />
-                                    <Button 
-                                        label="Odbij" 
-                                        icon="pi pi-times"
-                                        @click="respondToRequest(request.friendship_id, false)"
-                                        :loading="respondingId === request.friendship_id"
-                                        outlined
-                                        style="color: #3b82f6; border-color: #3b82f6;"
-                                        class="p-button-sm"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                </template>
-            </Card>
-        </template>
+                    </div>
+                    <div class="request-actions">
+                        <Button
+                            icon="pi pi-check"
+                            rounded
+                            @click="respondToRequest(request.friendship_id, true)"
+                            :loading="respondingId === request.friendship_id"
+                            class="accept-button"
+                            :aria-label="$t('friends.accept')"
+                        />
+                        <Button
+                            icon="pi pi-times"
+                            rounded
+                            outlined
+                            @click="respondToRequest(request.friendship_id, false)"
+                            :loading="respondingId === request.friendship_id"
+                            class="reject-button"
+                            :aria-label="$t('friends.reject')"
+                        />
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-
 </template>
 
-
 <style scoped>
+.friends-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
 
+.friends-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 0;
+}
+
+.back-button {
+    color: var(--color-text-secondary);
+    transition: all 0.2s;
+}
+
+.back-button:hover {
+    background-color: var(--color-bg-accent) !important;
+    transform: translateX(-2px);
+}
+
+.friends-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--color-text-dark);
+    margin: 0;
+}
+
+.tabs-container {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.25rem;
+    background-color: var(--color-bg-accent);
+    border-radius: 0.75rem;
+}
+
+.tab-button {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border: none;
+    background: transparent;
+    color: var(--color-text-secondary);
+    font-size: 0.95rem;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tab-button:hover {
+    background-color: var(--color-bg-card);
+}
+
+.tab-button.active {
+    background-color: var(--color-bg-card);
+    color: var(--color-primary);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.tab-icon {
+    font-size: 1rem;
+}
+
+.state-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    gap: 1rem;
+}
+
+.state-text {
+    color: var(--color-text-secondary);
+    font-size: 1rem;
+}
+
+.error-icon {
+    font-size: 3rem;
+    color: var(--color-error);
+}
+
+.content-area {
+    min-height: 400px;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    gap: 1rem;
+}
+
+.empty-icon {
+    font-size: 4rem;
+    color: var(--color-text-muted);
+    opacity: 0.5;
+}
+
+.empty-text {
+    color: var(--color-text-secondary);
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.friends-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.friend-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border-bottom: 1px solid var(--color-border-light);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.friend-item:hover {
+    background-color: var(--color-bg-accent);
+}
+
+.friend-item:last-child {
+    border-bottom: none;
+}
+
+.friend-avatar {
+    background-color: var(--color-primary);
+    color: white;
+    flex-shrink: 0;
+}
+
+.friend-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.friend-handle {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--color-text-dark);
+}
+
+.request-date {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+}
+
+.chevron-icon {
+    color: var(--color-text-muted);
+    font-size: 1rem;
+}
+
+.request-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem;
+    border-bottom: 1px solid var(--color-border-light);
+}
+
+.request-item:last-child {
+    border-bottom: none;
+}
+
+.request-user {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+    cursor: pointer;
+    transition: all 0.2s;
+    padding: 0.5rem;
+    margin: -0.5rem;
+    border-radius: 0.5rem;
+}
+
+.request-user:hover {
+    background-color: var(--color-bg-accent);
+}
+
+.request-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.accept-button {
+    background-color: var(--color-success) !important;
+    border-color: var(--color-success) !important;
+}
+
+.accept-button:hover {
+    background-color: #059669 !important;
+}
+
+.reject-button {
+    color: var(--color-error) !important;
+    border-color: var(--color-error) !important;
+}
+
+.reject-button:hover {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+}
 </style>

@@ -32,7 +32,7 @@ const handleUploadData = (uploadMethod: string, uploadUrl: string, userId: strin
 
 <template>
   <div
-    class="flex flex-col justify-start items-center w-[100vw] lg:w-[60vw] h-full pr-4"
+    class="flex flex-col justify-start items-center w-[100vw] lg:w-[60vw] h-full px-4 lg:px-0 lg:pr-4"
     style="background-color: var(--color-bg-main);"
   >
     <NavBar />
