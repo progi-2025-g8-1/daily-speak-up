@@ -113,9 +113,9 @@
 <style scoped>
 
 :deep(.p-tabpanels) {
-    background-color: rgb(255, 255, 255);
+    background-color: var(--color-bg-card);
     flex: 1;
-    min-height: 0; 
+    min-height: 0;
     overflow: hidden;
 }
 
@@ -123,6 +123,14 @@
     height: 100%;
 }
 
+:deep(.p-tablist) {
+    background-color: var(--color-bg-card);
+    border-color: var(--color-border-light);
+}
+
+:deep(.p-tab) {
+    color: var(--color-text-secondary);
+}
 
 :deep(.p-tab[data-p-active="true"]) {
     border-bottom: 2px solid transparent !important;
@@ -147,6 +155,6 @@
 :deep(.p-tablist) {
     display: flex;
     justify-content: center;
-    flex-shrink: 0; 
+    flex-shrink: 0;
 }
 </style>

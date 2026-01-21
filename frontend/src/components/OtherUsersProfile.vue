@@ -318,4 +318,9 @@ const sendFriendRequest = async () => {
   </template>
   
   <style scoped>
-  </style>
+:deep(.p-datepicker) {
+  border-radius: 1.25rem !important;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08) !important;
+  overflow: hidden;
+}
+</style>

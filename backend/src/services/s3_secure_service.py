@@ -1,5 +1,6 @@
 import boto3
 from botocore.client import Config
+from botocore.exceptions import ClientError
 from typing import Dict, Any, List
 from io import BytesIO
 
@@ -12,6 +13,16 @@ class S3SecureService:
         self.role_arn = role_arn
         self.region = region
         self.s3_client = boto3.client("s3", region_name=region)
+
+    def check_file_exists(self, key: str) -> bool:
+        """
+        Checks if a file exists in S3.
+        """
+        try:
+            self.s3_client.head_object(Bucket=self.bucket, Key=key)
+            return True
+        except ClientError:
+            return False
 
     def get_upload_url(self, user_id: str, video_id: str) -> Dict[str, Any]:
         """

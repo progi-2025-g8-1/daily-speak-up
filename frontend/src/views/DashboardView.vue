@@ -9,16 +9,15 @@
 
 <template>
    <div class="flex flex-col items-center w-full h-[92vh] my-[2vh] mx-[2vw]">
-      <div class="w-full flex items-center justify-center relative gap-5 mb-4
-                  border-2 border-gray-800 rounded-full">
-         <Button icon="pi pi-arrow-left" 
-                 severity="contrast" 
-                 text 
-                 rounded 
-                 aria-label="Natrag"
-                 variant="outlined"
-                 @click="goBack" />
-         <h2 class="text-2xl font-bold text-gray-800">Kontrolna ploča</h2>
+      <div class="w-full flex items-center gap-4 mb-6">
+         <Button icon="pi pi-arrow-left"
+                 severity="secondary"
+                 text
+                 rounded
+                 :aria-label="$t('profile.back')"
+                 @click="goBack"
+                 class="back-button" />
+         <h2 class="text-3xl font-bold dashboard-title">{{ $t('dashboard.title') }}</h2>
       </div>
       <DashboardTabs />
 
@@ -26,5 +25,15 @@
 </template>
 
 <style scoped>
+.dashboard-title {
+   color: var(--color-text-dark);
+}
 
+.back-button {
+   transition: all 0.2s;
+}
+
+.back-button:hover {
+   background-color: var(--color-bg-accent) !important;
+}
 </style>

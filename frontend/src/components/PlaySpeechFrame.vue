@@ -101,7 +101,6 @@
               <p>{{ $t('speech.rating') }} 5.0</p>
           </div>
           <div class="flex flex-row items-center gap-4">
-            <div class="pi pi-share-alt" style="color:black; font-size: 1.2rem;"></div>
             <div v-if="isOwner" class="flex flex-row items-center gap-4">
               <ToggleButton :onLabel="$t('speech.private')" :offLabel="$t('speech.friends')" onIcon="pi pi-lock" 
                           offIcon="pi pi-lock-open" class="w-36" aria-label="Do you confirm" 

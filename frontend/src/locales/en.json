@@ -13,6 +13,9 @@
         "freq_by_topic": "Speech frequency across all topics",
         "no_data": "No data",
         "daily_activity": {
+            "title": "Daily Speech Activity",
+            "subtitle": "Number of recorded speeches during the week",
+            "this_week": "This week",
             "recorded_speeches": "Recorded Speeches"
         },
         "user_growth": {
@@ -159,6 +162,7 @@
         "footer_rights": "DailySpeakUp — Privacy • Contact • About"
     },
     "dashboard": {
+        "title": "Dashboard",
         "tabs": {
             "users": "Users",
             "reported_videos": "Reported videos",
@@ -193,6 +197,8 @@
             "instructions_dismiss": "Dismiss report (purple icon): removes only the report.",
             "instructions_delete": "Delete video (orange icon): permanently removes the video.",
             "instructions_ban": "Ban user (red icon): prevents the user from uploading new videos.",
+            "no_reports_title": "All Clear!",
+            "no_reports_message": "There are no reported videos at the moment.",
             "confirm_dismiss": {
                 "message": "Are you sure you want to dismiss this report?",
                 "header": "Confirm dismiss",
@@ -270,8 +276,8 @@
         "error_fetch": "Failed to fetch user data",
         "error_generic": "An error occurred while fetching user data",
         "header": {
-            "friends": "friends",
-            "streak": "streak",
+            "friends": "Friends",
+            "streak": "Streak",
             "interests": "Interests",
             "no_interests": "No interests added"
         },

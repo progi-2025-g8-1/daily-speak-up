@@ -68,9 +68,9 @@ defineExpose({
                         </div>
                         <Skeleton v-else size="3.7rem"></Skeleton>
                         <div class="flex flex-col justify-center items-start">
-                            <div v-if="stats.totalUsers !== null" class="text-3xl font-bold text-gray-800">{{ stats.totalUsers }}</div>
+                            <div v-if="stats.totalUsers !== null" class="text-3xl font-bold stat-number">{{ stats.totalUsers }}</div>
                             <Skeleton v-else size="2.5rem" class="mr-2"></Skeleton>
-                            <div v-if="stats.totalUsers !== null" class="text-sm text-gray-500">{{ t('admin_dashboard.stats.total_users') }}</div>
+                            <div v-if="stats.totalUsers !== null" class="text-sm stat-label">{{ t('admin_dashboard.stats.total_users') }}</div>
                             <Skeleton v-else width="5rem" height="0.7rem" class="mt-2"></Skeleton>
                         </div>
                     </div>
@@ -85,9 +85,9 @@ defineExpose({
                         </div>
                         <Skeleton v-else size="3.7rem"></Skeleton>
                         <div class="flex flex-col justify-center items-start">
-                            <div v-if="stats.totalSpeeches !== null" class="text-3xl font-bold text-gray-800">{{ stats.totalSpeeches }}</div>
+                            <div v-if="stats.totalSpeeches !== null" class="text-3xl font-bold stat-number">{{ stats.totalSpeeches }}</div>
                             <Skeleton v-else size="2.5rem" class="mr-2"></Skeleton>
-                            <div v-if="stats.totalSpeeches !== null" class="text-sm text-gray-500">{{ t('admin_dashboard.stats.total_speeches') }}</div>
+                            <div v-if="stats.totalSpeeches !== null" class="text-sm stat-label">{{ t('admin_dashboard.stats.total_speeches') }}</div>
                             <Skeleton v-else width="5rem" height="0.7rem" class="mt-2"></Skeleton>
                         </div>
                     </div>
@@ -102,9 +102,9 @@ defineExpose({
                         </div>
                         <Skeleton v-else size="3.7rem"></Skeleton>
                         <div class="flex flex-col justify-center items-start">
-                            <div v-if="stats.pendingReports !== null" class="text-3xl font-bold text-gray-800">{{ stats.pendingReports }}</div>
+                            <div v-if="stats.pendingReports !== null" class="text-3xl font-bold stat-number">{{ stats.pendingReports }}</div>
                             <Skeleton v-else size="2.5rem" class="mr-2"></Skeleton>
-                            <div v-if="stats.pendingReports !== null" class="text-sm text-gray-500">{{ t('admin_dashboard.stats.pending_reports') }}</div>
+                            <div v-if="stats.pendingReports !== null" class="text-sm stat-label">{{ t('admin_dashboard.stats.pending_reports') }}</div>
                             <Skeleton v-else width="5rem" height="0.7rem" class="mt-2"></Skeleton>
                         </div>
                     </div>
@@ -119,9 +119,9 @@ defineExpose({
                         </div>
                         <Skeleton v-else size="3.7rem"></Skeleton>
                         <div class="flex flex-col justify-center items-start">
-                            <div v-if="stats.totalBans !== null" class="text-3xl font-bold text-gray-800">{{ stats.totalBans }}</div>
+                            <div v-if="stats.totalBans !== null" class="text-3xl font-bold stat-number">{{ stats.totalBans }}</div>
                             <Skeleton v-else size="2.5rem" class="mr-2"></Skeleton>
-                            <div v-if="stats.totalBans !== null" class="text-sm text-gray-500">{{ t('admin_dashboard.stats.total_bans') }}</div>
+                            <div v-if="stats.totalBans !== null" class="text-sm stat-label">{{ t('admin_dashboard.stats.total_bans') }}</div>
                             <Skeleton v-else width="5rem" height="0.7rem" class="mt-2"></Skeleton>
                         </div>
                     </div>
@@ -143,7 +143,6 @@ defineExpose({
 
 <style scoped>
 
-
 .stat-icon {
     width: 56px;
     height: 56px;
@@ -151,6 +150,14 @@ defineExpose({
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.stat-number {
+    color: var(--color-text-dark);
+}
+
+.stat-label {
+    color: var(--color-text-muted);
 }
 
 :deep(.p-card-body) {

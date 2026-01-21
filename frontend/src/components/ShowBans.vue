@@ -249,10 +249,7 @@
                     </div>
                 </div>
 
-                <div class="border-b-3
-                            border-gray-300
-                            w-full
-                            my-4">
+                <div class="border-divider w-full my-4">
                 </div>
 
                 <div>
@@ -265,4 +262,7 @@
 </template>
 
 <style scoped>
+.border-divider {
+    border-bottom: 3px solid var(--color-border-light);
+}
 </style>

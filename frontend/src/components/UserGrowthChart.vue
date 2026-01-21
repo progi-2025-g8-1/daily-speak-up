@@ -89,12 +89,12 @@ defineExpose({
 <template>
     <div class="flex flex-col
                 justify-center
-                bg-white rounded-xl shadow-sm p-5">
+                chart-card rounded-xl shadow-sm p-5">
         <div class="flex items-center justify-between mb-4">
             <div class="flex flex-col
                         justify-center items-start">
-                <h3 class="text-lg font-semibold text-gray-800">{{ t('stats.user_growth.title') }}</h3>
-                <p class="text-sm text-gray-500">{{ t('stats.user_growth.subtitle') }}</p>
+                <h3 class="text-lg font-semibold chart-title">{{ t('stats.user_growth.title') }}</h3>
+                <p class="text-sm chart-subtitle">{{ t('stats.user_growth.subtitle') }}</p>
             </div>
         </div>
         <Chart v-if="chartData" type="line" :data="chartData" :options="chartOptions" class="h-72" />
@@ -105,5 +105,15 @@ defineExpose({
 </template>
 
 <style scoped>
+.chart-card {
+    background-color: var(--color-bg-card);
+}
 
+.chart-title {
+    color: var(--color-text-dark);
+}
+
+.chart-subtitle {
+    color: var(--color-text-muted);
+}
 </style>

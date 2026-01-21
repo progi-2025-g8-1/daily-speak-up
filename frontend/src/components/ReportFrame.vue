@@ -81,9 +81,9 @@
 
 <template>
     <div class="flex flex-col
-                justify-start items-center 
-                rounded-2xl shadow-md bg-gray-50  
-                
+                justify-start items-center
+                rounded-2xl shadow-md report-card-bg
+
                 gap-4 py-6 px-4
                 @container" >
         <div class="flex flex-col 
@@ -91,8 +91,8 @@
                     gap-4 w-full">
 
             <div class="flex flex-row relative
-                        justify-between items-center 
-                        bg-gray-200 shadow-sm rounded-full w-full">
+                        justify-between items-center
+                        report-header-bg shadow-sm rounded-full w-full">
 
                 <div class="flex flex-row 
                             justify-start items-center">
@@ -203,11 +203,11 @@
                             justify-start items-start
                             gap-3 w-full h-full">
 
-                    <ScrollPanel class="bg-gray-100 shadow-inner rounded-md
-                                w-full xl:h-[150px] lg:h-[100px] md:h-[200px] h-[100px] p-4 
-                                text-left  
+                    <ScrollPanel class="report-scroll-bg shadow-inner rounded-md
+                                w-full xl:h-[150px] lg:h-[100px] md:h-[200px] h-[100px] p-4
+                                text-left
                                 lg:text-sm
-                                md:text-sm 
+                                md:text-sm
                                 text-xs">
                         <p>
                             <span class="font-semibold">{{ t('report_frame.video_description') }}</span>
@@ -267,5 +267,17 @@
     .p-button.lg {
         --p-button-sm-font-size: 0.5rem;
         --p-button-lg-font-size: 20rem;
+    }
+
+    .report-card-bg {
+        background-color: var(--color-bg-card);
+    }
+
+    .report-header-bg {
+        background-color: var(--color-bg-accent);
+    }
+
+    .report-scroll-bg {
+        background-color: var(--color-bg-accent);
     }
 </style>

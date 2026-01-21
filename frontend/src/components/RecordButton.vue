@@ -154,21 +154,20 @@ const generateTopic = async () => {
 
     <!-- Krug sa hover efektom koji ga samo potamni -->
     <div
-      class="relative w-[22vw] h-[22vw] 2xl:w-[16vw] 2xl:h-[16vw] rounded-full shadow-lg flex items-center justify-center hover:cursor-pointer transition-all duration-200 hover:brightness-90"
+      class="relative w-48 h-48 md:w-64 md:h-64 rounded-full shadow-lg flex items-center justify-center hover:cursor-pointer transition-all duration-200 hover:brightness-90"
              style="background: radial-gradient(circle, rgba(196, 234, 254, 0.8), var(--color-primary));"
       @click="!isCounting ? startTimer() : null"
     >
       <!-- Mikrofon ikona - u sredini kada se ne broji -->
       <span
         v-if="!isCounting && !isGeneratingTopic"
-        class="pi pi-microphone text-white"
-        style="font-size: 9vw;"
+        class="pi pi-microphone text-white record-icon"
       ></span>
 
       <!-- X za prekid tijekom brojanja - zamjena ikone -->
       <span
         v-else-if="isCounting"
-        class="text-white text-6xl hover:text-red-300 transition-colors cursor-pointer"
+        class="text-white record-icon hover:text-red-300 transition-colors cursor-pointer"
         @click.stop="cancelTimer"
       >
         ✖
@@ -177,16 +176,26 @@ const generateTopic = async () => {
       <!-- Animirani spinner tijekom generiranja tema -->
       <span
         v-else
-        class="text-white"
-        style="font-size: 9vw;"
+        class="text-white record-icon"
       >
-        <i class="pi pi-spin pi-spinner text-white"></i>
+        <i class="pi pi-spin pi-spinner text-white record-icon"></i>
       </span>
     </div>
   </div>
 </template>
 
 <style scoped>
+.record-icon {
+  font-size: 6rem; /* Fits inside w-48 (12rem) */
+  line-height: 1;
+}
+
+@media (min-width: 768px) {
+  .record-icon {
+    font-size: 8rem; /* Fits inside w-64 (16rem) */
+  }
+}
+
 .pi-spin {
   animation: spin 1s linear infinite;
 }

@@ -176,7 +176,7 @@ const handleShowUsersVideosDialog = (user: any) => {
                             </div>
                             <div class="flex flex-col">
                                 <span class="font-semibold text-lg">{{ slotProps.data.handle }}</span>
-                                <span class="text-sm text-gray-500">{{ slotProps.data.email }}</span>
+                                <span class="text-sm user-email">{{ slotProps.data.email }}</span>
                             </div>
                         </div>
                     </template>
@@ -243,10 +243,14 @@ const handleShowUsersVideosDialog = (user: any) => {
 }
 
 .p-togglebutton {
-    --p-togglebutton-checked-color: rgb(123, 56, 128);
-    --p-togglebutton-checked-border-color: rgb(123, 56, 128);
-    --p-togglebutton-icon-checked-color: rgb(123, 56, 128);
-    --p-togglebutton-checked-background: rgb(255, 248, 254);
+    --p-togglebutton-checked-color: #7b3880;
+    --p-togglebutton-checked-border-color: #7b3880;
+    --p-togglebutton-icon-checked-color: #7b3880;
+    --p-togglebutton-checked-background: #fef8fe;
+}
+
+.user-email {
+    color: var(--color-text-muted);
 }
 
 </style>

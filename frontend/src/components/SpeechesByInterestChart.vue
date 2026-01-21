@@ -101,19 +101,19 @@ defineExpose({
 </script>
 
 <template>
-    <div class="flex flex-col 
+    <div class="flex flex-col
                 justify-center items-center
-                bg-white rounded-xl shadow-sm p-5">
+                chart-card rounded-xl shadow-sm p-5">
         <div class="mb-4">
-            <h3 class="text-lg font-semibold text-gray-800">{{ t('stats.speeches_by_interest') }}</h3>
-            <p class="text-sm text-gray-500">{{ t('stats.freq_by_topic') }}</p>
+            <h3 class="text-lg font-semibold chart-title">{{ t('stats.speeches_by_interest') }}</h3>
+            <p class="text-sm chart-subtitle">{{ t('stats.freq_by_topic') }}</p>
         </div>
         <div class="flex items-center justify-center">
             <Chart v-if="chartData && chartOptions" type="doughnut" :data="chartData" :options="chartOptions" class="w-full max-w-md" />
             <div v-else-if="!isLoaded" class="h-64 flex items-center justify-center">
                 <ProgressSpinner />
             </div>
-            <div v-else class="h-64 flex items-center justify-center text-gray-500">
+            <div v-else class="h-64 flex items-center justify-center no-data-text">
                 {{ t('stats.no_data') }}
             </div>
         </div>
@@ -121,4 +121,19 @@ defineExpose({
 </template>
 
 <style scoped>
+.chart-card {
+    background-color: var(--color-bg-card);
+}
+
+.chart-title {
+    color: var(--color-text-dark);
+}
+
+.chart-subtitle {
+    color: var(--color-text-muted);
+}
+
+.no-data-text {
+    color: var(--color-text-muted);
+}
 </style>

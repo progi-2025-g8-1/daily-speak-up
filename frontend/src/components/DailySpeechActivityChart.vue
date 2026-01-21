@@ -98,26 +98,46 @@ defineExpose({
 <template>
     <div class="flex flex-col
                 justify-center items-center
-                chart-card bg-white rounded-xl shadow-sm p-5">
+                chart-card rounded-xl shadow-sm p-5">
         <div class="flex flex-row items-center justify-between mb-4 w-full">
             <div class="flex flex-col
                         justify-center items-start" >
-                <h3 class="text-lg font-semibold text-gray-800">Dnevna aktivnost govora</h3>
-                <p class="text-sm text-gray-500">Prikaz količine snimljenih govora tijekom tjedna</p>
+                <h3 class="text-lg font-semibold chart-title">{{ t('stats.daily_activity.title') }}</h3>
+                <p class="text-sm chart-subtitle">{{ t('stats.daily_activity.subtitle') }}</p>
             </div>
-            <div class="bg-purple-100 text-purple-600 px-3 py-1 rounded-full text-sm font-medium">
-                Ovaj tjedan
+            <div class="week-badge px-3 py-1 rounded-full text-sm font-medium">
+                {{ t('stats.daily_activity.this_week') }}
             </div>
         </div>
         <Chart v-if="chartData && chartOptions" type="bar" :data="chartData" :options="chartOptions" class="h-64 w-full" />
         <div v-else-if="!isLoaded" class="h-64 flex items-center justify-center">
             <ProgressSpinner />
         </div>
-        <div v-else class="h-64 flex items-center justify-center text-gray-500">
-            Nema podataka
+        <div v-else class="h-64 flex items-center justify-center no-data-text">
+            {{ t('stats.no_data') }}
         </div>
     </div>
 </template>
 
 <style scoped>
+.chart-card {
+    background-color: var(--color-bg-card);
+}
+
+.chart-title {
+    color: var(--color-text-dark);
+}
+
+.chart-subtitle {
+    color: var(--color-text-muted);
+}
+
+.week-badge {
+    background-color: rgba(139, 92, 246, 0.1);
+    color: #8b5cf6;
+}
+
+.no-data-text {
+    color: var(--color-text-muted);
+}
 </style>

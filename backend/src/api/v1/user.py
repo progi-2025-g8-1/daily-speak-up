@@ -64,7 +64,8 @@ async def register(
 @router.get('/me', response_model=UserResponse, status_code=status.HTTP_200_OK)
 async def me(
     db: Session = Depends(get_db),
-    user: User = Depends(get_current_user)
+    user: User = Depends(get_current_user),
+    s3_service: S3SecureService = Depends(get_s3_service)
 ):
     friends_count = db.query(Friendship).filter(
         and_(
@@ -75,7 +76,7 @@ async def me(
     ).count()
 
     streak = db.query(UserStreak).filter(
-        UserStreak.user_id == user.id 
+        UserStreak.user_id == user.id
     ).order_by(UserStreak.created_at.desc()).first()
 
     if streak is None or streak.ends_at < datetime.datetime.now(datetime.timezone.utc):
@@ -93,12 +94,20 @@ async def me(
         days_delta = (end_date - start_date).days
         streak_days = max(0, int(days_delta) + 1)
 
+    # Generate presigned URL for profile picture
+    profile_pic_url = None
+    try:
+        photo_data = s3_service.get_photo_read_url(str(user.id))
+        profile_pic_url = photo_data.get('download_url')
+    except Exception:
+        profile_pic_url = None
+
     return UserResponse(
         id=user.id,
         role=user.role,
         email=user.email,
         handle=user.handle,
-        profile_picture_url=user.profile_picture_url,
+        profile_picture_url=profile_pic_url,
         onboarding_status=user.onboarding_status,
         preferred_lang=user.preferred_lang,
         preferred_theme=user.preferred_theme,
@@ -165,6 +174,11 @@ async def get_monthly_user_videos(
         if speech.s3_url is None or speech.is_cancelled:
             continue
 
+        # Check if file exists in S3 before returning
+        if not s3_service.check_file_exists(speech.s3_url):
+            logger.warning(f"Video file missing for speech {speech.id}, key: {speech.s3_url}")
+            continue
+
         download_url = None
 
         # Pre sign the S3 URL
@@ -200,6 +214,7 @@ async def get_friends_list(
     user_id: UUID,
     db: Session = Depends(get_db),
     requesting_user: User = Depends(get_current_user),
+    s3_service: S3SecureService = Depends(get_s3_service)
 ):
     target_user: User | None = db.query(User).filter(User.id == user_id).first()
 
@@ -219,11 +234,19 @@ async def get_friends_list(
         friend_id = friendship.user_id2 if friendship.user_id1 == target_user.id else friendship.user_id1
         friend: User | None = db.query(User).filter(User.id == friend_id).first()
         if friend:
+            # Generate presigned URL for profile picture
+            profile_pic_url = None
+            try:
+                photo_data = s3_service.get_photo_read_url(str(friend.id))
+                profile_pic_url = photo_data.get('download_url')
+            except Exception:
+                profile_pic_url = None
+
             friend_infos.append(
                 FriendInfo(
                     user_id=friend.id,
                     handle=friend.handle,
-                    profile_picture_url=friend.profile_picture_url
+                    profile_picture_url=profile_pic_url
                 )
             )
 
@@ -513,12 +536,11 @@ async def get_user_profile_by_handle(
     
     # get presigned profile picture URL
     profile_picture_url = None
-    if target_user.profile_picture_url:
-        try:
-            photo_result = s3_service.get_photo_read_url(str(target_user.id))
-            profile_picture_url = photo_result.get('download_url')
-        except Exception as e:
-            logger.debug(f"Failed to get profile picture URL: {e}")
+    try:
+        photo_result = s3_service.get_photo_read_url(str(target_user.id))
+        profile_picture_url = photo_result.get('download_url')
+    except Exception as e:
+        logger.debug(f"Failed to get profile picture URL: {e}")
     
     # get user interests
     interests = db.query(Interest).all()

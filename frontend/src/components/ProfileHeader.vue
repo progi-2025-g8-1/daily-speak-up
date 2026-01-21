@@ -4,9 +4,9 @@
     
     <div v-else-if="displayUser" class="flex flex-col gap-4">
       <!-- User Info Section -->
-      <div class="flex flex-row justify-around w-full">
+      <div class="flex flex-row items-center gap-6 w-full">
         <!-- Profile Picture with Upload for Own Profile -->
-        <div v-if="!isOtherUser" class="relative">
+        <div v-if="!isOtherUser" class="relative flex-shrink-0">
           <ProfilePictureUpload 
             :current-photo-url="profilePhotoUrl"
             :show-label="false"
@@ -22,15 +22,16 @@
           :image="displayUser.profile_picture_url"
           :label="!displayUser.profile_picture_url ? (displayUser.handle?.[0]?.toUpperCase() || displayUser.email?.[0]?.toUpperCase()) : undefined"
           shape="circle" 
+          class="flex-shrink-0"
           style="width: 100px; height: 100px; font-size: 3rem; background-color: var(--color-primary); color: white;"
         />
 
-        <div class="flex flex-col items-start">
-          <h2 class="text-2xl font-semibold m-0 mb-1" style="color: var(--color-text-dark);">
+        <div class="flex flex-col items-start flex-1 min-w-0">
+          <h2 class="text-2xl font-semibold m-0 mb-1 truncate w-full text-left" style="color: var(--color-text-dark);">
             {{ displayUser.handle || displayUser.email }}
           </h2>
           
-          <h3 v-if="!isOtherUser" class="text-lg m-0 mb-3" style="color: var(--color-text-secondary);">
+          <h3 v-if="!isOtherUser" class="text-lg m-0 mb-3 truncate w-full text-left" style="color: var(--color-text-secondary);">
             {{ displayUser.email }}
           </h3>
 

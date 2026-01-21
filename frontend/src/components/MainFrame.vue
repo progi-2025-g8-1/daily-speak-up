@@ -38,7 +38,7 @@ const handleUploadData = (uploadMethod: string, uploadUrl: string, userId: strin
     <NavBar />
 
     <div
-      class="w-full h-[53vh] lg:h-full flex flex-col justify-around items-center "
+      class="w-full flex-1 flex flex-col justify-center items-center gap-12"
     >
       <div
         class="justify-center font-sans text-3xl font-semibold text-center"
@@ -47,7 +47,7 @@ const handleUploadData = (uploadMethod: string, uploadUrl: string, userId: strin
         <h1>{{ $t('main.start_exercise') }}</h1>
       </div>
 
-      <div class="my-[5vh]">
+      <div>
         <RecordButton
           :interes="interest"
           :lang="lang"

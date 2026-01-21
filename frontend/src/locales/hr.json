@@ -13,6 +13,9 @@
         "freq_by_topic": "Frekvencije govora po svim temama",
         "no_data": "Nema podataka",
         "daily_activity": {
+            "title": "Dnevna aktivnost govora",
+            "subtitle": "Prikaz količine snimljenih govora tijekom tjedna",
+            "this_week": "Ovaj tjedan",
             "recorded_speeches": "Snimljeni govori"
         },
         "user_growth": {
@@ -159,6 +162,7 @@
         "footer_rights": "DailySpeakUp — Privacy • Contact • About"
     },
     "dashboard": {
+        "title": "Kontrolna ploča",
         "tabs": {
             "users": "Korisnici",
             "reported_videos": "Prijavljeni videozapisi",
@@ -188,11 +192,13 @@
         },
         "reported_videos": {
             "instructions_title": "Upute za prijavljene videozapise",
-            "instructions_intro": "Opis videozapisa i razlozi zbog kojih je video prijavljen nalaze se u kliznom okviru svakog prijavljenog videozapisa.",
+            "instructions_intro": "Opis videozapisa i razlogi zbog kojih je video prijavljen nalaze se u kliznom okviru svakog prijavljenog videozapisa.",
             "instructions_actions": "Možete poduzeti radnje kao što su brisanje prijave, brisanje videozapisa ili uručenje zabrane koristeći odgovarajuće gumbe na okviru prijave.",
             "instructions_dismiss": "Brisanje prijave, pritiskom na dugme s ikonom (ljubičasto), uklanja samo prijavu, odbacuje ju u sustavu.",
             "instructions_delete": "Brisanje videozapisa, pritiskom na dugme s ikonom (narančasto), trajno uklanja videozapis s platforme.",
             "instructions_ban": "Uručivanje zabrane korisniku pritiskom na dugme s ikonom (crveno) sprječava korisnika da prenosi nove videozapise na platformu.",
+            "no_reports_title": "Sve je čisto!",
+            "no_reports_message": "Trenutno nema prijavljenih videozapisa.",
             "confirm_dismiss": {
                 "message": "Jeste li sigurni da želite obrisati ovu prijavu?",
                 "header": "Potvrda brisanja prijave",
@@ -270,8 +276,8 @@
         "error_fetch": "Došlo je do greške pri dohvaćanju podataka korisnika",
         "error_generic": "Došlo je do greške pri dohvaćanju podataka korisnika",
         "header": {
-            "friends": "prijatelji",
-            "streak": "streak",
+            "friends": "Prijatelji",
+            "streak": "Streak",
             "interests": "Interesi",
             "no_interests": "Nema dodanih interesa"
         },

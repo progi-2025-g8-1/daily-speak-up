@@ -20,27 +20,39 @@ router = APIRouter(tags=['dashboard'], prefix='/dashboard')
 @router.get("/users", response_model=list[UserDashboardResponse], status_code=status.HTTP_200_OK)
 async def get_all_users(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    s3_service: S3SecureService = Depends(get_s3_service)
 ):
     """Get all users for dashboard."""
-    
+
     if current_user.role not in (UserRole.ROOT, UserRole.ADMIN):
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, 
+            status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized to access this resource"
         )
-    
+
     users = db.query(User).all()
-    return [UserDashboardResponse(
+    result = []
+
+    for u in users:
+        if u.role != UserRole.ROOT and u.id != current_user.id:
+            # Generate presigned URL for profile picture
+            profile_pic_url = None
+            try:
+                photo_data = s3_service.get_photo_read_url(str(u.id))
+                profile_pic_url = photo_data.get('download_url')
+            except Exception:
+                profile_pic_url = None
+
+            result.append(UserDashboardResponse(
                 user_id=u.id,
                 email=u.email,
                 handle=u.handle,
-                profile_picture_url=u.profile_picture_url,
+                profile_picture_url=profile_pic_url,
                 user_role=u.role
-            ) 
-            for u in users
-            if u.role != UserRole.ROOT and u.id != current_user.id
-           ]
+            ))
+
+    return result
 
 @router.get("/report-reasons/{user_id}", response_model=list[str], status_code=status.HTTP_200_OK)
 async def get_report_reasons(
@@ -116,13 +128,21 @@ async def get_reported_videos(
                 print(f"Failed to generate presigned URL for speech {speech.id}: {exc}")
                 video_url = speech.s3_url
 
+        # Generate presigned URL for profile picture
+        profile_pic_url = None
+        try:
+            photo_data = s3_service.get_photo_read_url(str(user_of_video.id))
+            profile_pic_url = photo_data.get('download_url')
+        except Exception:
+            profile_pic_url = None
+
         response_list.append(ReportedVideoResponse(
             video_id=speech.id,
             user_info=UserDashboardResponse(
                 user_id=user_of_video.id,
                 email=user_of_video.email,
                 handle=user_of_video.handle,
-                profile_picture_url=user_of_video.profile_picture_url,
+                profile_picture_url=profile_pic_url,
                 user_role=user_of_video.role
             ),
             year=speech.created_at.year,
@@ -183,16 +203,17 @@ async def ban_user(
 @router.get("/bans", response_model=list[BanInfo], status_code=status.HTTP_200_OK)
 async def get_banned_users(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    s3_service: S3SecureService = Depends(get_s3_service)
 ):
     """Get all banned users for dashboard."""
-    
+
     if current_user.role not in (UserRole.ROOT, UserRole.ADMIN, UserRole.MOD):
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, 
+            status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized to access this resource"
         )
-    
+
     active_bans = db.execute(select(Ban.id, Ban.user_id, Ban.reason, Ban.banned_by)
                                 .where(
                                     or_(Ban.ends_at == None, Ban.ends_at > datetime.datetime.now(datetime.timezone.utc))
@@ -204,6 +225,22 @@ async def get_banned_users(
         banned_user = db.scalar(select(User).where(User.id == banned_user_id))
         banned_by_user = db.scalar(select(User).where(User.id == banned_by_id))
         if banned_user and banned_by_user:
+            # Generate presigned URLs for profile pictures
+            banned_user_pic_url = None
+            banned_by_pic_url = None
+
+            try:
+                photo_data = s3_service.get_photo_read_url(str(banned_user.id))
+                banned_user_pic_url = photo_data.get('download_url')
+            except Exception:
+                banned_user_pic_url = None
+
+            try:
+                photo_data = s3_service.get_photo_read_url(str(banned_by_user.id))
+                banned_by_pic_url = photo_data.get('download_url')
+            except Exception:
+                banned_by_pic_url = None
+
             banned_users_list.append(
                 BanInfo(
                     ban_id=ban_id,
@@ -212,14 +249,14 @@ async def get_banned_users(
                         user_id=banned_by_user.id,
                         email=banned_by_user.email,
                         handle=banned_by_user.handle,
-                        profile_picture_url=banned_by_user.profile_picture_url,
+                        profile_picture_url=banned_by_pic_url,
                         user_role=banned_by_user.role
                     ),
                     banned_user=UserDashboardResponse(
                         user_id=banned_user.id,
                         email=banned_user.email,
                         handle=banned_user.handle,
-                        profile_picture_url=banned_user.profile_picture_url,
+                        profile_picture_url=banned_user_pic_url,
                         user_role=banned_user.role
                     )
                 )
