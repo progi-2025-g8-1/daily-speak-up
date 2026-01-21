@@ -32,13 +32,15 @@
               <FriendsList ref="friendsListRef" :is-own-profile="isOwnProfile" @hide-friends="hideFriends" />
             </div>
             <div v-else>
-              <CurrentUsersProfile v-if="isOwnProfile" @show-friends="handleShowFriends" />
-              <OtherUsersProfile v-else @show-friends="handleShowFriends" />
+              <CurrentUsersProfile v-if="isOwnProfile" @show-friends="handleShowFriends" @date-selected="handleDateSelected" />
+              <OtherUsersProfile v-else @show-friends="handleShowFriends" @date-selected="handleDateSelected" />
             </div>
           </div>
         </template>
       </Card>
     </div>
+    
+    <PlaySpeechFrame ref="playSpeechFrame" />
   </div>
 </template>
 
@@ -49,6 +51,7 @@ import NavBar from '../components/NavBar.vue';
 import CurrentUsersProfile from '../components/CurrentUsersProfile.vue';
 import OtherUsersProfile from '../components/OtherUsersProfile.vue';
 import FriendsList from '../components/FriendsList.vue';
+import PlaySpeechFrame from '../components/PlaySpeechFrame.vue';
 import Card from 'primevue/card';
 import { isAuthenticated } from '../auth';
 
@@ -56,6 +59,7 @@ const route = useRoute();
 const isOwnProfile = ref(false);
 const showFriendsPanel = ref(false);
 const friendsListRef = ref(null);
+const playSpeechFrame = ref(null);
 
 const handleShowFriends = async (userId) => {
   showFriendsPanel.value = true;
@@ -67,6 +71,12 @@ const handleShowFriends = async (userId) => {
 
 const hideFriends = () => {
   showFriendsPanel.value = false;
+};
+
+const handleDateSelected = (date, hasSpeeches, videoInfo) => {
+  if (playSpeechFrame.value && hasSpeeches) {
+    playSpeechFrame.value.displaySpeechDialog(date, hasSpeeches, videoInfo);
+  }
 };
 
 const checkIfOwnProfile = async () => {

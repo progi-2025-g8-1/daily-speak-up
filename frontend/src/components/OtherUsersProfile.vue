@@ -68,7 +68,7 @@
   
     try {
       const response = await fetch(
-        `${apiDomain}/api/v1/friend/${userId.value}/videos?year=${current_year}&month=${current_month}`,
+        `${apiDomain}/api/v1/user/${userId.value}/${current_year}/${current_month}/videos`,
         {
           credentials: 'include',
           headers: {
@@ -79,10 +79,10 @@
       
       if (response.ok) {
         const data = await response.json();
-        eventDates.value = data.map(video => new Date(video.created_at).getDate());
-        videoInfoList.value = data.map(video => ({
-          video_id: video.id,
-          day: new Date(video.created_at).getDate(),
+        eventDates.value = data.videos.map(video => video.day);
+        videoInfoList.value = data.videos.map(video => ({
+          video_id: video.video_id,
+          day: video.day,
           caption: video.caption,
           url: video.url
         }));
@@ -148,7 +148,7 @@
       const current_month = new Date().getMonth() + 1;
       
       const videosRes = await fetch(
-        `${apiDomain}/api/v1/friend/${profile.value.id}/videos?year=${current_year}&month=${current_month}`,
+        `${apiDomain}/api/v1/user/${profile.value.id}/${current_year}/${current_month}/videos`,
         {
           credentials: 'include',
           headers: {
@@ -159,10 +159,10 @@
       
       if (videosRes.ok) {
         const data = await videosRes.json();
-        eventDates.value = data.map(video => new Date(video.created_at).getDate());
-        videoInfoList.value = data.map(video => ({
-          video_id: video.id,
-          day: new Date(video.created_at).getDate(),
+        eventDates.value = data.videos.map(video => video.day);
+        videoInfoList.value = data.videos.map(video => ({
+          video_id: video.video_id,
+          day: video.day,
           caption: video.caption,
           url: video.url
         }));

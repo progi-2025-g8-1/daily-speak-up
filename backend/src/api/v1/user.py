@@ -128,11 +128,29 @@ async def get_monthly_user_videos(
     s3_service: S3SecureService = Depends(get_s3_service),
     requesting_user: User = Depends(get_current_user)
 ):
-    # Ovdje će kasnije vjerojatno trebati proći po friendship pravilima,
-    # Ako su prijatelji, vratiti listu videa koji imaju FRIENDS vidljivost (ili praznu listu ako takvih nema),
-    # inače vratiti FORBIDDEN ako nisu prijatelji
-    if requesting_user.id != user_id:
-        if(requesting_user.role not in [UserRole.ADMIN, UserRole.ROOT, UserRole.MOD]):
+    # Check if viewing own profile or if admin/moderator
+    is_own_profile = requesting_user.id == user_id
+    is_admin = requesting_user.role in [UserRole.ADMIN, UserRole.ROOT, UserRole.MOD]
+    
+    # If not own profile and not admin, check if friends
+    are_friends = False
+    if not is_own_profile and not is_admin:
+        user_id1 = min(requesting_user.id, user_id)
+        user_id2 = max(requesting_user.id, user_id)
+        
+        friendship = db.query(Friendship).filter(
+            and_(
+                Friendship.user_id1 == user_id1,
+                Friendship.user_id2 == user_id2,
+                Friendship.status == RequestStatus.ACCEPTED,
+                Friendship.deleted_at.is_(None)
+            )
+        ).first()
+        
+        are_friends = friendship is not None
+        
+        # If not friends and not admin, deny access
+        if not are_friends:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail='Access denied'
@@ -144,12 +162,22 @@ async def get_monthly_user_videos(
             detail='Invalid month'
         )
     
-    # Fetch speeches and generate presigned read URLs for each available video
-    speeches = db.query(Speech).filter(
+    # Fetch speeches - filter by visibility based on relationship
+    query = db.query(Speech).filter(
         Speech.user_id == user_id,
         extract('year', Speech.created_at) == year,
         extract('month', Speech.created_at) == month
-    ).all()
+    )
+    
+    # Apply visibility filters
+    if is_own_profile or is_admin:
+        # Own profile or admin - show all videos
+        pass
+    elif are_friends:
+        # Friends - only show videos marked as for friends
+        query = query.filter(Speech.visibility_level == SpeechVisibility.FRIENDS)
+    
+    speeches = query.all()
 
     videos = []
 
