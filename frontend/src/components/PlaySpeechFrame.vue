@@ -1,7 +1,6 @@
 <script setup>
     import { ref } from 'vue';
     import Dialog from 'primevue/dialog';
-    import Rating from 'primevue/rating'; 
     import Button from 'primevue/button';
     import ToggleButton from 'primevue/togglebutton';
     import { getUserId } from '../auth';
@@ -12,16 +11,17 @@
     let dateString = ref('');
     const videoCaption = ref(''); 
     const videoVisibility = ref(false);
+    const isOwner = ref(false);
 
     let videoInfo = null;
 
-    const isOwner = async() => {
+    const checkIsOwner = async() => {
         try {
             const userId = await getUserId();
-            return videoInfo && videoInfo.owner_id === userId;
+            isOwner.value = videoInfo && videoInfo.owner_id === userId;
         } catch (error) {
             console.error('Error fetching user ID:', error);
-            return false;
+            isOwner.value = false;
         }
     }; 
 
@@ -69,6 +69,7 @@
         videoInfo = video;
         videoCaption.value = video.caption;
         videoVisibility.value = video.visibility === 'private';
+        checkIsOwner();
       }
     };
 
@@ -88,18 +89,20 @@
             width="100%" 
             height="100%" 
             :src="videoInfo.url"
-            allow="autoplay" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         ></iframe>
       </div>
       <div>{{ videoCaption }}</div>
       <div class="flex flex-row items-center justify-between w-full mt-6">
           <div class="flex flex-row items-center gap-3">
-              <Rating :modelValue="5" readonly />
+              <div class="flex gap-1">
+                <span v-for="i in 5" :key="i" class="text-yellow-400">★</span>
+              </div>
               <p>{{ $t('speech.rating') }} 5.0</p>
           </div>
           <div class="flex flex-row items-center gap-4">
             <div class="pi pi-share-alt" style="color:black; font-size: 1.2rem;"></div>
-            <div v-if="isOwner()" class="flex flex-row items-center gap-4">
+            <div v-if="isOwner" class="flex flex-row items-center gap-4">
               <ToggleButton :onLabel="$t('speech.private')" :offLabel="$t('speech.friends')" onIcon="pi pi-lock" 
                           offIcon="pi pi-lock-open" class="w-36" aria-label="Do you confirm" 
                           @change="handleVisibilitySwitch" v-model="videoVisibility"/>
