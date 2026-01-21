@@ -119,7 +119,7 @@
 
 <template>
     <div class="flex flex-col items-center w-full">
-        <Card class="w-full">
+        <Card class="w-full uniform-surface">
             <template #content>
                 <ProfileHeader @show-friends="handleShowFriends" @user-role="setUserRole"/>
             </template>
@@ -127,7 +127,7 @@
 
         <Button v-if="showDashboardButton" icon="pi pi-sliders-h" :label="$t('profile.dashboard_button')" class="w-full mt-[2vh]" :onClick="goToDashboard"  />
 
-        <DatePicker inline class="mt-[2vh] w-full" @date-select="handleSelectedDate" @month-change="handleMonthChange" :key="calendarKey">
+        <DatePicker inline class="mt-[2vh] w-full uniform-surface" @date-select="handleSelectedDate" @month-change="handleMonthChange" :key="calendarKey">
           <template #date="{ date }">
             <div class="relative flex items-center justify-center w-10 h-10">
               {{ date.day }}
@@ -152,4 +152,45 @@
 
 
 <style scoped>
+.uniform-surface {
+  border: 1px solid var(--color-border-light);
+  border-radius: 1.25rem !important;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08) !important;
+  background-color: var(--color-bg-card);
+}
+
+:deep(.p-card) {
+  border-radius: 1.25rem !important;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08) !important;
+  border: 1px solid var(--color-border-light) !important;
+  background-color: var(--color-bg-card) !important;
+  overflow: hidden;
+}
+
+:deep(.p-card .p-card-body) {
+  padding: 1.25rem;
+}
+
+:deep(.p-datepicker) {
+  border-radius: 1.25rem !important;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08) !important;
+  border: 1px solid var(--color-border-light) !important;
+  background-color: var(--color-bg-card) !important;
+  overflow: hidden;
+}
+
+:deep(.p-datepicker-inline) {
+  border-radius: 1.25rem !important;
+  overflow: hidden;
+}
+
+:deep(.p-datepicker .p-datepicker-header) {
+  border-top-left-radius: 1.25rem !important;
+  border-top-right-radius: 1.25rem !important;
+}
+
+:deep(.p-datepicker .p-datepicker-calendar-container) {
+  border-bottom-left-radius: 1.25rem !important;
+  border-bottom-right-radius: 1.25rem !important;
+}
 </style>

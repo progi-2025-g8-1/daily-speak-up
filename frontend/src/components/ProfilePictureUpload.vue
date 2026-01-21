@@ -320,14 +320,14 @@ defineExpose({
           v-if="photoUrl"
           :src="photoUrl"
           :class="avatarClass"
-          class="rounded-full border-4 border-primary-100 object-cover"
+          class="rounded-full object-cover shadow-md"
           alt="Profile"
         />
         <!-- Fallback to default avatar if no photo -->
         <div 
           v-else
           :class="avatarClass"
-          class="rounded-full border-4 border-primary-100 bg-primary-50 text-primary flex items-center justify-center text-4xl"
+          class="rounded-full bg-primary-50 text-primary flex items-center justify-center text-4xl shadow-md"
         >
           <i class="pi pi-user"></i>
         </div>
