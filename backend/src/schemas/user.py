@@ -59,6 +59,9 @@ class NotificationSettingUpdate(BaseModel):
 class LanguageUpdate(BaseModel):
     lang: AppLang
 
+class ThemeUpdate(BaseModel):
+    theme: AppTheme
+
 class PublicUserProfile(BaseModel):
     id: UUID
     handle: str

@@ -132,7 +132,10 @@
             if (response.ok) {
                 const data = await response.json()
                 
-                // Theme selection removed; force language handling only
+                // Load theme from user data
+                if (data.preferred_theme) {
+                    themeStore.setTheme(data.preferred_theme);
+                }
                 
                 if(data.preferred_lang === 'hr') {
                     selectedLanguage.value = 'hr';
@@ -194,8 +197,25 @@
         { name: t('settings.theme.dark'), code: 'dark' },
     ]);
 
-    const updateTheme = (themeCode) => {
+    const updateTheme = async (themeCode) => {
         themeStore.setTheme(themeCode);
+
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123'}/api/v1/user/preferred-theme`, {
+                method: 'PUT',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ theme: themeCode })
+            });
+
+            if (!response.ok) {
+                console.error('Failed to update preferred theme');
+            }
+        } catch (error) {
+            console.error('Error updating preferred theme:', error);
+        }
     };
 
     const updateEmailNotifs = async () => {
