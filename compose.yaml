@@ -51,6 +51,9 @@ services:
       - R2_ADMIN_API_KEY=${R2_ADMIN_API_KEY}
       - R2_ACCESS_KEY_ID=${R2_ACCESS_KEY_ID}
       - R2_JURISDICTION=${R2_JURISDICTION}
+      - ROOT_ADMIN_EMAIL=${ROOT_ADMIN_EMAIL}
+      - ROOT_ADMIN_PASSWORD=${ROOT_ADMIN_PASSWORD}
+      - ROOT_ADMIN_HANDLE=${ROOT_ADMIN_HANDLE}
     depends_on:
       - supertokens
     networks:
@@ -64,6 +67,11 @@ services:
         - VITE_API_DOMAIN=${VITE_API_DOMAIN:-http://localhost:8123}
         - VITE_WEBSITE_DOMAIN=${VITE_WEBSITE_DOMAIN:-http://localhost:5173}
         - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8123/api/v1}
+        - VITE_ROOT_ADMIN_EMAIL=${VITE_ROOT_ADMIN_EMAIL:-admin@dailyspeak.app}
+        - VITE_ROOT_ROLE=${VITE_ROOT_ROLE:-root}
+        - VITE_ADMIN_ROLE=${VITE_ADMIN_ROLE:-admin}
+        - VITE_MODERATOR_ROLE=${VITE_MODERATOR_ROLE:-mod}
+        - VITE_USER_ROLE=${VITE_USER_ROLE:-user}
     restart: unless-stopped
     ports:
       - "3000:3000"

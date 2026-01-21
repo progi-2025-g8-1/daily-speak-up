@@ -69,7 +69,16 @@ export default {
         }
       } catch (err) {
         console.error('OAuth callback error:', err);
-        error.value = 'An error occurred during sign in. Please try again.';
+        // Handle stale session errors specifically
+        if (err instanceof Error && (err.message.includes('session') || err.message.includes('unauthorized'))) {
+          error.value = 'Your previous session was invalid. Please try logging in again.';
+          // Redirect to home after a delay
+          setTimeout(() => {
+            router.push('/');
+          }, 3000);
+        } else {
+          error.value = 'An error occurred during sign in. Please try again.';
+        }
       } finally {
         loading.value = false;
       }

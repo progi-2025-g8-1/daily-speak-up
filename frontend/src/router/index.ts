@@ -10,6 +10,7 @@ import Profile from '../views/Profile.vue'
 import DashboardView from '../views/DashboardView.vue'
 import BannedView from '../views/BannedView.vue'
 import { isAuthenticated } from '../auth'
+import Session from 'supertokens-web-js/recipe/session'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -64,9 +65,13 @@ const router = createRouter({
           
           const userData = await response.json();
 
-          if (userData.role === import.meta.env.VITE_ADMIN_ROLE ||
-              userData.role === import.meta.env.VITE_MODERATOR_ROLE ||
-              userData.role === import.meta.env.VITE_ROOT_ROLE) {
+          const adminRole = import.meta.env.VITE_ADMIN_ROLE || (window as any).ENV?.VITE_ADMIN_ROLE || 'admin';
+          const modRole = import.meta.env.VITE_MODERATOR_ROLE || (window as any).ENV?.VITE_MODERATOR_ROLE || 'mod';
+          const rootRole = import.meta.env.VITE_ROOT_ROLE || (window as any).ENV?.VITE_ROOT_ROLE || 'root';
+
+          if (userData.role === adminRole ||
+              userData.role === modRole ||
+              userData.role === rootRole) {
             return true
           }
           return { path: '/' };
@@ -109,6 +114,17 @@ async function isOnboardingComplete(): Promise<boolean | null> {
       const userData = await response.json();
       return userData.onboarding_status === 'completed';
     }
+    
+    // If unauthorized (401), clear the invalid session
+    if (response.status === 401) {
+      try {
+        await Session.signOut();
+        console.log('Cleared invalid session during onboarding check');
+      } catch (e) {
+        // Ignore signout errors
+      }
+    }
+    
     return null;
   } catch (_error) {
     // Backend might be offline; treat as unknown instead of throwing
@@ -130,6 +146,17 @@ async function isUserBanned(): Promise<{ banned: boolean; reason?: string; expir
     if (response.ok) {
       return await response.json();
     }
+    
+    // If unauthorized (401), clear the invalid session
+    if (response.status === 401) {
+      try {
+        await Session.signOut();
+        console.log('Cleared invalid session during ban check');
+      } catch (e) {
+        // Ignore signout errors
+      }
+    }
+    
     return null;
   } catch (_error) {
     // Backend might be offline; treat as not banned to avoid hard lock

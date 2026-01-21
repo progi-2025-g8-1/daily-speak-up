@@ -8,7 +8,7 @@
 </script>
 
 <template>
-   <div class="flex flex-col items-center w-[96] h-[92vh] my-[2vh] mx-[2vw]">
+   <div class="flex flex-col items-center w-full h-[92vh] my-[2vh] mx-[2vw]">
       <div class="w-full flex items-center justify-center relative gap-5 mb-4
                   border-2 border-gray-800 rounded-full">
          <Button icon="pi pi-arrow-left" 

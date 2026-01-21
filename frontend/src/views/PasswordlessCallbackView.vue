@@ -87,7 +87,16 @@ onMounted(async () => {
     }
   } catch (err: any) {
     console.error('Magic link verification error:', err);
-    error.value = err.message || 'An error occurred during verification. Please try again.';
+    // Handle stale session errors specifically
+    if (err.message && (err.message.includes('session') || err.message.includes('unauthorized'))) {
+      error.value = 'Your previous session was invalid. Please try logging in again.';
+      // Redirect to home after a delay
+      setTimeout(() => {
+        router.push('/');
+      }, 3000);
+    } else {
+      error.value = err.message || 'An error occurred during verification. Please try again.';
+    }
     loading.value = false;
   }
 });

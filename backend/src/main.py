@@ -46,8 +46,6 @@ async def lifespan(app: FastAPI):
         logger.info("Running startup tasks...")
         create_all_tables()
 
-        if os.getenv('ENVIRONMENT', 'production') == 'dev':
-            seed_mock_data()
         logger.info("Startup tasks completed successfully")
 
         email = settings.ROOT_ADMIN_EMAIL

@@ -5,6 +5,16 @@ import EmailPassword from 'supertokens-web-js/recipe/emailpassword';
 
 export async function signInWithGoogle() {
   try {
+    // Clear any existing session before starting new login
+    try {
+      if (await Session.doesSessionExist()) {
+        await Session.signOut();
+      }
+    } catch (clearError) {
+      // Ignore errors when clearing, continue with login
+      console.log('Cleared stale session before login');
+    }
+    
     const authUrl = await ThirdParty.getAuthorisationURLWithQueryParamsAndSetState({
       thirdPartyId: 'google',
       frontendRedirectURI: `${window.location.origin}/auth/callback/google`
@@ -20,6 +30,16 @@ export async function signInWithGoogle() {
 
 export async function createPasswordlessCode(email: string) {
   try {
+    // Clear any existing session before starting new login
+    try {
+      if (await Session.doesSessionExist()) {
+        await Session.signOut();
+      }
+    } catch (clearError) {
+      // Ignore errors when clearing, continue with login
+      console.log('Cleared stale session before login');
+    }
+    
     const response = await Passwordless.createCode({
       email
     });
@@ -54,6 +74,16 @@ export async function resendPasswordlessCode() {
 
 export async function signInWithEmailPassword(email: string, password: string) {
   try {
+    // Clear any existing session before starting new login
+    try {
+      if (await Session.doesSessionExist()) {
+        await Session.signOut();
+      }
+    } catch (clearError) {
+      // Ignore errors when clearing, continue with login
+      console.log('Cleared stale session before login');
+    }
+    
     const response = await EmailPassword.signIn({
       formFields: [
         { id: 'email', value: email },
@@ -75,7 +105,18 @@ export async function signInWithEmailPassword(email: string, password: string) {
 }
 
 export async function isAuthenticated(): Promise<boolean> {
-  return await Session.doesSessionExist();
+  try {
+    return await Session.doesSessionExist();
+  } catch (error) {
+    // If there's an error checking session (e.g., invalid cookies), clear it
+    console.warn('Session check failed, clearing invalid session:', error);
+    try {
+      await Session.signOut();
+    } catch (signOutError) {
+      // Ignore sign out errors
+    }
+    return false;
+  }
 }
 
 let internalUserId: string | undefined = undefined;

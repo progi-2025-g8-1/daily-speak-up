@@ -37,7 +37,12 @@
     const setUserRole = (role) => {
       userRole.value = role;
       console.log('User role set to:', role);
-      showDashboardButton.value = (role === import.meta.env.VITE_ADMIN_ROLE || role === import.meta.env.VITE_MODERATOR_ROLE || role === import.meta.env.VITE_ROOT_ROLE);
+      const adminRole = import.meta.env.VITE_ADMIN_ROLE || window.ENV?.VITE_ADMIN_ROLE || 'admin';
+      const modRole = import.meta.env.VITE_MODERATOR_ROLE || window.ENV?.VITE_MODERATOR_ROLE || 'mod';
+      const rootRole = import.meta.env.VITE_ROOT_ROLE || window.ENV?.VITE_ROOT_ROLE || 'root';
+      console.log('Comparing role:', role, 'with admin:', adminRole, 'mod:', modRole, 'root:', rootRole);
+      showDashboardButton.value = (role === adminRole || role === modRole || role === rootRole);
+      console.log('Dashboard button visibility:', showDashboardButton.value);
     };
 
     const goToDashboard = () => {

@@ -308,7 +308,6 @@
             </div>
         </Drawer>
         <div class="flex flex-col justify-center items-center aspect-square rounded-full w-10 mr-1 h-10 hover:scale-105 cursor-pointer transition duration-200"
-            style="border: 2px solid var(--color-primary);"
             @click="visible = true">
             <span class="pi pi-cog" style="color: var(--color-text-dark); font-size: 1.2rem;"></span>
         </div>

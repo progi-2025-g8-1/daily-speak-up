@@ -60,6 +60,11 @@ services:
         - VITE_API_DOMAIN=${VITE_API_DOMAIN}
         - VITE_WEBSITE_DOMAIN=${VITE_WEBSITE_DOMAIN}
         - VITE_API_BASE_URL=${VITE_API_BASE_URL}
+        - VITE_ROOT_ADMIN_EMAIL=${VITE_ROOT_ADMIN_EMAIL:-admin@dailyspeak.app}
+        - VITE_ROOT_ROLE=${VITE_ROOT_ROLE:-root}
+        - VITE_ADMIN_ROLE=${VITE_ADMIN_ROLE:-admin}
+        - VITE_MODERATOR_ROLE=${VITE_MODERATOR_ROLE:-mod}
+        - VITE_USER_ROLE=${VITE_USER_ROLE:-user}
     restart: unless-stopped
     depends_on:
       - backend

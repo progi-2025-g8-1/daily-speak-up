@@ -56,20 +56,6 @@ const handleUploadData = (uploadMethod: string, uploadUrl: string, userId: strin
           @upload-data="handleUploadData"
         />
       </div>
-
-      <div>
-        <Fieldset :legend="$t('main.speech_topic_title')" :toggleable="true" style="--p-fieldset-legend-color: var(--color-primary); --p-fieldset-background: var(--color-bg-card); --p-fieldset-border-color: var(--color-primary);">
-          <p class="m-0 font-bold" v-if="interest">
-            {{ $t('main.interest_label') }} {{ interest }}
-          </p>
-          <p class="m-0" v-if="topic">
-            {{ topic }}
-          </p>
-          <p class="m-0" v-else>
-            {{ $t('main.topic_placeholder') }}
-          </p>
-        </Fieldset>
-      </div>
     </div>
   </div>
 </template>
