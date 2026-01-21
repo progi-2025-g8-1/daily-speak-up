@@ -63,7 +63,7 @@
               <label class="block text-sm font-medium text-gray-700 mb-2" style="color: var(--color-text-dark);">{{ t('login.email_label') }}</label>
               <InputText name="email"
                          type="text" 
-                         :placeholder="t('login.email_placeholder')" 
+                         placeholder="you@example.com" 
                          @keyup.enter="handleEmailLogin"
                          @update:modelValue="checkMail"
                          v-model="email"
