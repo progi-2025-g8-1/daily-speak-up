@@ -141,8 +141,7 @@ function handlePhotoDeleted() {
           {{ t('onboarding.phase1.handle_available', { handle: handle }) }}
         </InlineMessage>
       </div>
-      style="color: var(--color-text-light);
-      <small class="text-light">
+      <small style="color: var(--color-text-light);">
         {{ t('onboarding.phase1.handle_requirements') }}
       </small>
     </div>

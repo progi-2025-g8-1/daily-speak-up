@@ -2,7 +2,7 @@
   <div>
     <button 
       @click="showModal = true"
-      class="text-white font-semibold rounded-lg transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center"
+      class="text-white font-semibold rounded-lg transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center cursor-pointer"
       style="background-color: #2563eb; height: 42px; padding: 0 1rem;">
       {{ t('login.button') }}
     </button>

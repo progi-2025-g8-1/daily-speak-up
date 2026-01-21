@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import Avatar from 'primevue/avatar'
-import { useRoute } from 'vue-router'
-import { ref, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
 import Login from '../components/LoginModal.vue'
 import { useI18n } from 'vue-i18n'
 import { useThemeStore } from '../stores/themeStore'
+import { isAuthenticated } from '../auth'
 
+const router = useRouter()
+const isLoggedIn = ref(false)
 const isHome = computed(() => useRoute().path === '/')
 const { locale, t } = useI18n()
 
@@ -14,6 +17,15 @@ const toggleLanguage = () => {
   localStorage.setItem('app-language', locale.value)
 }
 const themeStore = useThemeStore()
+
+onMounted(async () => {
+  isLoggedIn.value = await isAuthenticated()
+})
+
+const handleLogoClick = () => {
+  if (isLoggedIn.value) return
+  router.push('/')
+}
 
 const teamSet = ref([
   { url: 'https://avatars.githubusercontent.com/u/44684310?v=4', name: 'Kristijan Bilanović' },
@@ -34,7 +46,7 @@ const teamSet = ref([
        <nav class="absolute inset-x-0 top-0 flex justify-end items-center gap-4 items-center gap-4 px-6 sm:px-10 py-4 z-10">
         <button 
           @click="toggleLanguage()"
-          class="text-white font-semibold rounded-lg transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center"
+          class="text-white font-semibold rounded-lg transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center cursor-pointer"
           style="background-color: #2563eb; width: 65px; height: 42px; padding: 0;"
           :title="locale === 'hr' ? 'Switch to English' : 'Prebaci na Hrvatski'"
         >
@@ -42,7 +54,7 @@ const teamSet = ref([
         </button>
         <button 
           @click="themeStore.toggleTheme()"
-          class="text-white font-semibold rounded-lg transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center"
+          class="text-white font-semibold rounded-lg transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center cursor-pointer"
           style="background-color: #2563eb; width: 65px; height: 42px; padding: 0;"
           :title="themeStore.themeMode === 'dark' ? 'Promijeni na svijetlu temu' : 'Promijeni na tamnu temu'"
         >
@@ -59,6 +71,7 @@ const teamSet = ref([
 
         <!-- Logo -->
         <img
+          @click="handleLogoClick"
           src="../assets/DSU_logo.svg"
           alt="DailySpeakUp Logo"
           class="w-28 h-28 sm:w-40 sm:h-40 mb-8"
