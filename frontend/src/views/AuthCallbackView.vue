@@ -36,6 +36,11 @@ export default {
           if (createdNewUser) {
             try {
               const apiDomain = import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123';
+              
+              // Get stored preferences from localStorage
+              const storedLanguage = localStorage.getItem('app-language') || 'en';
+              const storedTheme = localStorage.getItem('app-theme') || 'light';
+              
               const registerResponse = await fetch(`${apiDomain}/api/v1/user/register`, {
                 method: 'PUT',
                 credentials: 'include', // Include session cookies
@@ -43,7 +48,9 @@ export default {
                   'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                  email: user.emails[0] // Google provides email in the user object
+                  email: user.emails[0], // Google provides email in the user object
+                  preferred_lang: storedLanguage,
+                  preferred_theme: storedTheme
                 })
               });
 

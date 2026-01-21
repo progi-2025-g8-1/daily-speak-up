@@ -37,6 +37,10 @@ if (savedLanguage && (savedLanguage === 'hr' || savedLanguage === 'en')) {
 // middleware
 app.use(pinia);
 
+// Initialize theme from localStorage
+const themeStore = useThemeStore();
+themeStore.initializeTheme();
+
 app.use(PrimeVue, {
     theme: {
         preset: Lara,

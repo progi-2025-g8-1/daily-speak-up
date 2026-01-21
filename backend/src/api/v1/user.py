@@ -10,7 +10,7 @@ from typing import List
 from ..deps import get_session, get_s3_service, get_current_user
 from ...db import get_db
 from ...schemas import UserResponse, UserCreate, MonthlyUserVideosResponse, VideoInfo, FriendsListResponse, FriendInfo, UserInterestsResponse, NotificationSettingUpdate, LanguageUpdate, ThemeUpdate, PublicUserProfile
-from ...models import User, Friendship, UserStreak, Speech, UserDevice, UserInterest, Interest, Rating, Ban, Report, UserRole, RequestStatus, SpeechVisibility
+from ...models import User, Friendship, UserStreak, Speech, UserDevice, UserInterest, Interest, Rating, Ban, Report, UserRole, RequestStatus, SpeechVisibility, AppLang, AppTheme
 from supertokens_python.recipe.session import SessionContainer
 from supertokens_python.asyncio import delete_user
 
@@ -42,6 +42,8 @@ async def register(
         supertokens_user_id=supertokens_user_id,
         email=user_data.email,
         handle=supertokens_user_id,  # Default handle
+        preferred_lang=user_data.preferred_lang if user_data.preferred_lang else AppLang.EN,
+        preferred_theme=user_data.preferred_theme if user_data.preferred_theme else AppTheme.LIGHT,
     )
     db.add(user)
     db.commit()

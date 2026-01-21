@@ -45,6 +45,11 @@ onMounted(async () => {
       if (response.createdNewRecipeUser) {
         try {
           const apiDomain = import.meta.env.VITE_API_DOMAIN || (window as any).ENV?.VITE_API_DOMAIN || 'http://localhost:8123';
+          
+          // Get stored preferences from localStorage
+          const storedLanguage = localStorage.getItem('app-language') || 'en';
+          const storedTheme = localStorage.getItem('app-theme') || 'light';
+          
           const registerResponse = await fetch(`${apiDomain}/api/v1/user/register`, {
             method: 'PUT',
             credentials: 'include',
@@ -52,7 +57,9 @@ onMounted(async () => {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              email: response.user.emails[0]
+              email: response.user.emails[0],
+              preferred_lang: storedLanguage,
+              preferred_theme: storedTheme
             })
           });
           

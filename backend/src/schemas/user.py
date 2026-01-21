@@ -13,6 +13,8 @@ from ..models import (
 class UserCreate(BaseModel):
     email: EmailStr
     name: str | None = None
+    preferred_lang: AppLang | None = None
+    preferred_theme: AppTheme | None = None
 
 class UserResponse(BaseModel):
     id: UUID
