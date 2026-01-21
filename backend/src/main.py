@@ -53,7 +53,7 @@ async def lifespan(app: FastAPI):
 
         if email and password:
             from .seed_root_admin import create_root_admin
-            await create_root_admin(email=email, password=password)
+            await create_root_admin(email=email, password=password, max_retries=10)
         else:
             logger.warning("ROOT_ADMIN_EMAIL or ROOT_ADMIN_PASSWORD not set; skipping root admin creation")
     except Exception as e:

@@ -47,7 +47,7 @@ INTEREST_TRANSLATIONS = {
 
 @router.get("")
 async def get_interests(
-    lang: str = Query("en", regex="^(en|hr)$"),
+    lang: str = Query("en", pattern="^(en|hr)$"),
     db: Session = Depends(get_db)
 ):
     """Get all available interests with translations based on language parameter."""

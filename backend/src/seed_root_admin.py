@@ -11,7 +11,7 @@ async def create_root_admin(
     email: str,
     password: str,
     tenant_id: str = "public",
-    max_retries: int = 3,
+    max_retries: int = 10,
     retry_delay: float = 2.0
 ) -> Optional[str]:
     """
