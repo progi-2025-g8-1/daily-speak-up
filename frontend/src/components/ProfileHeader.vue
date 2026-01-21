@@ -181,7 +181,8 @@ export default {
     };
 
     const handlePhotoDeleted = () => {
-      window.location.reload();
+      // Clear photo URL to update the display
+      profilePhotoUrl.value = null;
     };
 
     const fetchIncomingRequestsCount = async () => {

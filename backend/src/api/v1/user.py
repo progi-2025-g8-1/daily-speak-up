@@ -433,6 +433,36 @@ async def update_preferred_theme(
         }
     )
 
+@router.delete('/profile-picture', response_class=JSONResponse)
+async def delete_profile_picture(
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+    s3_service: S3SecureService = Depends(get_s3_service)
+):
+    """Delete the user's profile picture."""
+    try:
+        # Delete from S3 if it exists
+        if user.profile_picture_url:
+            s3_service.delete_profile_photo(str(user.id))
+        
+        # Update database
+        user.profile_picture_url = None
+        db.commit()
+        db.refresh(user)
+
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                'message': 'Profile picture deleted successfully'
+            }
+        )
+    except Exception as e:
+        logger.error(f"Error deleting profile picture: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail='Failed to delete profile picture'
+        )
+
 @router.get("/profile/{handle}")
 async def get_user_profile_by_handle(
     handle: str,

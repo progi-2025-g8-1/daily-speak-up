@@ -265,12 +265,12 @@ async function deletePhoto() {
   try {
     uploading.value = true
     
-    await api('/user/me', {
-      method: 'PATCH',
-      body: JSON.stringify({ 
-        profile_picture_url: null 
-      })
+    await api('/user/profile-picture', {
+      method: 'DELETE'
     })
+
+    // Clear local state
+    photoUrl.value = null
 
     // Remove cached photo from localStorage
     try {
