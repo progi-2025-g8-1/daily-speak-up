@@ -233,7 +233,7 @@ const sendFriendRequest = async () => {
         <template #content>
           <div class="text-center py-8">
             <i class="pi pi-exclamation-circle text-4xl text-red-500 mb-4"></i>
-            <p class="text-lg text-gray-700">{{ error }}</p>
+            <p class="text-lg" style="color: var(--color-text-dark);">{{ error }}</p>
             <Button :label="$t('profile.back')" @click="router.push('/home')" class="mt-4" />
           </div>
         </template>
@@ -259,7 +259,7 @@ const sendFriendRequest = async () => {
         <template #content>
           <div class="text-center py-4">
             <template v-if="hasPendingRequest">
-              <p class="text-gray-600 mb-3">
+              <p class="mb-3" style="color: var(--color-text-secondary);">
                 {{ friendshipStatus === 'pending_outgoing' ? $t('profile.friendship.req_sent') : $t('profile.friendship.req_incoming') }}
               </p>
               <Button 
@@ -270,7 +270,7 @@ const sendFriendRequest = async () => {
               />
             </template>
             <template v-else>
-              <p class="text-gray-600 mb-3">{{ $t('profile.friendship.connect_hint') }}</p>
+              <p class="mb-3" style="color: var(--color-text-secondary);">{{ $t('profile.friendship.connect_hint') }}</p>
               <Button 
                 :label="$t('profile.friendship.send_request')" 
                 icon="pi pi-user-plus" 
@@ -297,13 +297,14 @@ const sendFriendRequest = async () => {
               {{ date.day }}
               <span 
                 v-if="hasEvent(date.day)" 
-                class="absolute inset-0 border-2 border-blue-500 rounded-full pointer-events-none"
+                class="absolute inset-0 border-2 rounded-full pointer-events-none"
+                style="border-color: var(--color-primary);"
               ></span>
             </div>
           </template>
   
           <template #footer>
-            <div class="p-3 text-sm text-gray-500">
+            <div class="p-3 text-sm" style="color: var(--color-text-light);">
               {{ $t('profile.select_date_other') }}
             </div>
           </template>

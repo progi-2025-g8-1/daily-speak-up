@@ -24,35 +24,36 @@
         <div 
           v-for="user in searchResults" 
           :key="user.user_id"
-          class="flex items-center gap-3 p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer hover:bg-gray-50"
+          class="flex items-center gap-3 p-4 rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer"
+          style="background-color: var(--color-bg-card); color: var(--color-text-dark);"
           @click="navigateToProfile(user.handle)"
         >
           <Avatar 
             :label="user.handle?.[0]?.toUpperCase()" 
             shape="circle" 
-            class="bg-sky-400 text-white"
+            style="background-color: var(--color-primary); color: white;"
             :image="user.profile_picture_url"
             size="large"
           />
           <div>
-            <p class="font-semibold text-dark">{{ user.handle }}</p>
+            <p class="font-semibold">{{ user.handle }}</p>
           </div>
         </div>
       </div>
   
       <!-- No Results -->
       <div v-else-if="searchQuery && !searching" class="text-center py-8">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
-        <p class="text-gray-500">{{ t('user_search.no_users_found') }}</p>
+        <p style="color: var(--color-text-secondary);">{{ t('user_search.no_users_found') }}</p>
       </div>
   
       <div v-else class="text-center py-8">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
         </svg>
-        <p class="text-gray-500">{{ t('user_search.search_prompt') }}</p>
+        <p style="color: var(--color-text-secondary);">{{ t('user_search.search_prompt') }}</p>
       </div>
   
       <!-- Error Message -->

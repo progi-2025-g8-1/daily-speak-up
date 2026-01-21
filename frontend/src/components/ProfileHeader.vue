@@ -62,8 +62,8 @@
       </div>
 
       <!-- Interests Section -->
-      <div v-if="shouldShowInterests" class="w-full">
-        <h3 class="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+      <div v-if="shouldShowInterests" class="w-full text-left">
+        <h3 class="text-sm font-semibold mb-2 flex items-center gap-2" style="color: var(--color-text-dark);">
           <i class="pi pi-heart"></i>
           {{ $t('profile.header.interests') }}
         </h3>
@@ -75,7 +75,7 @@
             class="interest-chip"
           />
         </div>
-        <p v-else class="text-sm text-gray-500 italic">
+        <p v-else class="text-sm italic" style="color: var(--color-text-light);">
           {{ $t('profile.header.no_interests') }}
         </p>
       </div>

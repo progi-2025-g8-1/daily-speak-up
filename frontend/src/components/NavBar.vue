@@ -10,7 +10,7 @@
 
         <RouterLink to="/" class="flex flex-row items-center justify-center">
             <img src="../assets/DSU_logo_circle.svg" alt="Daily Speak Up Logo" class="h-[4vh] mr-3"/>
-            <div class="font-semibold text-[2.5vh]" style="color: var(--color-primary);">DailySpeakUp</div>
+            <div class="font-semibold text-[2.5vh]" style="color: var(--color-text-dark);">DailySpeakUp</div>
         </RouterLink>
 
         <div class="flex flex-row items-center gap-2">

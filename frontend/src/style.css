@@ -145,7 +145,7 @@ body {
   background: transparent !important;
   border: none !important;
   padding: 0.5rem;
-  color: black;
+  color: var(--color-text-dark);
 }
 
 .icon-button:hover {
@@ -161,7 +161,7 @@ body {
   background: transparent !important;
   border: none !important;
   padding: 0.5rem;
-  color: black;
+  color: var(--color-text-dark);
 }
 
 .icon-button:hover {
