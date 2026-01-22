@@ -160,7 +160,7 @@
         ></iframe>
       </div>
       <div>{{ videoCaption }}</div>
-      <div class="flex flex-row items-center justify-between w-full mt-6">
+      <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between w-full mt-6 gap-4">
           <StarRating
             v-if="videoInfo"
             :speech-id="videoInfo.video_id"
@@ -168,15 +168,15 @@
             :total-ratings="totalRatings"
             @rating-updated="handleRatingUpdated"
           />
-          <div class="flex flex-row items-center gap-4">
-            <div v-if="isOwner" class="flex flex-row items-center gap-4">
+          <div class="flex flex-row items-center gap-2 lg:gap-4 w-full lg:w-auto">
+            <div v-if="isOwner" class="flex flex-row items-center gap-2 lg:gap-4 flex-1 lg:flex-initial">
               <ToggleButton :onLabel="$t('speech.private')" :offLabel="$t('speech.friends')" onIcon="pi pi-lock"
-                          offIcon="pi pi-lock-open" class="w-36" aria-label="Do you confirm"
+                          offIcon="pi pi-lock-open" class="flex-1 lg:w-36" aria-label="Do you confirm"
                           @change="handleVisibilitySwitch" v-model="videoVisibility"/>
-              <Button icon="pi pi-eraser" :label="$t('speech.delete')" severity="danger" v-on:click="deleteVideo" />
+              <Button icon="pi pi-eraser" :label="$t('speech.delete')" severity="danger" v-on:click="deleteVideo" class="flex-1 lg:flex-initial" />
             </div>
-            <div v-else>
-              <Button icon="pi pi-flag" :label="$t('speech.report')" severity="warning" @click="openReportDialog" />
+            <div v-else class="w-full lg:w-auto">
+              <Button icon="pi pi-flag" :label="$t('speech.report')" severity="warning" @click="openReportDialog" class="w-full lg:w-auto" />
             </div>
           </div>
       </div>
