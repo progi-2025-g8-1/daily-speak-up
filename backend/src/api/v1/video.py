@@ -1,6 +1,8 @@
 import datetime
+import random
+import uuid
 from fastapi import APIRouter, FastAPI, HTTPException, Depends, status
-from ..deps import get_session, get_s3_service, get_gemini_service, get_current_user
+from uuid import UUID
 from ..deps import get_session, get_s3_service, get_gemini_service, get_current_user
 from ...models import User, Speech, Report, SpeechVisibility, Rating, UserStreak
 from ...models.enums import UserRole
@@ -9,8 +11,6 @@ from sqlalchemy.orm import Session
 from ...db import get_db
 from supertokens_python.recipe.session import SessionContainer 
 from ...services import S3SecureService, GeminiService
-import random
-from uuid import UUID
 
 router = APIRouter(prefix="/video", tags=["Video"])
 
@@ -48,25 +48,41 @@ async def get_upload_token(
     
     chosen_interest = random.choice([ui.interest for ui in user.user_interests])
 
-    # Generate a topic based on the chosen interest
+    # Generate a topic based on the chosen interest - don't hard fail on Gemini errors
+    topic = None
     try:
         topic = await gemini_service.generate_topic(chosen_interest.name, user.preferred_lang)
+        print(f"[/start] Gemini topic generated successfully: {topic}")
     except Exception as e:
-        print(f"Error generating topic: {e}")
-        topic = f"Talk about {chosen_interest.name} (Fallback Topic)"
-
-    # Create a speech object - commit first to get the ID
+        print(f"[/start] Gemini error (using fallback): {e}")
+        # Use a more user-friendly fallback topic
+        topic = f"Share your thoughts about {chosen_interest.name}"
+    
+    # Generate a temporary speech ID first (before DB operations)
+    import uuid
+    temp_speech_id = uuid.uuid4()
+    
+    # Try to generate S3 upload URL BEFORE creating the speech in DB
+    try:
+        upload_data = s3_service.get_upload_url(str(user.id), str(temp_speech_id))
+    except Exception as e:
+        print(f"[/start] S3 service error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Storage service temporarily unavailable. Please try again."
+        )
+    
+    # Now create the speech object with the pre-generated ID and all data ready
     speech = Speech(
+        id=temp_speech_id,
         user_id=user.id,
         interest_id=chosen_interest.id,
-        task=topic
+        task=topic,
+        s3_url=upload_data['key']
     )
     db.add(speech)
-    db.commit()
-    db.refresh(speech)
     
     # Check if user has an active streak for today, if not create one
-    today = datetime.date.today()
     existing_streak = db.query(UserStreak).filter(
         UserStreak.user_id == user.id,
         UserStreak.start_date <= today,
@@ -102,14 +118,17 @@ async def get_upload_token(
             )
             db.add(new_streak)
     
-    db.commit()
-    
-    # Now generate presigned upload URL using the committed speech ID
-    upload_data = s3_service.get_upload_url(str(user.id), str(speech.id))
-    speech.s3_url = upload_data['key']
-    
-    db.commit()
-    db.refresh(speech)
+    # Commit everything at once - if this fails, nothing is persisted
+    try:
+        db.commit()
+        db.refresh(speech)
+    except Exception as e:
+        db.rollback()
+        print(f"[/start] Database commit error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to initialize recording session. Please try again."
+        )
 
     return UploadRequestResponse(
         interest=chosen_interest.name,
@@ -188,6 +207,28 @@ async def get_video_play_token(
             status_code=status.HTTP_404_NOT_FOUND,
             detail='Video not found or access error'
         )
+
+@router.put('/{video_id}/cancel', status_code=status.HTTP_200_OK, response_model=None)
+async def cancel_video(
+    video_id: str,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user)
+):
+    speech: Speech | None = db.query(Speech).filter(
+        Speech.id == video_id,
+        Speech.user_id == user.id
+    ).first()
+
+    if speech is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Speech not found'
+        )
+    
+    speech.is_cancelled = True
+    db.commit()
+
+    return
 
 @router.put('/{video_id}/visibility', status_code=status.HTTP_200_OK, response_model=None)
 async def set_video_visibility(
