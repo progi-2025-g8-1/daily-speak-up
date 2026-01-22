@@ -306,6 +306,7 @@
         "select_date_me": "Odaberite datum za pregled Vaših snimljenih govora.",
         "select_date_other": "Odaberite datum za pregled govora.",
         "no_speeches": "Ne postoje snimljeni govori za odabrani datum.",
+        "private_video": "Ovaj video je privatan i ne može se pregledati.",
         "error_loading": "Greška pri učitavanju profila",
         "user_not_found": "Korisnik nije pronađen",
         "back": "Nazad",

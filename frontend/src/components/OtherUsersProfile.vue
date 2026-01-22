@@ -18,8 +18,7 @@
   
   const profile = ref(null);
   const friendshipStatus = ref(null);
-  const showErrorMessage = ref(false);
-  const eventDates = ref([]);
+  const showErrorMessage = ref(false);  const isPrivateVideo = ref(false);  const eventDates = ref([]);
   const calendarKey = ref(0);
   const videoInfoList = ref([]);
   const loading = ref(true);
@@ -52,11 +51,22 @@
           break;
         }
       }
+      
+      // Check if video is private (no URL available)
+      if (videoInfo && !videoInfo.url) {
+        showErrorMessage.value = true;
+        isPrivateVideo.value = true;
+        emits('date-selected', date, false, null);
+        return;
+      }
+      
       emits('date-selected', date, true, videoInfo);
       showErrorMessage.value = false;
+      isPrivateVideo.value = false;
     } else {
       emits('date-selected', date, false, null);
       showErrorMessage.value = true;
+      isPrivateVideo.value = false;
     }
   };
   
@@ -79,12 +89,14 @@
       
       if (response.ok) {
         const data = await response.json();
+        // Show all videos on calendar (including private ones)
         eventDates.value = data.videos.map(video => video.day);
         videoInfoList.value = data.videos.map(video => ({
           video_id: video.video_id,
           day: video.day,
           caption: video.caption,
-          url: video.url
+          url: video.url,  // Will be null for private videos
+          visibility: video.visibility
         }));
         calendarKey.value += 1;
       }
@@ -159,12 +171,14 @@
       
       if (videosRes.ok) {
         const data = await videosRes.json();
+        // Show all videos on calendar (including private ones)
         eventDates.value = data.videos.map(video => video.day);
         videoInfoList.value = data.videos.map(video => ({
           video_id: video.video_id,
           day: video.day,
           caption: video.caption,
-          url: video.url
+          url: video.url,  // Will be null for private videos
+          visibility: video.visibility
         }));
       }
     }
@@ -310,7 +324,10 @@ const sendFriendRequest = async () => {
           </template>
         </DatePicker>
   
-        <Message severity="error" class="mt-[4vh]" v-if="showErrorMessage">
+        <Message severity="warn" class="mt-[4vh]" v-if="showErrorMessage && isPrivateVideo">
+          {{ $t('profile.private_video') }}
+        </Message>
+        <Message severity="error" class="mt-[4vh]" v-else-if="showErrorMessage">
           {{ $t('profile.no_speeches') }}
         </Message>
       </template>

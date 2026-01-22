@@ -306,6 +306,7 @@
         "select_date_me": "Select a date to view your recorded speeches.",
         "select_date_other": "Select a date to view speeches.",
         "no_speeches": "No speeches recorded for the selected date.",
+        "private_video": "This video is private and cannot be viewed.",
         "error_loading": "Error loading profile",
         "user_not_found": "User not found",
         "back": "Back",

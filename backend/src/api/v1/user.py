@@ -166,14 +166,8 @@ async def get_monthly_user_videos(
         extract('month', Speech.created_at) == month
     )
     
-    # Apply visibility filters
-    if is_own_profile or is_admin:
-        # Own profile or admin - show all videos
-        pass
-    elif are_friends:
-        # Friends - only show videos marked as for friends
-        query = query.filter(Speech.visibility_level == SpeechVisibility.FRIENDS)
-    
+    # No visibility filters - include all videos for calendar display
+    # But we'll restrict URL access for private videos below
     speeches = query.all()
 
     # Bulk fetch all ratings for speeches in one query
@@ -209,6 +203,11 @@ async def get_monthly_user_videos(
 
         # If the video is hosted on YouTube, use the existing URL directly
         if 'youtube' in str(speech.s3_url):
+            # Check if user can view this video based on visibility
+            can_view = is_own_profile or is_admin
+            if not can_view and are_friends:
+                can_view = speech.visibility_level == SpeechVisibility.FRIENDS
+            
             videos.append(
                 VideoInfo(
                     video_id=speech.id,
@@ -216,7 +215,7 @@ async def get_monthly_user_videos(
                     month=speech.created_at.month,
                     day=speech.created_at.day,
                     caption=speech.caption,
-                    url=speech.s3_url,
+                    url=speech.s3_url if can_view else "",
                     owner_id=speech.user_id,
                     visibility=speech.visibility_level,
                     average_rating=avg_rating,
@@ -237,18 +236,24 @@ async def get_monthly_user_videos(
 
         download_url = None
 
-        # Pre sign the S3 URL
-        try:
-            rd = s3_service.get_read_url(str(requesting_user.id), str(speech.id), str(speech.user_id))
-            if isinstance(rd, dict):
-                download_url = rd.get('download_url')
-            elif hasattr(rd, 'get'):
-                download_url = rd.get('download_url')
-            else:
-                download_url = getattr(rd, 'download_url', None)
-        except Exception as exc:
-            logger.debug("Failed to generate presigned URL for speech %s: %s", speech.id, exc)
-            download_url = None
+        # Check if user can view this video based on visibility
+        can_view = is_own_profile or is_admin
+        if not can_view and are_friends:
+            can_view = speech.visibility_level == SpeechVisibility.FRIENDS
+
+        # Pre sign the S3 URL only if user can view
+        if can_view:
+            try:
+                rd = s3_service.get_read_url(str(requesting_user.id), str(speech.id), str(speech.user_id))
+                if isinstance(rd, dict):
+                    download_url = rd.get('download_url')
+                elif hasattr(rd, 'get'):
+                    download_url = rd.get('download_url')
+                else:
+                    download_url = getattr(rd, 'download_url', None)
+            except Exception as exc:
+                logger.debug("Failed to generate presigned URL for speech %s: %s", speech.id, exc)
+                download_url = None
 
         videos.append(
             VideoInfo(
@@ -257,7 +262,7 @@ async def get_monthly_user_videos(
                 month=speech.created_at.month,
                 day=speech.created_at.day,
                 caption=speech.caption,
-                url=download_url if download_url is not None else speech.s3_url,
+                url=download_url if can_view and download_url is not None else "",
                 owner_id=speech.user_id,
                 visibility=speech.visibility_level,
                 average_rating=avg_rating,

@@ -111,12 +111,52 @@ async def get_video_play_token(
     user: User = Depends(get_current_user),
     s3_service: S3SecureService = Depends(get_s3_service)
 ):
+    # Get the speech to check visibility
+    speech = db.query(Speech).filter(Speech.id == video_id).first()
+    if not speech:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Video not found'
+        )
     
-    if str(user.id) != target_user_id:
+    # Check ownership
+    is_owner = str(user.id) == str(target_user_id)
+    is_admin = user.role in [UserRole.ADMIN, UserRole.ROOT, UserRole.MOD]
+    
+    # Check if video is private and user is not owner/admin
+    if speech.visibility_level == SpeechVisibility.PRIVATE and not is_owner and not is_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail='Access denied'
+            detail='This video is private'
         )
+    
+    # For friends-only videos, check friendship
+    if speech.visibility_level == SpeechVisibility.FRIENDS and not is_owner and not is_admin:
+        from ...models import Friendship, RequestStatus
+        from sqlalchemy import and_, or_
+        
+        user_id1 = min(user.id, speech.user_id)
+        user_id2 = max(user.id, speech.user_id)
+        
+        friendship = db.query(Friendship).filter(
+            and_(
+                Friendship.user_id1 == user_id1,
+                Friendship.user_id2 == user_id2,
+                Friendship.status == RequestStatus.ACCEPTED,
+                Friendship.deleted_at.is_(None)
+            )
+        ).first()
+        
+        if not friendship:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail='Access denied - not friends with video owner'
+            )
+    
+    if str(user.id) != str(target_user_id) and not is_admin:
+        # Allow viewing if visibility checks passed but wrong target_user_id parameter
+        # Just use the actual owner's ID
+        target_user_id = speech.user_id
     
     try:
         read_data = s3_service.get_read_url(str(target_user_id), video_id)
