@@ -56,25 +56,26 @@ async def get_upload_token(
     ).first()
     
     if not existing_streak:
-        # Check if there's a streak that expired
+        # Check if there's a streak that can be extended (ended yesterday)
         latest_streak = db.query(UserStreak).filter(
             UserStreak.user_id == user.id
         ).order_by(UserStreak.created_at.desc()).first()
         
-        if latest_streak and latest_streak.ends_at >= datetime.datetime.now(datetime.timezone.utc):
-            # Extend the existing streak
+        yesterday = today - datetime.timedelta(days=1)
+        if latest_streak and latest_streak.end_date == yesterday:
+            # Extend the existing streak (consecutive day)
             latest_streak.end_date = today
             latest_streak.ends_at = datetime.datetime.combine(
-                today,
-                datetime.time.max,
+                today + datetime.timedelta(days=1),
+                datetime.time.min,
                 tzinfo=datetime.timezone.utc
             )
         else:
-            # Create a new streak starting today
+            # Create a new streak starting today (gap detected or first streak)
             new_streak = UserStreak(
                 user_id=user.id,
                 start_date=today,
-                end_date=None,
+                end_date=today,
                 ends_at=datetime.datetime.combine(
                     today + datetime.timedelta(days=1),
                     datetime.time.min,

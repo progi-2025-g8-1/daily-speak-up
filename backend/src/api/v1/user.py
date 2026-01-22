@@ -79,18 +79,15 @@ async def me(
         UserStreak.user_id == user.id
     ).order_by(UserStreak.created_at.desc()).first()
 
-    if streak is None or streak.ends_at < datetime.datetime.now(datetime.timezone.utc):
+    # Display streak as the inclusive count from `start_date` to the last
+    # recorded day (`end_date`). If `end_date` is None (brand new/ongoing),
+    # treat it as a one-day streak at `start_date`.
+    if streak is None:
         streak_days = 0
     else:
-        # `end_date` is nullable in the model. If it's missing, treat the
-        # current date (UTC) as the effective end date for the ongoing streak.
-        # Ensure we operate on `date` objects when subtracting.
-        end_date: datetime.date = (
-            streak.end_date if streak.end_date is not None else datetime.datetime.now(datetime.timezone.utc).date()
-        )
+        end_date: datetime.date = streak.end_date if streak.end_date is not None else streak.start_date
         start_date: datetime.date = streak.start_date
 
-        # Use inclusive day count: a streak that starts and ends the same day counts as 1.
         days_delta = (end_date - start_date).days
         streak_days = max(0, int(days_delta) + 1)
 
@@ -179,20 +176,31 @@ async def get_monthly_user_videos(
     
     speeches = query.all()
 
-    videos = []
-
-    for speech in speeches:
-        # Calculate rating info for this speech
-        rating_stats = db.query(
+    # Bulk fetch all ratings for speeches in one query
+    speech_ids = [speech.id for speech in speeches]
+    rating_stats = {}
+    if speech_ids:
+        stats_query = db.query(
+            Rating.speech_id,
             func.avg(Rating.score).label('avg_rating'),
             func.count(Rating.id).label('total_ratings')
         ).filter(
-            Rating.speech_id == speech.id,
+            Rating.speech_id.in_(speech_ids),
             Rating.removed_at.is_(None)
-        ).first()
+        ).group_by(Rating.speech_id).all()
         
-        avg_rating = float(rating_stats.avg_rating) if rating_stats.avg_rating else None
-        total_ratings = int(rating_stats.total_ratings) if rating_stats.total_ratings else 0
+        rating_stats = {
+            stat.speech_id: (
+                float(stat.avg_rating) if stat.avg_rating else None,
+                int(stat.total_ratings)
+            ) for stat in stats_query
+        }
+
+    videos = []
+
+    for speech in speeches:
+        # Get rating info from bulk query
+        avg_rating, total_ratings = rating_stats.get(speech.id, (None, 0))
 
         # If the video is hosted on YouTube, use the existing URL directly
         if 'youtube' in str(speech.s3_url):
@@ -272,10 +280,19 @@ async def get_friends_list(
         )
     ).all()
 
+    # Bulk fetch all friend users in one query
+    friend_ids = [
+        friendship.user_id2 if friendship.user_id1 == target_user.id else friendship.user_id1
+        for friendship in friendships
+    ]
+    
+    friends = {}
+    if friend_ids:
+        friends = {user.id: user for user in db.query(User).filter(User.id.in_(friend_ids)).all()}
+
     friend_infos = []
-    for friendship in friendships:
-        friend_id = friendship.user_id2 if friendship.user_id1 == target_user.id else friendship.user_id1
-        friend: User | None = db.query(User).filter(User.id == friend_id).first()
+    for friend_id in friend_ids:
+        friend = friends.get(friend_id)
         if friend:
             # Generate presigned URL for profile picture
             profile_pic_url = None
@@ -401,18 +418,12 @@ async def get_user_interests(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user)
 ):
-    interests = db.query(Interest).all()
-    user_interests_db = db.query(UserInterest).filter(UserInterest.user_id == user.id).all()
+    # Fetch user interests with joined interest data
+    user_interests = db.query(UserInterest, Interest).join(
+        Interest, UserInterest.interest_id == Interest.id
+    ).filter(UserInterest.user_id == user.id).all()
 
-    user_interests_return = []
-
-    for user_interest in user_interests_db:
-        for interest in interests:
-            if user_interest.interest_id == interest.id:
-                user_interests_return.append(interest.slug)
-                break
-    
-    return UserInterestsResponse(interests=user_interests_return)
+    return UserInterestsResponse(interests=[interest.slug for _, interest in user_interests])
 
 @router.put('/email-notifications', response_class=JSONResponse)
 async def update_email_notifications(
@@ -538,7 +549,6 @@ async def get_user_profile_by_handle(
     s3_service: S3SecureService = Depends(get_s3_service)
 ):
     """Get public user profile by handle - returns user_id and basic info"""
-    from sqlalchemy import func
     
     target_user = db.query(User).filter(
         User.handle == handle,
@@ -549,54 +559,45 @@ async def get_user_profile_by_handle(
     if not target_user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    # friend count
+    # Bulk query for friend count, streak, and interests in parallel
     friend_count = db.query(func.count(Friendship.id)).filter(
         and_(
-            or_(
-                Friendship.user_id1 == target_user.id,
-                Friendship.user_id2 == target_user.id
-            ),
+            or_(Friendship.user_id1 == target_user.id, Friendship.user_id2 == target_user.id),
             Friendship.status == RequestStatus.ACCEPTED,
             Friendship.deleted_at.is_(None)
         )
     ).scalar() or 0
     
-    # streak
     latest_streak = db.query(UserStreak).filter(
         UserStreak.user_id == target_user.id
     ).order_by(UserStreak.created_at.desc()).first()
     
-    streak_days = 0
-    if latest_streak and latest_streak.ends_at >= datetime.datetime.now(datetime.timezone.utc):
-        end_date = (
-            latest_streak.end_date 
-            if latest_streak.end_date is not None 
-            else datetime.datetime.now(datetime.timezone.utc).date()
-        )
-        start_date = latest_streak.start_date
+    # Display streak as the inclusive count from `start_date` to the last
+    # recorded day (`end_date`). If `end_date` is None (brand new/ongoing),
+    # treat it as a one-day streak at `start_date`.
+    if latest_streak is None:
+        streak_days = 0
+    else:
+        end_date: datetime.date = latest_streak.end_date if latest_streak.end_date is not None else latest_streak.start_date
+        start_date: datetime.date = latest_streak.start_date
         days_delta = (end_date - start_date).days
         streak_days = max(0, int(days_delta) + 1)
     
-    # get presigned profile picture URL
+    # Get user interests with join
+    user_interests = [
+        interest.slug for _, interest in 
+        db.query(UserInterest, Interest).join(
+            Interest, UserInterest.interest_id == Interest.id
+        ).filter(UserInterest.user_id == target_user.id).all()
+    ]
+    
+    # Get presigned profile picture URL
     profile_picture_url = None
     try:
         photo_result = s3_service.get_photo_read_url(str(target_user.id))
         profile_picture_url = photo_result.get('download_url')
     except Exception as e:
         logger.debug(f"Failed to get profile picture URL: {e}")
-    
-    # get user interests
-    interests = db.query(Interest).all()
-    user_interests_db = db.query(UserInterest).filter(
-        UserInterest.user_id == target_user.id
-    ).all()
-
-    user_interests = []
-    for user_interest in user_interests_db:
-        for interest in interests:
-            if user_interest.interest_id == interest.id:
-                user_interests.append(interest.slug)
-                break
     
     return {
         "id": str(target_user.id),  

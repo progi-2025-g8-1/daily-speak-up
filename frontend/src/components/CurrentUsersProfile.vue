@@ -72,14 +72,13 @@
       const userId = await getUserId();
       const current_year = new Date().getFullYear();
       const current_month = new Date().getMonth() + 1; 
-      const response = await fetch(`${import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123'}/api/v1/user/${userId}/${current_year}/${current_month}/videos`);
+      const response = await fetch(`${import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123'}/api/v1/user/${userId}/${current_year}/${current_month}/videos`, {
+        credentials: 'include'
+      });
       
       if (response.ok) {
         const data = await response.json();
-        eventDates.value = [];
-        data.videos.forEach(video_info => {
-          eventDates.value.push(video_info.day);
-        });
+        eventDates.value = data.videos.map(v => v.day);
         videoInfoList.value = data.videos;
         calendarKey.value += 1;
       } else {
@@ -89,17 +88,13 @@
 
     const handleMonthChange = async (event) => {
       const userId = await getUserId();
-      const current_year = event.year;
-      const current_month = event.month; 
-
-      const response = await fetch(`${import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123'}/api/v1/user/${userId}/${current_year}/${current_month}/videos`);
+      const response = await fetch(`${import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123'}/api/v1/user/${userId}/${event.year}/${event.month}/videos`, {
+        credentials: 'include'
+      });
       
       if (response.ok) {
         const data = await response.json();
-        eventDates.value = [];
-        data.videos.forEach(video_info => {
-          eventDates.value.push(video_info.day);
-        });
+        eventDates.value = data.videos.map(v => v.day);
         videoInfoList.value = data.videos;
       } else {
         console.error('Failed to fetch user videos for month change');

@@ -17,11 +17,11 @@ class TestStreakCalculationLogic:
             ends_at=now + datetime.timedelta(hours=12)  # Still active
         )
         
-        # Act - replicate logic from user.py
-        if streak.ends_at < now:
+        # Act - replicate updated logic from user.py
+        if streak is None:
             streak_days = 0
         else:
-            end_date = streak.end_date if streak.end_date is not None else now.date()
+            end_date = streak.end_date if streak.end_date is not None else streak.start_date
             start_date = streak.start_date
             days_delta = (end_date - start_date).days
             streak_days = max(0, int(days_delta) + 1)
@@ -39,11 +39,11 @@ class TestStreakCalculationLogic:
             ends_at=now + datetime.timedelta(hours=12)  # Still active
         )
         
-        # Act
-        if streak.ends_at < now:
+        # Act - updated logic
+        if streak is None:
             streak_days = 0
         else:
-            end_date = streak.end_date if streak.end_date is not None else now.date()
+            end_date = streak.end_date if streak.end_date is not None else streak.start_date
             start_date = streak.start_date
             days_delta = (end_date - start_date).days
             streak_days = max(0, int(days_delta) + 1)
@@ -51,8 +51,8 @@ class TestStreakCalculationLogic:
         # Assert
         assert streak_days == 13  # Jan 1 to Jan 13 = 13 days
 
-    def test_expired_streak_returns_zero(self):
-        """Test that expired streak returns 0 days."""
+    def test_expired_streak_returns_length(self):
+        """Expired streak still displays its recorded length."""
         # Arrange
         now = datetime.datetime(2026, 1, 13, 12, 0, 0, tzinfo=datetime.timezone.utc)
         streak = UserStreak(
@@ -61,20 +61,20 @@ class TestStreakCalculationLogic:
             ends_at=now - datetime.timedelta(days=1)  # Expired yesterday
         )
         
-        # Act
-        if streak.ends_at < now:
+        # Act - updated logic ignores `ends_at` for display
+        if streak is None:
             streak_days = 0
         else:
-            end_date = streak.end_date if streak.end_date is not None else now.date()
+            end_date = streak.end_date if streak.end_date is not None else streak.start_date
             start_date = streak.start_date
             days_delta = (end_date - start_date).days
             streak_days = max(0, int(days_delta) + 1)
         
         # Assert
-        assert streak_days == 0
+        assert streak_days == 10
 
-    def test_streak_with_none_end_date_uses_current_date(self):
-        """Test ongoing streak (end_date = None) uses current date."""
+    def test_streak_with_none_end_date_counts_start_date(self):
+        """Ongoing streak without `end_date` counts only start day."""
         # Arrange
         now = datetime.datetime(2026, 1, 13, 12, 0, 0, tzinfo=datetime.timezone.utc)
         streak = UserStreak(
@@ -83,18 +83,17 @@ class TestStreakCalculationLogic:
             ends_at=now + datetime.timedelta(hours=12)  # Still active
         )
         
-        # Act
-        if streak.ends_at < now:
+        # Act - updated logic
+        if streak is None:
             streak_days = 0
         else:
-            end_date = streak.end_date if streak.end_date is not None else now.date()
+            end_date = streak.end_date if streak.end_date is not None else streak.start_date
             start_date = streak.start_date
             days_delta = (end_date - start_date).days
             streak_days = max(0, int(days_delta) + 1)
         
-        # Assert
-        # Jan 10 to Jan 13 = 4 days
-        assert streak_days == 4
+        # Assert: with no end_date provided, count only start day
+        assert streak_days == 1
 
     def test_streak_barely_active(self):
         """Test streak that is still active by 1 second."""
@@ -106,11 +105,11 @@ class TestStreakCalculationLogic:
             ends_at=now + datetime.timedelta(seconds=1)  # Active for 1 more second
         )
         
-        # Act
-        if streak.ends_at < now:
+        # Act - updated logic
+        if streak is None:
             streak_days = 0
         else:
-            end_date = streak.end_date if streak.end_date is not None else now.date()
+            end_date = streak.end_date if streak.end_date is not None else streak.start_date
             start_date = streak.start_date
             days_delta = (end_date - start_date).days
             streak_days = max(0, int(days_delta) + 1)
@@ -191,14 +190,14 @@ class TestStreakCalculationLogic:
             ends_at=datetime.datetime(2026, 1, 14, 0, 0, 0, tzinfo=datetime.timezone.utc)
         )
         
-        # Act
-        if streak.ends_at < now:
+        # Act - updated logic
+        if streak is None:
             streak_days = 0
         else:
-            end_date = streak.end_date if streak.end_date is not None else now.date()
+            end_date = streak.end_date if streak.end_date is not None else streak.start_date
             start_date = streak.start_date
             days_delta = (end_date - start_date).days
             streak_days = max(0, int(days_delta) + 1)
         
         # Assert
-        assert streak_days == 1  # Still Jan 13 in UTC
+        assert streak_days == 1  # Count only recorded day
