@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { api } from '../api'
 import Button from 'primevue/button'
 import Chip from 'primevue/chip'
 import ProgressSpinner from 'primevue/progressspinner'
 
 const emit = defineEmits<{(e:'done'): void}>()
+const { locale, t } = useI18n()
 type Interest = { slug: string; label: string }
 
 const catalog = ref<Interest[]>([])
@@ -18,7 +20,7 @@ const selectedCount = computed(() => picked.value.length)
 
 onMounted(async () => {
   try {
-    catalog.value = await api('/interests', { method: 'GET' })
+    catalog.value = await api(`/interests?lang=${locale.value}`, { method: 'GET' })
   } catch (error) {
     console.error('Error loading interests:', error)
     catalog.value = [
@@ -57,8 +59,8 @@ async function save() {
 <template>
   <div class="space-y-6">
     <div class="mb-6">
-      <h2 class="text-2xl font-bold mb-2 text-primary">Odaberite svoje interese</h2>
-      <p class="text-secondary">Izaberite teme koje vas zanimaju (odaberite najmanje 1)</p>
+      <h2 class="text-2xl font-bold mb-2" style="color: var(--color-primary);">{{ $t('onboarding.phase2.title') }}</h2>
+      <p style="color: var(--color-text-secondary);">{{ $t('onboarding.phase2.subtitle') }}</p>
     </div>
 
     <!-- Loading State -->
@@ -70,7 +72,7 @@ async function save() {
     <div v-else class="space-y-4">
       <!-- Selected Count -->
       <div v-if="selectedCount > 0" class="flex items-center gap-2">
-        <Chip :label="`${selectedCount} odabrano`" class="bg-accent text-primary" />
+        <Chip :label="`${selectedCount} ${$t('onboarding.phase2.selected')}`" style="background-color: var(--color-bg-accent); color: var(--color-primary);" />
       </div>
 
       <!-- Interest Buttons -->
@@ -81,9 +83,9 @@ async function save() {
           @click="toggle(i.slug)"
           type="button"
           class="relative group border-2 rounded-lg px-4 py-3 text-left font-medium transition-all duration-200 hover:shadow-md"
-          :class="isSelected(i.slug) 
-            ? 'border-primary bg-primary text-white shadow-md' 
-            : 'border-light bg-card text-dark hover:border-primary'"
+          :style="isSelected(i.slug) 
+            ? {'border-color': 'var(--color-primary)', 'background-color': 'var(--color-primary)', 'color': 'white'} 
+            : {'border-color': 'var(--color-border-light)', 'background-color': 'var(--color-bg-card)', 'color': 'var(--color-text-dark)'}"
         >
           <div class="flex items-center justify-between">
             <span>{{ i.label }}</span>
@@ -97,18 +99,18 @@ async function save() {
 
       <!-- Empty State -->
       <div v-if="catalog.length === 0" class="text-center py-8">
-        <i class="pi pi-info-circle text-4xl text-muted mb-3"></i>
-        <p class="text-secondary">Nema dostupnih interesa za prikaz</p>
+        <i class="pi pi-info-circle text-4xl mb-3" style="color: var(--color-text-muted);"></i>
+        <p style="color: var(--color-text-secondary);">{{ t('onboarding.phase2.empty_state') }}</p>
       </div>
     </div>
 
     <!-- Action Buttons -->
-    <div class="flex justify-between items-center pt-6 border-t border-light">
-      <p class="text-sm text-light">
-        {{ selectedCount === 0 ? 'Odaberite najmanje jedan interes' : `Odabrano: ${selectedCount}` }}
+    <div class="flex justify-between items-center pt-6" style="border-top: 1px solid var(--color-border-light);">
+      <p class="text-sm" style="color: var(--color-text-light);">
+        {{ selectedCount === 0 ? t('onboarding.phase2.select_at_least_one') : t('onboarding.phase2.selected_count', { count: selectedCount }) }}
       </p>
       <Button 
-        label="Završi postavljanje"
+        :label="t('onboarding.phase2.finish_button')"
         icon="pi pi-check"
         iconPos="right"
         :disabled="selectedCount === 0"

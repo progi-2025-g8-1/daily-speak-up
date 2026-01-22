@@ -1,3 +1,5 @@
+SHELL := /bin/bash
+
 setup:
 	@bash scripts/setup.sh
 
@@ -33,7 +35,8 @@ dev-rabbitmq:
 	docker run -d --name rabbitmq-dev -p 5672:5672 -p 15672:15672 rabbitmq:3-management || docker start rabbitmq-dev
 
 dev-supertokens:
-	@set -a; source backend/.env; set +a; \
+	@dos2unix backend/.env 2>/dev/null || sed -i 's/\r$$//' backend/.env; \
+	set -a; source backend/.env; set +a; \
 	docker run -d --name supertokens-dev -p 3567:3567 -e POSTGRESQL_CONNECTION_URI="$$SUPERTOKENS_DATABASE_URL" registry.supertokens.io/supertokens/supertokens-postgresql:latest || docker start supertokens-dev
 
 celery-worker:
@@ -57,20 +60,20 @@ test:
 	echo "Test test 1 2 3..."
 
 create-db:
-	@echo "Creating database tables in Docker..."
-	docker compose exec backend python -m backend.src.db_manager create
+	@echo "Creating database tables..."
+	.venv/bin/python -m backend.src.db_manager create
 
 reset-db:
-	@echo "Resetting database in Docker..."
-	docker compose exec backend python -m backend.src.db_manager reset
+	@echo "Resetting database (this will delete all data)..."
+	.venv/bin/python -m backend.src.db_manager reset
 
 reset-db-force:
-	@echo "Force resetting database in Docker..."
-	docker compose exec backend python -m backend.src.db_manager reset --force
+	@echo "Force resetting database..."
+	.venv/bin/python -m backend.src.db_manager reset --force
 
 drop-db:
-	@echo "Dropping database tables in Docker..."
-	docker compose exec backend python -m backend.src.db_manager drop
+	@echo "Dropping all database tables..."
+	.venv/bin/python -m backend.src.db_manager drop
 
 kill:
 	@echo "Stopping Docker containers..."
@@ -87,6 +90,14 @@ kill:
 			echo "No process found on port $$port"; \
 		fi; \
 	done
+	docker stop $(docker ps -aq)
+	docker rm $(docker ps -aq)
 	@echo "Done!"
 
-.PHONY: setup install pip npm dev backend frontend compose down dev-rabbitmq dev-supertokens celery-worker stop-rabbitmq stop-supertokens clean-rabbitmq clean-supertokens test create-db reset-db reset-db-force drop-db kill
+stop:
+	docker stop $(docker ps -aq)
+
+rm:
+	docker rm $(docker ps -aq)
+
+.PHONY: setup install pip npm dev backend frontend compose down dev-rabbitmq dev-supertokens celery-worker stop-rabbitmq stop-supertokens clean-rabbitmq clean-supertokens test create-db reset-db reset-db-force drop-db kill stop rm

@@ -42,7 +42,7 @@ class Ban(Base):
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey('users.id'),
-        nullable=False,
+        unique=True,
     )
     ends_at: Mapped[Optional[datetime.datetime]] = mapped_column(
         DateTime(timezone=True),

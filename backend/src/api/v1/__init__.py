@@ -5,6 +5,13 @@ from .userdata import router as userdata_router
 from .onboarding import router as onboarding_router
 from .handles import router as handles_router
 from .interests import router as interests_router
+from .friends import router as friends_router
+from .search import router as search_router
+from .video import router as video_router
+from .photo import router as photo_router
+from .dashboard import router as dashboard_router
+from .rating import router as rating_router
+from .report import router as report_router
 
 __all__ = [
     'health_router',
@@ -14,4 +21,11 @@ __all__ = [
     'onboarding_router',
     'handles_router',
     'interests_router',
+    'friends_router',
+    'search_router',
+    'video_router',
+    'photo_router',
+    'dashboard_router',
+    'rating_router',
+    'report_router',
 ]

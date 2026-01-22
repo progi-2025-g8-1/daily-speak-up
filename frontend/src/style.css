@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+@theme {
+  --breakpoint-xs: 30rem;
+  --breakpoint-2xl: 100rem;
+  --breakpoint-3xl: 120rem;
+  --breakpoint-big: 56rem;
+}
+
 :root {
   /* DailySpeakUp Brand Colors - Based on Email Templates */
   
@@ -48,6 +55,44 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Dark Mode Styling */
+html.dark,
+.dark-mode {
+  --color-primary: #60a5fa;           /* Lighter blue for dark mode */
+  --color-primary-dark: #1e40af;      /* Keep dark blue for contrast */
+  --color-primary-darker: #3b82f6;    /* Medium blue */
+  --color-primary-light: #1e3a8a;     /* Dark blue for backgrounds */
+  --color-primary-medium: #93c5fd;    /* Even lighter blue for hover */
+  
+  /* Dark Mode Backgrounds */
+  --color-bg-main: #0f172a;           /* Very dark background */
+  --color-bg-card: #1e293b;           /* Dark card background */
+  --color-bg-accent: #334155;         /* Slightly lighter accent */
+  
+  /* Dark Mode Text */
+  --color-text-primary: #93c5fd;      /* Light blue text */
+  --color-text-secondary: #cbd5e1;    /* Light gray text */
+  --color-text-dark: #f1f5f9;         /* Very light text */
+  --color-text-light: #cbd5e1;        /* Medium light text */
+  --color-text-white: #f8fafc;        /* Almost white text */
+  --color-text-muted: #64748b;        /* Muted text */
+  
+  /* Dark Mode Borders */
+  --color-border-light: #334155;      /* Dark borders */
+  --color-border-medium: #475569;     /* Medium dark borders */
+  --color-border-primary: #60a5fa;    /* Light blue borders */
+  
+  /* Dark Mode Status Colors */
+  --color-success: #34d399;           /* Lighter green */
+  --color-error: #f87171;             /* Lighter red */
+  --color-warning: #fbbf24;           /* Lighter orange */
+  --color-info: #60a5fa;              /* Lighter blue */
+  
+  /* Dark Mode Gradient */
+  --gradient-primary: linear-gradient(135deg, #1e40af 0%, #60a5fa 100%);
+}
+
+
 a {
   font-weight: 500;
   color: var(--color-primary);
@@ -66,31 +111,6 @@ body {
   color: var(--color-text-dark);
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: var(--color-primary);
-  color: var(--color-text-white);
-  cursor: pointer;
-  transition: all 0.25s;
-}
-button:hover {
-  background-color: var(--color-primary-medium);
-}
-button:focus,
-button:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-}
 
 .card {
   padding: 2em;
@@ -119,3 +139,47 @@ button:focus-visible {
 .border-medium { border-color: var(--color-border-medium); }
 
 .gradient-primary { background: var(--gradient-primary); }
+
+
+.icon-button {
+  background: transparent !important;
+  border: none !important;
+  padding: 0.5rem;
+  color: var(--color-text-dark);
+}
+
+.icon-button:hover {
+  background: transparent !important;
+  transform: scale(1.15);
+}
+
+.icon-button:focus,
+.icon-button:active {
+  background: transparent !important;
+  outline: none !important;
+}.icon-button {
+  background: transparent !important;
+  border: none !important;
+  padding: 0.5rem;
+  color: var(--color-text-dark);
+}
+
+.icon-button:hover {
+  background: transparent !important;
+  transform: scale(1.15);
+}
+
+.icon-button:focus,
+.icon-button:active {
+  background: transparent !important;
+  outline: none !important;
+}
+
+.interest-chip {
+  background-color: #93c5fd !important;
+  color: #1e40af !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 1rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+}

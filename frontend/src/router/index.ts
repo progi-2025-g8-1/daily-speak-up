@@ -6,7 +6,11 @@ import NotFoundView from '../views/NotFoundView.vue'
 import AuthCallbackView from '../views/AuthCallbackView.vue'
 import PasswordlessCallbackView from '../views/PasswordlessCallbackView.vue'
 import OnboardingView from '../views/OnboardingView.vue'
+import Profile from '../views/Profile.vue'
+import DashboardView from '../views/DashboardView.vue'
+import BannedView from '../views/BannedView.vue'
 import { isAuthenticated } from '../auth'
+import Session from 'supertokens-web-js/recipe/session'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -34,15 +38,64 @@ const router = createRouter({
       component: PasswordlessCallbackView
     },
     {
-      path: '/:pathMatch(.*)*',
-      name: 'not-found',
-      component: NotFoundView
+      path: '/banned',
+      name: 'banned',
+      component: BannedView
     },
     {
       path: '/onboarding',
       name: 'onboarding',
       component: OnboardingView,
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/dashboard',
+      name: 'dashboard',
+      component: DashboardView,
+      meta: { requiresAuth: true },
+      beforeEnter: async () => {
+        try {
+          const response = await fetch(`${import.meta.env.VITE_API_DOMAIN}/api/v1/user/me`, {
+            credentials: 'include',
+          });
+
+          if (!response.ok) {
+            return { path: '/' };
+          }
+          
+          const userData = await response.json();
+
+          const adminRole = import.meta.env.VITE_ADMIN_ROLE || (window as any).ENV?.VITE_ADMIN_ROLE || 'admin';
+          const modRole = import.meta.env.VITE_MODERATOR_ROLE || (window as any).ENV?.VITE_MODERATOR_ROLE || 'mod';
+          const rootRole = import.meta.env.VITE_ROOT_ROLE || (window as any).ENV?.VITE_ROOT_ROLE || 'root';
+
+          if (userData.role === adminRole ||
+              userData.role === modRole ||
+              userData.role === rootRole) {
+            return true
+          }
+          return { path: '/' };
+        } catch {
+          return { path: '/' };
+        }
+      }
+    },
+    {
+      path: '/:handle',
+      name: 'Profile',
+      component: Profile,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/search',
+      name: 'search',
+      component: () => import('../views/SearchView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: NotFoundView
     }
   ]
 });
@@ -61,9 +114,53 @@ async function isOnboardingComplete(): Promise<boolean | null> {
       const userData = await response.json();
       return userData.onboarding_status === 'completed';
     }
+    
+    // If unauthorized (401), clear the invalid session
+    if (response.status === 401) {
+      try {
+        await Session.signOut();
+        console.log('Cleared invalid session during onboarding check');
+      } catch (e) {
+        // Ignore signout errors
+      }
+    }
+    
     return null;
-  } catch (error) {
-    console.error('Error checking onboarding status:', error);
+  } catch (_error) {
+    // Backend might be offline; treat as unknown instead of throwing
+    console.warn('Onboarding check skipped: backend unreachable');
+    return null;
+  }
+}
+
+async function isUserBanned(): Promise<{ banned: boolean; reason?: string; expires_at?: string } | null> {
+  try {
+    const apiDomain = import.meta.env.VITE_API_DOMAIN || (window as any).ENV?.VITE_API_DOMAIN || 'http://localhost:8123';
+    const response = await fetch(`${apiDomain}/api/v1/user/amibanned`, {
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+
+    if (response.ok) {
+      return await response.json();
+    }
+    
+    // If unauthorized (401), clear the invalid session
+    if (response.status === 401) {
+      try {
+        await Session.signOut();
+        console.log('Cleared invalid session during ban check');
+      } catch (e) {
+        // Ignore signout errors
+      }
+    }
+    
+    return null;
+  } catch (_error) {
+    // Backend might be offline; treat as not banned to avoid hard lock
+    console.warn('Ban check skipped: backend unreachable');
     return null;
   }
 }
@@ -73,6 +170,17 @@ router.beforeEach(async (to, _from, next) => {
 
   if (to.meta.requiresAuth && !authenticated) {
     return next('/');
+  }
+
+  if (authenticated) {
+    const banStatus = await isUserBanned();
+    // If backend unreachable (null), skip ban redirect
+    if (banStatus?.banned) {
+      if (to.path !== '/banned') {
+        return next('/banned');
+      }
+      return next();
+    }
   }
 
   if (authenticated && to.meta.requiresAuth) {

@@ -1,5 +1,5 @@
 from ...api.config import get_settings
-from .email_template import basic_html_message, place_holder, welcome_message, passwordless_login
+from .email_template import basic_html_message, place_holder, welcome_message, passwordless_login, delete_account_message
 import resend
 
 class ResendEmailSender:
@@ -28,6 +28,8 @@ class ResendEmailSender:
             html = welcome_message()
         elif template == 'basic_message':
             html = basic_html_message().replace(place_holder(), body_text)
+        elif template == 'confirm_account_deletion':
+            html = delete_account_message()
         elif template == 'passwordless_login':
             html = passwordless_login()
             if code:

@@ -1,5 +1,7 @@
 import logging
+import os
 from contextlib import asynccontextmanager
+from dotenv import load_dotenv
 from fastapi import FastAPI, status, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,14 +15,24 @@ from .api.v1 import (
     userdata_router,
     onboarding_router,
     handles_router,
-    interests_router
+    interests_router,
+    friends_router,
+    search_router,
+    video_router,
+    photo_router,
+    dashboard_router,
+    rating_router,
+    report_router,
 )
 from .services.supertokens_service import init_supertokens
 from .api.config import get_settings
 from .db_manager import create_all_tables
+from .db_mock_seeder import seed_mock_data
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+load_dotenv()
 
 # Get settings
 settings = get_settings()
@@ -35,7 +47,17 @@ async def lifespan(app: FastAPI):
     try:
         logger.info("Running startup tasks...")
         create_all_tables()
+
         logger.info("Startup tasks completed successfully")
+
+        email = settings.ROOT_ADMIN_EMAIL
+        password = settings.ROOT_ADMIN_PASSWORD
+
+        if email and password:
+            from .seed_root_admin import create_root_admin
+            await create_root_admin(email=email, password=password, max_retries=10)
+        else:
+            logger.warning("ROOT_ADMIN_EMAIL or ROOT_ADMIN_PASSWORD not set; skipping root admin creation")
     except Exception as e:
         logger.error(f"Error during startup: {e}")
         pass
@@ -74,6 +96,13 @@ app.include_router(userdata_router, prefix='/api/v1')
 app.include_router(onboarding_router, prefix='/api/v1')
 app.include_router(handles_router, prefix='/api/v1')
 app.include_router(interests_router, prefix='/api/v1')
+app.include_router(friends_router, prefix='/api/v1')
+app.include_router(search_router, prefix='/api/v1')
+app.include_router(video_router, prefix='/api/v1')
+app.include_router(photo_router, prefix='/api/v1')
+app.include_router(dashboard_router, prefix='/api/v1')
+app.include_router(rating_router, prefix='/api/v1')
+app.include_router(report_router, prefix='/api/v1')
 
 @app.get('/', tags=['Root'])
 async def root():
@@ -86,7 +115,6 @@ async def root():
             'docs': '/docs',
             'base': '/api/v1',
             'health': '/api/v1/health',
-            'topics': '/api/v1/topics'
         }
     )
 

@@ -45,6 +45,11 @@ onMounted(async () => {
       if (response.createdNewRecipeUser) {
         try {
           const apiDomain = import.meta.env.VITE_API_DOMAIN || (window as any).ENV?.VITE_API_DOMAIN || 'http://localhost:8123';
+          
+          // Get stored preferences from localStorage
+          const storedLanguage = localStorage.getItem('app-language') || 'en';
+          const storedTheme = localStorage.getItem('app-theme') || 'light';
+          
           const registerResponse = await fetch(`${apiDomain}/api/v1/user/register`, {
             method: 'PUT',
             credentials: 'include',
@@ -52,7 +57,9 @@ onMounted(async () => {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              email: response.user.emails[0]
+              email: response.user.emails[0],
+              preferred_lang: storedLanguage,
+              preferred_theme: storedTheme
             })
           });
           
@@ -87,7 +94,16 @@ onMounted(async () => {
     }
   } catch (err: any) {
     console.error('Magic link verification error:', err);
-    error.value = err.message || 'An error occurred during verification. Please try again.';
+    // Handle stale session errors specifically
+    if (err.message && (err.message.includes('session') || err.message.includes('unauthorized'))) {
+      error.value = 'Your previous session was invalid. Please try logging in again.';
+      // Redirect to home after a delay
+      setTimeout(() => {
+        router.push('/');
+      }, 3000);
+    } else {
+      error.value = err.message || 'An error occurred during verification. Please try again.';
+    }
     loading.value = false;
   }
 });
