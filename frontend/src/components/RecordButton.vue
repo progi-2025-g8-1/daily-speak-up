@@ -111,6 +111,14 @@ const generateTopic = async () => {
       emit("topic-generated", data.interest, data.topic, props.lang);
       emit("start-recording", true);
       return;
+    } else if (response.status === 400) {
+      // Check if it's the one-video-per-day error
+      const errorData = await response.json();
+      if (errorData.detail && errorData.detail.includes("already recorded a video today")) {
+        alert(t('recorder.error_already_recorded'));
+        return;
+      }
+      throw new Error(`Server returned ${response.status}`);
     } else {
       throw new Error(`Server returned ${response.status}`);
     }

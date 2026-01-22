@@ -254,7 +254,8 @@
         "success_title": "Successfully recorded!",
         "success_msg": "Your DailySpeakUp has been saved!",
         "uploading": "Saving your speech...",
-        "error_start": "Error starting recording session. Check your connection or try again."
+        "error_start": "Error starting recording session. Check your connection or try again.",
+        "error_already_recorded": "You have already recorded a video today. You can only record one video per day."
     },
     "speech": {
         "rating": "Rating:",

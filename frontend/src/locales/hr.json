@@ -254,7 +254,8 @@
         "success_title": "Uspješno snimljeno!",
         "success_msg": "Vaš DailySpeakUp je pohranjen!",
         "uploading": "Spremanje govora...",
-        "error_start": "Greška pri pokretanju sesije snimanja. Provjerite vezu ili pokušajte ponovno."
+        "error_start": "Greška pri pokretanju sesije snimanja. Provjerite vezu ili pokušajte ponovno.",
+        "error_already_recorded": "Već ste snimili video danas. Možete snimiti samo jedan video dnevno."
     },
     "speech": {
         "rating": "Ocjena:",

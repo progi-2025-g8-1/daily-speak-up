@@ -21,6 +21,24 @@ async def get_upload_token(
     s3_service: S3SecureService = Depends(get_s3_service),
     gemini_service: GeminiService = Depends(get_gemini_service)
 ):
+    # Check if user has already recorded a video today
+    today = datetime.date.today()
+    today_start = datetime.datetime.combine(today, datetime.time.min, tzinfo=datetime.timezone.utc)
+    today_end = datetime.datetime.combine(today, datetime.time.max, tzinfo=datetime.timezone.utc)
+    
+    existing_video_today = db.query(Speech).filter(
+        Speech.user_id == user.id,
+        Speech.created_at >= today_start,
+        Speech.created_at <= today_end,
+        Speech.is_cancelled == False
+    ).first()
+    
+    if existing_video_today:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You have already recorded a video today. You can only record one video per day."
+        )
+    
     # Ensure the user has at least a single interest and choose one
     if not user.user_interests:
         raise HTTPException(
