@@ -77,7 +77,7 @@ async def me(
 
     streak = db.query(UserStreak).filter(
         UserStreak.user_id == user.id
-    ).order_by(UserStreak.created_at.desc()).first()
+    ).order_by(UserStreak.end_date.desc()).first()
 
     # Display streak as the inclusive count from `start_date` to the last
     # recorded day (`end_date`). If `end_date` is None (brand new/ongoing),
@@ -584,7 +584,7 @@ async def get_user_profile_by_handle(
     
     latest_streak = db.query(UserStreak).filter(
         UserStreak.user_id == target_user.id
-    ).order_by(UserStreak.created_at.desc()).first()
+    ).order_by(UserStreak.end_date.desc()).first()
     
     # Display streak as the inclusive count from `start_date` to the last
     # recorded day (`end_date`). If `end_date` is None (brand new/ongoing),

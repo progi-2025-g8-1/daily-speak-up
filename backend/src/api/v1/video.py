@@ -51,8 +51,8 @@ async def get_upload_token(
     today = datetime.date.today()
     existing_streak = db.query(UserStreak).filter(
         UserStreak.user_id == user.id,
-        UserStreak.start_date == today,
-        UserStreak.end_date == None
+        UserStreak.start_date <= today,
+        UserStreak.end_date >= today
     ).first()
     
     if not existing_streak:
@@ -227,9 +227,13 @@ async def delete_video(
         Report.speech_id == video_id
     ).all()
 
+    # Find the streak that contains this video's date
+    video_date = speech.created_at.date()
     streak = db.query(UserStreak).filter(
-        UserStreak.user_id == user.id 
-    ).order_by(UserStreak.created_at.desc()).first()
+        UserStreak.user_id == speech.user_id,
+        UserStreak.start_date <= video_date,
+        UserStreak.end_date >= video_date
+    ).first()
 
     if streak:
         if streak.start_date == streak.end_date:
@@ -238,30 +242,31 @@ async def delete_video(
         elif speech.created_at.date() == streak.end_date:
             streak.end_date = streak.end_date - datetime.timedelta(days=1)
             streak.ends_at = datetime.datetime.combine(
-                streak.end_date,
-                datetime.time.max,
+                streak.end_date + datetime.timedelta(days=1),
+                datetime.time.min,
                 tzinfo=datetime.timezone.utc
             )
             db.commit()
         elif speech.created_at.date() == streak.start_date:
             streak.start_date = streak.start_date + datetime.timedelta(days=1)
+            # ends_at stays the same since the end didn't change
             db.commit()
         elif streak.start_date < speech.created_at.date() < streak.end_date:
             original_end_date = streak.end_date
             streak.end_date = speech.created_at.date() - datetime.timedelta(days=1)
             streak.ends_at = datetime.datetime.combine(
-                streak.end_date,
-                datetime.time.max,
+                streak.end_date + datetime.timedelta(days=1),
+                datetime.time.min,
                 tzinfo=datetime.timezone.utc
             )
 
             new_streak = UserStreak(
-                user_id=user.id,
+                user_id=speech.user_id,
                 start_date=speech.created_at.date() + datetime.timedelta(days=1),
                 end_date=original_end_date,
                 ends_at=datetime.datetime.combine(
-                    original_end_date,
-                    datetime.time.max,
+                    original_end_date + datetime.timedelta(days=1),
+                    datetime.time.min,
                     tzinfo=datetime.timezone.utc
                 )
             )
