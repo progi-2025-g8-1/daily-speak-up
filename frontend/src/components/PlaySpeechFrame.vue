@@ -171,9 +171,9 @@
           <div class="flex flex-row items-center gap-2 lg:gap-4 w-full lg:w-auto">
             <div v-if="isOwner" class="flex flex-row items-center gap-2 lg:gap-4 flex-1 lg:flex-initial">
               <ToggleButton :onLabel="$t('speech.private')" :offLabel="$t('speech.friends')" onIcon="pi pi-lock"
-                          offIcon="pi pi-lock-open" class="flex-1 lg:w-36" aria-label="Do you confirm"
+                          offIcon="pi pi-lock-open" class="flex-1 lg:w-36 whitespace-nowrap" aria-label="Do you confirm"
                           @change="handleVisibilitySwitch" v-model="videoVisibility"/>
-              <Button icon="pi pi-eraser" :label="$t('speech.delete')" severity="danger" v-on:click="deleteVideo" class="flex-1 lg:flex-initial" />
+              <Button icon="pi pi-eraser" :label="$t('speech.delete')" severity="danger" v-on:click="deleteVideo" class="flex-1 lg:flex-initial whitespace-nowrap" />
             </div>
             <div v-else class="w-full lg:w-auto">
               <Button icon="pi pi-flag" :label="$t('speech.report')" severity="warning" @click="openReportDialog" class="w-full lg:w-auto" />
