@@ -1,6 +1,8 @@
 <template>
     <div class="min-h-screen bg-main">
-      <NavBar />
+      <div class="px-4">
+        <NavBar />
+      </div>
       
       <div class="max-w-2xl mx-auto px-4 py-6">
         <Card class="shadow-lg">

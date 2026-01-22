@@ -59,6 +59,53 @@ async def set_email(
       }
    )
 
+@router.put("/interests", response_class=JSONResponse)
+async def update_interests(
+   interest_data: InterestData,
+   db: Session = Depends(get_db),
+   user: User = Depends(get_current_user)
+):
+   """Replace all user interests with the provided list."""
+   # Delete all existing user interests
+   db.query(UserInterest).filter(UserInterest.user_id == user.id).delete()
+
+   added_interests: list[UserInterest] = []
+   invalid_interests: list[str] = []
+
+   for interest_slug in interest_data.interests:
+      interest_category: Interest | None = db.query(Interest).filter(
+         Interest.slug == interest_slug.strip()
+      ).first()
+
+      if interest_category is None:
+         invalid_interests.append(interest_slug)
+         continue
+
+      new_user_interest = UserInterest(
+         user_id=user.id,
+         interest_id=interest_category.id
+      )
+      added_interests.append(new_user_interest)
+
+   try:
+      db.add_all(added_interests)
+      db.commit()
+   except Exception as e:
+      db.rollback()
+      raise HTTPException(
+         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+         detail="Error updating interests."
+      )
+
+   return JSONResponse(
+      status_code=status.HTTP_200_OK,
+      content={
+         "message": "Interests updated successfully",
+         "interests": [i for i in interest_data.interests if i not in invalid_interests]
+      }
+   )
+
+
 @router.post("/interests", response_class=JSONResponse)
 async def set_interests(
    interest_data: InterestData,
@@ -67,7 +114,7 @@ async def set_interests(
 ):
    unadded_interests : list[str] = []
    added_interests : list[UserInterest] = []
-   
+
    for interest in interest_data.interests:
 
       interest_category: Interest | None = db.query(Interest).filter(

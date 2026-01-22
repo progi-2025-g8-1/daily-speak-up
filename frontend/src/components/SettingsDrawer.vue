@@ -4,8 +4,6 @@
     import Select from 'primevue/select';
     import { useConfirm } from "primevue/useconfirm";
     import MultiSelect from 'primevue/multiselect';
-    import Panel from 'primevue/panel';
-    import ToggleSwitch from 'primevue/toggleswitch';
     import ConfirmDialog from 'primevue/confirmdialog';
     import Login from './LoginModal.vue';
     import Logout from './Logout.vue';
@@ -21,9 +19,6 @@
     const selectedLanguage = ref('hr');
     const selectedInterests = ref([]);
     const interests = ref([]);
-    const emailNotifs = ref(false);
-    const pushNotifs = ref(false);
-    const streakNotifs = ref(false);
     const confirm = useConfirm();
     const hideDeleteAccountBtn = ref(false);
 
@@ -144,24 +139,6 @@
                     selectedLanguage.value = 'en';
                     locale.value = 'en';
                 }
-
-                if(data.email_notifications_enabled) {
-                    emailNotifs.value = true;
-                } else {
-                    emailNotifs.value = false;
-                }
-
-                if (data.push_notifications_enabled) {
-                    pushNotifs.value = true;
-                } else {
-                    pushNotifs.value = false;
-                }
-
-                if(data.streak_reminders_enabled) {
-                    streakNotifs.value = true;
-                } else {
-                    streakNotifs.value = false;
-                }
             }
         } catch(e) {
             console.error('Failed to fetch /user/me: ', e)
@@ -218,39 +195,6 @@
         }
     };
 
-    const updateEmailNotifs = async () => {
-        const response = await fetch(`${import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123'}/api/v1/user/email-notifications`, {
-            method: 'PUT',
-            credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ enabled: emailNotifs.value })
-        });
-    };
-
-    const updatePushNotifs = async () => {
-        const response = await fetch(`${import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123'}/api/v1/user/push-notifications`, {
-            method: 'PUT',
-            credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ enabled: pushNotifs.value })
-        });
-    };
-
-    const updateStreakNotifs = async () => {
-        const response = await fetch(`${import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123'}/api/v1/user/streak-reminders`, {
-            method: 'PUT',
-            credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ enabled: streakNotifs.value })
-        });
-    };
-
     const updateLanguage = async (langCode) => {
         selectedLanguage.value = langCode;
         locale.value = langCode;
@@ -273,6 +217,25 @@
         }
     };
 
+    const updateInterests = async (interestCodes) => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123'}/api/v1/userdata/interests`, {
+                method: 'PUT',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ interests: interestCodes })
+            });
+
+            if (!response.ok) {
+                console.error('Failed to update interests');
+            }
+        } catch (error) {
+            console.error('Error updating interests:', error);
+        }
+    };
+
 </script>
 
 <template>
@@ -288,7 +251,7 @@
                 
                 <Select v-model="themeStore.themeMode" :options="themeOptions" optionLabel="name" optionValue="code" :placeholder="$t('settings.select_theme')" class="w-full mt-10" @update:modelValue="updateTheme" />
                 <Select v-model="selectedLanguage" :options="language" optionLabel="name" optionValue="code" :placeholder="$t('settings.select_language')" class="w-full mt-10" @update:modelValue="updateLanguage" />
-                <MultiSelect v-model="selectedInterests" :options="interests" optionLabel="name" optionValue="code" filter :placeholder="$t('settings.change_interests')"  class="w-full mt-10">
+                <MultiSelect v-model="selectedInterests" :options="interests" optionLabel="name" optionValue="code" filter :placeholder="$t('settings.change_interests')" class="w-full mt-10" @update:modelValue="updateInterests">
                     <template #value="slotProps">
                         <div v-if="slotProps.value && slotProps.value.length" class="flex flex-wrap gap-2">
                             <span v-for="code in slotProps.value" :key="code" class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">{{ getTranslatedInterestLabel(code) }}</span>
@@ -302,24 +265,6 @@
                     </template>
                 </MultiSelect>
                 
-                <Panel :header="$t('settings.notifications.title')" class="mt-10">
-                    <div class="mt-8 flex flex-col justify-start items-start">
-                        <div class="flex flex-row justify-between w-full mb-4">
-                            <span class="text-md font-medium">{{ $t('settings.notifications.email') }}</span>
-                            <ToggleSwitch v-model="emailNotifs" @update:modelValue="updateEmailNotifs" />
-                        </div>
-
-                        <div class="flex flex-row justify-between w-full mb-4">
-                            <span class="text-md font-medium">{{ $t('settings.notifications.push') }}</span>
-                            <ToggleSwitch v-model="pushNotifs" @update:modelValue="updatePushNotifs" />
-                        </div>
-    
-                        <div class="flex flex-row justify-between w-full mb-4">
-                            <span class="text-md font-medium">{{ $t('settings.notifications.streak') }}</span>
-                            <ToggleSwitch v-model="streakNotifs" @update:modelValue="updateStreakNotifs" />
-                        </div>
-                    </div>
-                </Panel>
                 
                 <div class="flex flex-row w-full justify-between mt-10">
                     <Logout class="mt-10 w-[45%]" />
