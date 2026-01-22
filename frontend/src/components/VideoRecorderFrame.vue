@@ -18,9 +18,9 @@ const visibleDialog = ref(false);
 const countdown = ref(0);
 const preCountdown = ref(0);
 const showRecording = ref(false);
-const isFadingOut = ref(false);
 const isLoadingCamera = ref(false);
 const isPreCountdown = ref(false);
+const isUploading = ref(false);
 const speechTopic = ref("");
 const speechInterest = ref("");
 
@@ -173,11 +173,6 @@ async function startRecording() {
         }
       };
 
-      mediaRecorder.onstop = () => {
-        recordedBlob = new Blob(recordedChunks, { type: selectedMimeType });
-        recordedChunks = [];
-      };
-
       mediaRecorder.onerror = (event) => {
         console.error("MediaRecorder error:", event.error);
       };
@@ -200,30 +195,37 @@ async function startRecording() {
 async function stopRecording() {
   clearTimers();
 
-  if (mediaRecorder) {
-    mediaRecorder.stop();
-    mediaRecorder = null;
-  }
-
-  isFadingOut.value = true;
-
-  await new Promise(resolve => setTimeout(resolve, 500));
+  // Hide recording UI and show uploading state
+  showRecording.value = false;
+  isUploading.value = true;
 
   if (videoRef.value) {
     videoRef.value.srcObject = null;
   }
-  showRecording.value = false;
-  isFadingOut.value = false;
+
+  // Wait for mediaRecorder to finish and create the blob
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+    await new Promise((resolve) => {
+      mediaRecorder.onstop = () => {
+        recordedBlob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || 'video/webm' });
+        recordedChunks = [];
+        resolve();
+      };
+      mediaRecorder.stop();
+    });
+    mediaRecorder = null;
+  }
 
   stopMediaTracks();
 
-  if (uploadUrl) {
+  if (uploadUrl && recordedBlob) {
     await uploadToS3();
     emit('recording-finished');
   }
 
+  isUploading.value = false;
   visibleDialog.value = false;
-  
+
   toast.add({
     severity: 'success',
     summary: t('recorder.success_title'),
@@ -251,8 +253,7 @@ defineExpose({
     modal
     :closable="false"
     :closeOnEscape="false"
-    :class="['!flex mx-2', { 'fade-out': isFadingOut }]"
-    :pt="{ mask: { class: isFadingOut ? 'fade-out' : '' } }"
+    class="!flex mx-2"
   >
     <div v-if="isLoadingCamera" class="w-full text-center py-8 px-8">
       <h2 class="pb-2 mb-8 text-2xl font-bold">{{ $t('recorder.topic') }}</h2>
@@ -260,10 +261,16 @@ defineExpose({
       <br />
       <ProgressSpinner />
       <br />
-      <p class="text-lg font-bold">{{ $t('recorder.camera_loading') }} </p>
+      <p class="text-lg font-bold">{{ $t('recorder.camera_loading') }}</p>
     </div>
 
-    <div v-if="isPreCountdown || showRecording" class="w-full">
+    <div v-else-if="isUploading" class="w-full text-center py-8 px-8">
+      <h2 class="pb-2 mb-4 text-2xl font-bold">{{ $t('recorder.success_title') }}</h2>
+      <ProgressSpinner />
+      <p class="mt-4 text-lg">{{ $t('recorder.uploading') }}</p>
+    </div>
+
+    <div v-else-if="isPreCountdown || showRecording" class="w-full">
       <h1 class="pb-2 mb-1">🎥 {{ isPreCountdown ? $t('recorder.recording_in') : $t('recorder.speakup') }}</h1>
       <p class="mb-4 text-lg font-bold">{{ $t('recorder.topic') }} {{ speechTopic }} ({{ speechInterest }})</p>
       <div class="!flex flex-col justify-center items-center relative inline-block w-full">
@@ -309,16 +316,4 @@ defineExpose({
 </template>
 
 <style>
-.fade-out {
-  animation: fadeOut 0.5s ease-out forwards;
-}
-
-@keyframes fadeOut {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
 </style>

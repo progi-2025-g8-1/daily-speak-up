@@ -14,8 +14,9 @@
     const router = useRouter();
 
     const showErrorMessage = ref(false)
-    const eventDates = ref([]); 
+    const eventDates = ref([]);
     const calendarKey = ref(0);
+    const profileKey = ref(0);
     let videoInfoList = ref([]);
     const showDashboardButton = ref(false);
     const userRole = ref(null);
@@ -71,16 +72,17 @@
     const fetchVideos = async () => {
       const userId = await getUserId();
       const current_year = new Date().getFullYear();
-      const current_month = new Date().getMonth() + 1; 
+      const current_month = new Date().getMonth() + 1;
       const response = await fetch(`${import.meta.env.VITE_API_DOMAIN || window.ENV?.VITE_API_DOMAIN || 'http://localhost:8123'}/api/v1/user/${userId}/${current_year}/${current_month}/videos`, {
         credentials: 'include'
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         eventDates.value = data.videos.map(v => v.day);
         videoInfoList.value = data.videos;
         calendarKey.value += 1;
+        profileKey.value += 1; // Refresh ProfileHeader to update streak
       } else {
         console.error('Failed to fetch user videos');
       }
@@ -116,7 +118,7 @@
     <div class="flex flex-col items-center w-full">
         <Card class="w-full uniform-surface">
             <template #content>
-                <ProfileHeader @show-friends="handleShowFriends" @user-role="setUserRole"/>
+                <ProfileHeader :key="profileKey" @show-friends="handleShowFriends" @user-role="setUserRole"/>
             </template>
         </Card>
 

@@ -1,7 +1,9 @@
 <template>
   <div class="min-h-screen bg-main overflow-x-hidden">
 
-    <NavBar />
+    <div class="px-4">
+      <NavBar />
+    </div>
     
     <div class="max-w-2xl mx-auto w-full" id="i1">
       

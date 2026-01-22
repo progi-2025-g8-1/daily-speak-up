@@ -43,6 +43,8 @@ class VideoInfo(BaseModel):
     visibility: SpeechVisibility
     average_rating: Optional[float] = None
     total_ratings: int = 0
+    topic: Optional[str] = None
+    interest: Optional[str] = None
 
 class MonthlyUserVideosResponse(BaseModel):
     videos: List[VideoInfo]  

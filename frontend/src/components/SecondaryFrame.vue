@@ -19,6 +19,12 @@
     }
   };
 
+  const refreshData = () => {
+    if (currentUsersProfileRef.value) {
+      currentUsersProfileRef.value.fetchVideos();
+    }
+  };
+
   const handleShowFriends = async (id: string) => {
     showCurrentUsersProfile.value = false;
     showFriendsList.value = true;
@@ -41,7 +47,8 @@
   };
 
   defineExpose({
-    deleteVideo
+    deleteVideo,
+    refreshData
   });
 </script>
 

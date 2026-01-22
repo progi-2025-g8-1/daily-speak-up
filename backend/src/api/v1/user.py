@@ -202,6 +202,11 @@ async def get_monthly_user_videos(
         # Get rating info from bulk query
         avg_rating, total_ratings = rating_stats.get(speech.id, (None, 0))
 
+        # Get interest name if available
+        interest_name = None
+        if speech.interest:
+            interest_name = speech.interest.slug
+
         # If the video is hosted on YouTube, use the existing URL directly
         if 'youtube' in str(speech.s3_url):
             videos.append(
@@ -215,7 +220,9 @@ async def get_monthly_user_videos(
                     owner_id=speech.user_id,
                     visibility=speech.visibility_level,
                     average_rating=avg_rating,
-                    total_ratings=total_ratings
+                    total_ratings=total_ratings,
+                    topic=speech.task,
+                    interest=interest_name
                 )
             )
             continue
@@ -254,10 +261,12 @@ async def get_monthly_user_videos(
                 owner_id=speech.user_id,
                 visibility=speech.visibility_level,
                 average_rating=avg_rating,
-                total_ratings=total_ratings
+                total_ratings=total_ratings,
+                topic=speech.task,
+                interest=interest_name
             )
         )
-    
+
     return MonthlyUserVideosResponse(videos=videos)
 
 @router.get('/{user_id}/friends', response_model=FriendsListResponse)

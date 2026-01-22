@@ -252,7 +252,8 @@
         "speakup": "SpeakUp!",
         "stop_btn": "Zaustavi snimanje",
         "success_title": "Uspješno snimljeno!",
-        "success_msg": "Vaš DailySpeakUp je pohranjen! 🎉",
+        "success_msg": "Vaš DailySpeakUp je pohranjen!",
+        "uploading": "Spremanje govora...",
         "error_start": "Greška pri pokretanju sesije snimanja. Provjerite vezu ili pokušajte ponovno."
     },
     "speech": {
@@ -262,7 +263,15 @@
         "delete": "Obriši",
         "rate_this": "Ocijeni govor",
         "your_rating": "Tvoja ocjena:",
-        "no_ratings": "Još nema ocjena"
+        "no_ratings": "Još nema ocjena",
+        "report": "Prijavi",
+        "report_dialog": {
+            "title": "Prijavi govor",
+            "reason_label": "Razlog prijave",
+            "reason_placeholder": "Molimo opišite zašto prijavljujete ovaj govor...",
+            "submit": "Pošalji prijavu",
+            "cancel": "Odustani"
+        }
     },
     "friends": {
         "title": "Prijatelji",

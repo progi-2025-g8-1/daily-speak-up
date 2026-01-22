@@ -252,7 +252,8 @@
         "speakup": "SpeakUp!",
         "stop_btn": "Stop Recording",
         "success_title": "Successfully recorded!",
-        "success_msg": "Your DailySpeakUp has been saved! 🎉",
+        "success_msg": "Your DailySpeakUp has been saved!",
+        "uploading": "Saving your speech...",
         "error_start": "Error starting recording session. Check your connection or try again."
     },
     "speech": {
@@ -262,7 +263,15 @@
         "delete": "Delete",
         "rate_this": "Rate this speech",
         "your_rating": "Your rating:",
-        "no_ratings": "No ratings yet"
+        "no_ratings": "No ratings yet",
+        "report": "Report",
+        "report_dialog": {
+            "title": "Report Speech",
+            "reason_label": "Reason for reporting",
+            "reason_placeholder": "Please describe why you are reporting this speech...",
+            "submit": "Submit Report",
+            "cancel": "Cancel"
+        }
     },
     "friends": {
         "title": "Friends",

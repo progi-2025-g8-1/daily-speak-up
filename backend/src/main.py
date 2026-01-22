@@ -22,6 +22,7 @@ from .api.v1 import (
     photo_router,
     dashboard_router,
     rating_router,
+    report_router,
 )
 from .services.supertokens_service import init_supertokens
 from .api.config import get_settings
@@ -101,6 +102,7 @@ app.include_router(video_router, prefix='/api/v1')
 app.include_router(photo_router, prefix='/api/v1')
 app.include_router(dashboard_router, prefix='/api/v1')
 app.include_router(rating_router, prefix='/api/v1')
+app.include_router(report_router, prefix='/api/v1')
 
 @app.get('/', tags=['Root'])
 async def root():

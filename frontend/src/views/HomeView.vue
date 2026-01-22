@@ -25,6 +25,12 @@
     }
   };
 
+  const handleRecordingFinished = () => {
+    if(secondaryFrame.value) {
+      secondaryFrame.value.refreshData();
+    }
+  };
+
   const handleStartRecording = (start: boolean) => {
     if (start && videoFrame.value) {
       videoFrame.value.startRecording();
@@ -53,7 +59,7 @@
 <template>
   <div class="flex flex-col lg:flex-row w-full h-full">
     <Toast />
-    <VideoRecorderFrame ref="videoFrame" />
+    <VideoRecorderFrame ref="videoFrame" @recording-finished="handleRecordingFinished" />
     <PlaySpeechFrame ref="playSpeechFrame" @video-deleted="handleDeletedVideo" />
     <SecondaryFrame 
       @date-selected="handleDateSelected"
