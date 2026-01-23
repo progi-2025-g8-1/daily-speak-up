@@ -1,0 +1,135 @@
+---
+config:
+  layout: elk
+  theme: neutral
+---
+flowchart LR
+ subgraph Views["Views"]
+        Landing["Landing"]
+        HomeView["HomeView"]
+        OnboardingView["OnboardingView"]
+        Profile["Profile"]
+        DashboardView["DashboardView"]
+        SearchView["SearchView"]
+        BannedView["BannedView"]
+        AuthCallbackView["AuthCallbackView"]
+        PasswordlessCallbackView["PasswordlessCallbackView"]
+  end
+ subgraph Components["Components"]
+        MainFrame["MainFrame"]
+        SecondaryFrame["SecondaryFrame"]
+        NavBar["NavBar"]
+        VideoRecorderFrame["VideoRecorderFrame"]
+        PlaySpeechFrame["PlaySpeechFrame"]
+        LoginModal["LoginModal"]
+        GoogleLogin["GoogleLogin"]
+        PasswordlessLogin["PasswordlessLogin"]
+        FriendsList["FriendsList"]
+        UserSearch["UserSearch"]
+        StarRating["StarRating"]
+        DashboardTabs["DashboardTabs"]
+        ShowUsers["ShowUsers"]
+        ShowBans["ShowBans"]
+        ShowStats["ShowStats"]
+        ReportFrame["ReportFrame"]
+        SettingsDrawer["SettingsDrawer"]
+  end
+ subgraph Stores["Pinia Stores"]
+        ThemeStore["themeStore"]
+  end
+ subgraph VueApp["Vue.js Frontend"]
+        Views
+        Components
+        Stores
+        Router["Vue Router"]
+        I18n["Vue-i18n"]
+        SuperTokensWeb["SuperTokens Web JS"]
+  end
+ subgraph Client["Client (Browser)"]
+        VueApp
+  end
+ subgraph APIRoutes["API Routes v1"]
+        HealthRouter["health"]
+        UserRouter["user"]
+        OnboardingRouter["onboarding"]
+        VideoRouter["video"]
+        TopicRouter["topic"]
+        RatingRouter["rating"]
+        FriendsRouter["friends"]
+        ReportRouter["report"]
+        SearchRouter["search"]
+        InterestsRouter["interests"]
+        HandlesRouter["handles"]
+        UserdataRouter["userdata"]
+        PhotoRouter["photo"]
+        DashboardRouter["dashboard"]
+  end
+ subgraph Services["Services"]
+        GeminiService["GeminiService"]
+        CloudflareR2Service["CloudflareR2Service"]
+        EmailService["EmailService"]
+        AuthService["AuthService"]
+        SuperTokensService["SuperTokensService"]
+  end
+ subgraph Models["SQLAlchemy Models"]
+        UserModel["User"]
+        SpeechModel["Speech"]
+        InterestModel["Interest"]
+        RatingModel["Rating"]
+        FriendshipModel["Friendship"]
+        ReportModel["Report"]
+        BanModel["Ban"]
+        UserStreakModel["UserStreak"]
+        UserDeviceModel["UserDevice"]
+        UserInterestModel["UserInterest"]
+  end
+ subgraph Backend["Backend (FastAPI)"]
+        APIRoutes
+        Services
+        Models
+        DBSession["Database Session"]
+  end
+ subgraph Workers["Background Workers"]
+        CeleryApp["Celery App"]
+        CeleryTasks["Celery Tasks"]
+  end
+ subgraph ExternalServices["External Services"]
+        SuperTokensServer["SuperTokens Server"]
+        GeminiAPI["Google Gemini API"]
+        CloudflareR2["Cloudflare R2"]
+        ResendAPI["Resend API"]
+        FirebaseFCM["Firebase FCM"]
+  end
+ subgraph Infrastructure["Infrastructure"]
+        PostgreSQL["PostgreSQL (Neon)"]
+        RabbitMQ["RabbitMQ"]
+  end
+    VueApp -- HTTP/REST --> APIRoutes
+    SuperTokensWeb -- Auth --> SuperTokensServer
+    Router --> Views
+    HomeView --> MainFrame & SecondaryFrame & VideoRecorderFrame & PlaySpeechFrame & FriendsList
+    Profile --> MainFrame
+    DashboardView --> DashboardTabs & ShowUsers & ShowBans & ShowStats & ReportFrame
+    SearchView --> UserSearch
+    Landing --> LoginModal
+    LoginModal --> GoogleLogin & PasswordlessLogin
+    TopicRouter --> GeminiService
+    VideoRouter --> CloudflareR2Service
+    PhotoRouter --> CloudflareR2Service
+    UserRouter --> AuthService
+    OnboardingRouter --> EmailService
+    DashboardRouter --> AuthService
+    GeminiService -- API --> GeminiAPI
+    CloudflareR2Service -- S3 API --> CloudflareR2
+    AuthService --> SuperTokensService
+    SuperTokensService -- API --> SuperTokensServer
+    EmailService --> CeleryTasks
+    CeleryTasks -- AMQP --> RabbitMQ
+    CeleryApp -- AMQP --> RabbitMQ
+    CeleryTasks -- API --> ResendAPI
+    DBSession -- SQL --> PostgreSQL
+    Models --> DBSession
+    APIRoutes --> Models
+    VideoRecorderFrame -- Presigned URL Upload --> CloudflareR2
+    PlaySpeechFrame -- Presigned URL Download --> CloudflareR2
+    UserDeviceModel -. FCM Token .-> FirebaseFCM
