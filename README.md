@@ -59,6 +59,10 @@ Tema je temeljena na nasumično izabranom interesu tog korisnika, a prikazuje se
 * Video pohrana: [Cloudflare R2](https://www.cloudflare.com/products/r2/)
 * Email usluge: [Resend](https://resend.com/)
 
-## Instalacija
+## Kontribucije
 
-> !TODO
+Tijekom rada na projektu potrebno je pridržavati se kodeksa ponašanja i etičkog kodeksa projekta. Detaljnije informacije dostupne su u datoteci [CONTRIBUTING.md](https://github.com/progi-2025-g8-1/daily-speak-up/blob/main/CONTRIBUTING.md). 
+
+## Licenca
+
+Ovaj projekt je licenciran pod GNU General Public License licencom. Pogledajte [LICENSE](https://github.com/progi-2025-g8-1/daily-speak-up/blob/main/LICENSE) datoteku za više informacija.
